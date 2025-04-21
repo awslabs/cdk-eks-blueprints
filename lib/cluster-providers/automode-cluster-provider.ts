@@ -1,8 +1,8 @@
-import { defaultOptions, GenericClusterProvider } from "./generic-cluster-provider";
-import * as eksv2 from "@aws-cdk/aws-eks-v2-alpha"
+import { defaultOptionsv2, GenericClusterProviderV2 } from "./generic-cluster-provider-v2";
+import * as eks from "@aws-cdk/aws-eks-v2-alpha"
 import { IRole } from "aws-cdk-lib/aws-iam";
 
-export interface AutomodeClusterProviderProps extends Partial<eksv2.ClusterCommonOptions>{
+export interface AutomodeClusterProviderProps extends Partial<eks.ClusterCommonOptions>{
 
   id?: string,
 
@@ -22,12 +22,11 @@ export interface AutomodeClusterProviderProps extends Partial<eksv2.ClusterCommo
 
 }
 
-export class AutomodeClusterProvider extends GenericClusterProvider {
+export class AutomodeClusterProvider extends GenericClusterProviderV2 {
 
     constructor(props?: AutomodeClusterProviderProps) {
-        super({...defaultOptions, ...props, ...{
-              automodeComputeConfig: props as Omit<AutomodeClusterProviderProps, "id" | "tags">,
-              defaultCapacityType: eksv2.DefaultCapacityType.AUTOMODE
+        super({...defaultOptionsv2, ...props, ...{
+              compute: props as Omit<AutomodeClusterProviderProps, "id" | "tags">,
             }
         });
     }

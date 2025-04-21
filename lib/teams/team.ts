@@ -129,30 +129,30 @@ export class ApplicationTeam implements Team {
     protected defaultSetupAccess(clusterInfo: ClusterInfo) {
         const props = this.teamProps;        
         
-        if(!(clusterInfo.cluster instanceof Cluster) && !(clusterInfo.clusterv2 instanceof eksv2.Cluster)) {
+        if(!(clusterInfo.cluster instanceof Cluster || clusterInfo.clusterv2 instanceof eksv2.Cluster)) {
             logger.warn(`Team ${props.name} has cluster access updates that are not supported with imported clusters` );
             return;
         }
         const users = this.teamProps.users ?? [];
         const teamRole = this.getOrCreateRole(clusterInfo, users, props.userRoleArn);
 
-        if(clusterInfo.autoMode && clusterInfo.clusterv2 instanceof eksv2.Cluster){
-            const eksClusterv2: eksv2.Cluster = clusterInfo.clusterv2
+        if(clusterInfo.cluster instanceof eksv2.Cluster){
+            const eksClusterv2: eksv2.Cluster = clusterInfo.clusterv2 as eksv2.Cluster
             if(teamRole){
                 eksClusterv2.grantAccess(props.name+'-access', teamRole.roleArn, [new eksv2.AccessPolicy({
                     accessScope: {type: eksv2.AccessScopeType.NAMESPACE, namespaces: [props.namespace!]}, 
                     policy: eksv2.AccessPolicyArn.AMAZON_EKS_ADMIN_POLICY
                 })]);
-                new CfnOutput(clusterInfo.cluster.stack, props.name + ' team role ', { value: teamRole ? teamRole.roleArn : "none" });
             }
         }else if(clusterInfo.cluster instanceof Cluster){
             const eksCluster : Cluster = clusterInfo.cluster;
             const awsAuth = eksCluster.awsAuth;
-        if (teamRole) {
+          if (teamRole) {
             awsAuth.addRoleMapping(teamRole, { groups: [props.namespace! + "-team-group"], username: props.name });
-            new CfnOutput(clusterInfo.cluster.stack, props.name + ' team role ', { value: teamRole ? teamRole.roleArn : "none" });
+          }
         }
-        }
+        new CfnOutput(clusterInfo.cluster.stack, props.name + ' team role ', { value: teamRole ? teamRole.roleArn : "none" });
+
     }
 
     /**
@@ -162,31 +162,30 @@ export class ApplicationTeam implements Team {
     protected defaultSetupAdminAccess(clusterInfo: ClusterInfo) {
         const props = this.teamProps;        
         
-        if(!(clusterInfo.cluster instanceof Cluster) && !(clusterInfo.clusterv2 instanceof eksv2.Cluster)) {
+        if(!(clusterInfo.cluster instanceof Cluster || clusterInfo.clusterv2 instanceof eksv2.Cluster)) {
             logger.warn(`Team ${props.name} has cluster access updates that are not supported with imported clusters` );
             return;
         }
         const admins = this.teamProps.users ?? [];
         const adminRole = this.getOrCreateRole(clusterInfo, admins, props.userRoleArn);
 
-        if(clusterInfo.autoMode && clusterInfo.clusterv2 instanceof eksv2.Cluster){
-            const eksClusterv2: eksv2.Cluster = clusterInfo.clusterv2
+        if(clusterInfo.clusterv2 instanceof eksv2.Cluster){
+            const eksClusterv2: eksv2.Cluster = clusterInfo.clusterv2!
             if(adminRole){
                 eksClusterv2.grantAccess(props.name+'-access', adminRole.roleArn, [new eksv2.AccessPolicy({
                     accessScope: {type: eksv2.AccessScopeType.CLUSTER}, 
                     policy: eksv2.AccessPolicyArn.AMAZON_EKS_CLUSTER_ADMIN_POLICY
                 })])
-                new CfnOutput(clusterInfo.cluster.stack, props.name + ' team admin ', { value: adminRole ? adminRole.roleArn : "none" });
             }
         }else if (clusterInfo.cluster instanceof Cluster){
 
-            new CfnOutput(clusterInfo.cluster.stack, props.name + ' team admin ', { value: adminRole ? adminRole.roleArn : "none" });
 
             if (adminRole) {
                 const eksCluster: Cluster = clusterInfo.cluster;
                 eksCluster.awsAuth.addMastersRole(adminRole, this.teamProps.name);
             }
         }
+        new CfnOutput(clusterInfo.cluster.stack, props.name + ' team admin ', { value: adminRole ? adminRole.roleArn : "none" });
     }
 
     /**

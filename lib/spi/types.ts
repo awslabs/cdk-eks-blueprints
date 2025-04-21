@@ -157,6 +157,7 @@ export enum GlobalResources {
     Amp = 'amp',
 }
 
+
 /**
  * Cluster info supplies required information on the cluster configuration, registered resources and add-ons
  * which could be leveraged by the framework, add-on implementations and teams.
@@ -173,8 +174,8 @@ export class ClusterInfo {
      * Constructor for ClusterInfo
      * @param props
      */
-    constructor(readonly cluster: eks.ICluster,  readonly version: eks.KubernetesVersion,
-        readonly nodeGroups?: eks.Nodegroup[], readonly autoscalingGroups?: AutoScalingGroup[], readonly autoMode?: boolean, readonly clusterv2?: eksv2.ICluster, readonly fargateProfiles?: eks.FargateProfile[]) {
+    constructor(readonly cluster: eks.Cluster,  readonly version: eks.KubernetesVersion,
+        readonly nodeGroups?: eks.Nodegroup[] | eksv2.Nodegroup[], readonly autoscalingGroups?: AutoScalingGroup[], readonly autoMode?: boolean, readonly fargateProfiles?: eks.FargateProfile[], readonly clusterv2?: eksv2.Cluster) {
         this.cluster = cluster;
         this.provisionedAddOns = new Map<string, Construct>();
         this.scheduledAddOns = new Map<string, Promise<Construct>>();
