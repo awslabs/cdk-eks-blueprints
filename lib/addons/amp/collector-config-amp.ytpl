@@ -12,8 +12,8 @@ spec:
   image: public.ecr.aws/aws-observability/aws-otel-collector:v0.41.1
   resources:
     limits:
-      cpu: "1"
-      memory: "2Gi"
+      cpu: "{{cpuLimit}}"
+      memory: "{{memoryLimit}}"
     requests:
       cpu: "1"
       memory: "2Gi"  
