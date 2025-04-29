@@ -69,11 +69,11 @@ export class GatewayApiCrdsAddOn extends NestedStackAddOn {
 
     constructor(props?: GatewayApiCrdsAddOnProps) {
         super({
-            id: 'gateway-api-crds',
+            id: 'GatewayApiCrdsAddOn',
             builder: new GatewayApiCrdsBuilder(),
             nestedStackProps: props
         } as NestedStackAddOnProps);
-        this.options = props
+        this.options = props;
     }
 
     // Override the deploy method to inject cluster into props

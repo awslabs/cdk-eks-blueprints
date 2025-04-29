@@ -75,7 +75,7 @@ export class AwsGatewayApiControllerAddOn extends HelmAddOn {
         this.options = this.props as AwsGatewayApiControllerAddOnProps;
     }
 
-    @dependable('gateway-api-crds')
+    @dependable(GatewayApiCrdsAddOn.name)
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
         // Step 1: Configure Security Groups for VPC Lattice 
         this.configureSecurityGroup(clusterInfo);
