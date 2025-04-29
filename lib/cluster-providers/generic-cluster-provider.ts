@@ -6,12 +6,12 @@ import { KubectlV28Layer } from "@aws-cdk/lambda-layer-kubectl-v28";
 import { KubectlV29Layer } from "@aws-cdk/lambda-layer-kubectl-v29";
 import { KubectlV30Layer } from "@aws-cdk/lambda-layer-kubectl-v30";
 import { KubectlV31Layer } from "@aws-cdk/lambda-layer-kubectl-v31";
+import { KubectlV32Layer } from "@aws-cdk/lambda-layer-kubectl-v32";
 
 import { Tags } from "aws-cdk-lib";
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as eks from "aws-cdk-lib/aws-eks";
-import * as eksv2 from "@aws-cdk/aws-eks-v2-alpha"
 import { AccountRootPrincipal, ManagedPolicy, Role } from "aws-cdk-lib/aws-iam";
 import { IKey } from "aws-cdk-lib/aws-kms";
 import { ILayerVersion } from "aws-cdk-lib/aws-lambda";
@@ -49,6 +49,8 @@ export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVers
             return new KubectlV30Layer(scope, "kubectllayer30");
         case "1.31":
             return new KubectlV31Layer(scope, "kubectllayer30");
+        case "1.32":
+            return new KubectlV32Layer(scope, "kubectllayer32");
 
     }
 
@@ -84,11 +86,6 @@ export interface GenericClusterProviderProps extends Partial<eks.ClusterOptions>
      * Array of autoscaling node groups.
      */
     autoscalingNodeGroups?: AutoscalingNodeGroup[];
-
-    /**
-     * EKS Automode compute config
-     */
-    compute?: eksv2.ComputeConfig;
 
     /**
      * Fargate profiles
@@ -251,16 +248,9 @@ export class GenericClusterProvider implements ClusterProvider {
 
         this.validateInput(props);
 
-        const computeTypesEnabled = [
-            props.managedNodeGroups && props.managedNodeGroups.length > 0,
-            props.autoscalingNodeGroups && props.autoscalingNodeGroups.length > 0,
-        ].filter(Boolean).length;
-
-        // Assert that only one compute type is enabled
-        assert(
-            computeTypesEnabled <= 1,
-            'Only one compute type can be enabled: managed node groups, autoscaling node groups, or automode configuration.  Mixing these is not supported. Please file a request on GitHub to add this support if needed.'
-        );
+        assert(!(props.managedNodeGroups && props.managedNodeGroups.length > 0
+            && props.autoscalingNodeGroups && props.autoscalingNodeGroups.length > 0),
+            "Mixing managed and autoscaling node groups is not supported. Please file a request on GitHub to add this support if needed.");
     }
 
     /**

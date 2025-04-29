@@ -2,7 +2,7 @@ import { Construct } from "constructs";
 import { ClusterInfo } from "../../spi";
 import { CoreAddOn } from "../core-addon";
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
-import * as utils from "../../utils"
+import * as utils from "../../utils";
 
 const versionMap: Map<KubernetesVersion, string> = new Map([
     [KubernetesVersion.V1_31, "v1.3.2-eksbuild.2"],

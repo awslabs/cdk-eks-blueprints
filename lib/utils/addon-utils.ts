@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import "reflect-metadata";
 import { ClusterAddOn, ClusterInfo } from '../spi';
 import * as semver from "semver";
+import { logger } from "./log-utils";
 
 /**
  * Returns AddOn Id if defined else returns the class name
@@ -115,23 +116,28 @@ function parseEksVersion(version: string): [string, number] {
 
 
 export function conflictsWithAutoMode(minExpectedVersion: string | null) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return function(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function(this: any, ...args: any[]) {
       const clusterInfo: ClusterInfo = args[0];
       const stack = clusterInfo.cluster.stack.stackName;
-      if (minExpectedVersion === null) {
-        throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.`);
-      }
       if (!clusterInfo.autoMode) {
         return originalMethod.apply(this, args);
       }
-      if (compareEksVersions(this.version, minExpectedVersion) >= 0){ // what to do if other nodegroups attached too?
-        console.warn(`Warning: This add-on is already available on the cluster with EKS Auto Mode.`);
+      if (minExpectedVersion === "fail") {
+        throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.`);
+      }
+      else if (minExpectedVersion == null) {
+        logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`)
+        return originalMethod.apply(this, args);
+      }
+      else if (compareEksVersions(this.version, minExpectedVersion) >= 0){ // what to do if other nodegroups attached too?
+        logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`)
         return originalMethod.apply(this, args);
       } else {
-        throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.  If still needed on the cluster, it needs to be upgraded to ${minExpectedVersion}.`);
+        throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.  If you would like to install this addon alongside automode, please upgrade to version ${minExpectedVersion}`);
       }
     };
 

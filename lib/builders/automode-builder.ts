@@ -1,11 +1,11 @@
 import { AutomodeClusterProvider, AutomodeClusterProviderProps } from "../cluster-providers";
-import * as eks from "aws-cdk-lib/aws-eks"
+import * as eks from "aws-cdk-lib/aws-eks";
 import { merge } from "ts-deepmerge";
 import { BlueprintBuilder } from "../stacks";
 import { NestedStack, NestedStackProps } from "aws-cdk-lib";
 import * as addons from '../addons';
 import * as spi from '../spi';
-import * as utils from '../utils'
+import * as utils from '../utils';
 import { Construct } from "constructs";
 
 const defaultOptions: Partial<AutomodeClusterProviderProps> = {
@@ -27,7 +27,7 @@ export class AutomodeBuilder extends BlueprintBuilder {
                     builder: UsageTrackingAddOn.builder(),
                 }));
 
-        return builder 
+        return builder; 
     }
 }
 

@@ -1,7 +1,7 @@
 import { CfnOutput } from 'aws-cdk-lib';
 import { Cluster, KubernetesManifest, ServiceAccount } from 'aws-cdk-lib/aws-eks';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as eksv2 from '@aws-cdk/aws-eks-v2-alpha'
+import * as eksv2 from '@aws-cdk/aws-eks-v2-alpha';
 import { IRole } from "aws-cdk-lib/aws-iam";
 import { CsiSecretProps, SecretProviderClass } from '../addons/secrets-store/csi-driver-provider-aws-secrets';
 import { ClusterInfo, Team, Values } from '../spi';
@@ -136,8 +136,8 @@ export class ApplicationTeam implements Team {
         const users = this.teamProps.users ?? [];
         const teamRole = this.getOrCreateRole(clusterInfo, users, props.userRoleArn);
 
-        if(clusterInfo.cluster instanceof eksv2.Cluster){
-            const eksClusterv2: eksv2.Cluster = clusterInfo.clusterv2 as eksv2.Cluster
+        if(clusterInfo.clusterv2 instanceof eksv2.Cluster){
+            const eksClusterv2: eksv2.Cluster = clusterInfo.clusterv2 as eksv2.Cluster;
             if(teamRole){
                 eksClusterv2.grantAccess(props.name+'-access', teamRole.roleArn, [new eksv2.AccessPolicy({
                     accessScope: {type: eksv2.AccessScopeType.NAMESPACE, namespaces: [props.namespace!]}, 
@@ -170,12 +170,12 @@ export class ApplicationTeam implements Team {
         const adminRole = this.getOrCreateRole(clusterInfo, admins, props.userRoleArn);
 
         if(clusterInfo.clusterv2 instanceof eksv2.Cluster){
-            const eksClusterv2: eksv2.Cluster = clusterInfo.clusterv2!
+            const eksClusterv2: eksv2.Cluster = clusterInfo.clusterv2!;
             if(adminRole){
                 eksClusterv2.grantAccess(props.name+'-access', adminRole.roleArn, [new eksv2.AccessPolicy({
                     accessScope: {type: eksv2.AccessScopeType.CLUSTER}, 
                     policy: eksv2.AccessPolicyArn.AMAZON_EKS_CLUSTER_ADMIN_POLICY
-                })])
+                })]);
             }
         }else if (clusterInfo.cluster instanceof Cluster){
 

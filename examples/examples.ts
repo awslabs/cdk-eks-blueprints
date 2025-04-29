@@ -87,6 +87,11 @@ builder()
         .compatibilityMode(false)
         .build(app, 'eks-blueprint');
 
+// Autmode cluster
+builder()
+    .clusterProvider(new bp.AutomodeClusterProvider(publicCluster))
+    .build(app, 'eksv2-blueprint');
+
 function buildArgoBootstrap() {
     return new bp.addons.ArgoCDAddOn({
         bootstrapRepo: {

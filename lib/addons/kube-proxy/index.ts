@@ -13,15 +13,6 @@ const versionMap: Map<KubernetesVersion, string> = new Map([
     [KubernetesVersion.V1_26, "v1.26.9-eksbuild.2"],
 ]);
 
-const automodeVersionMap: Map<KubernetesVersion, string> = new Map([
-    [KubernetesVersion.V1_31, "v1.31.2-eksbuild.3"],
-    [KubernetesVersion.V1_30, "v1.30.6-eksbuild.3"],
-    [KubernetesVersion.V1_29, "v1.29.10-eksbuild.3"],
-    [KubernetesVersion.V1_28, "v1.28.15-eksbuild.4"],
-    [KubernetesVersion.V1_27, "v1.27.16-eksbuild.14"],
-    [KubernetesVersion.V1_26, "v1.26.15-eksbuild.19"],
-]);
-
 /**
  * Configuration options for the coredns add-on.
  */
