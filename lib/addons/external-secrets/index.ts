@@ -23,7 +23,7 @@ const defaultProps: ExternalsSecretsAddOnProps = {
   name: "external-secrets",
   chart: "external-secrets",
   release: "blueprints-addon-external-secrets",
-  version: "0.10.4",
+  version: "0.16.1",
   repository: "https://charts.external-secrets.io",
   namespace: "external-secrets",
   values: {},
