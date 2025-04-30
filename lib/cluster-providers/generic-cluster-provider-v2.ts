@@ -13,10 +13,23 @@ import * as constants from './constants';
 import { AutoscalingNodeGroup, ManagedNodeGroup } from "./types";
 import assert = require('assert');
 import { selectKubectlLayer, AutoscalingNodeGroupConstraints, FargateProfileConstraints, ManagedNodeGroupConstraints} from "./generic-cluster-provider";
+import { NodePoolV1Spec } from "../addons/karpenter/types";
 
 export function clusterBuilderv2() {
     return new ClusterBuilderV2();
 }
+
+export interface ComputeConfig extends eks.ComputeConfig {
+  
+  /**
+   * Extra node pools to be added to the Auto Mode Cluster
+   */
+  extraNodePools?: {
+    [key: string]: NodePoolV1Spec;
+  };
+
+}
+
 
 /**
  * Properties for the generic cluster provider, containing definitions of managed node groups,
@@ -47,7 +60,7 @@ export interface GenericClusterProviderV2Props extends Partial<eks.ClusterProps>
     /**
      * EKS Automode compute config
      */
-    compute?: eks.ComputeConfig;
+    compute?: ComputeConfig;
 
     /**
      * Fargate profiles
@@ -65,8 +78,8 @@ export interface GenericClusterProviderV2Props extends Partial<eks.ClusterProps>
 }
 
 
-export class ComputeConfigConstraints implements utils.ConstraintsType<eks.ComputeConfig> {
-    nodePools = new utils.ArrayConstraint(1, 2);
+export class ComputeConfigConstraints implements utils.ConstraintsType<ComputeConfig> {
+    nodePools = new utils.ArrayConstraint(0, 2);
 }
 
 export class GenericClusterPropsV2Constraints implements utils.ConstraintsType<GenericClusterProviderV2Props> {
@@ -93,7 +106,7 @@ export class ClusterBuilderV2 {
     private privateCluster = false;
     private managedNodeGroups: ManagedNodeGroup[] = [];
     private autoscalingNodeGroups: AutoscalingNodeGroup[] = [];
-    private compute: eks.ComputeConfig;
+    private compute: ComputeConfig;
     private fargateProfiles: {
         [key: string]: eks.FargateProfileOptions;
     } = {};
@@ -117,7 +130,7 @@ export class ClusterBuilderV2 {
         return this;
     }
 
-    computeConfig(config: eks.ComputeConfig): this {
+    computeConfig(config: ComputeConfig): this {
         this.compute = config;
         return this;
     }
@@ -234,6 +247,10 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         const fargateConstructs: eks.FargateProfile[] = [];
         fargateProfiles?.forEach(([key, options]) => fargateConstructs.push(this.addFargateProfile(cluster as eks.Cluster, key, options)));
 
+        const nodePools = Object.entries(this.props.compute?.extraNodePools ?? {});
+        const nodePoolConstructs: eks.KubernetesManifest[] = [];
+        nodePools.forEach(([key, options]) => nodePoolConstructs.push(this.addNodePool(cluster as eks.Cluster, key, options)))
+
         return new ClusterInfo(cluster as eksv1.Cluster, version, nodeGroups as eksv1.Nodegroup[], autoscalingGroups, autoMode, fargateConstructs, cluster as eks.Cluster, nodeGroups as eks.Nodegroup[]);
     }
 
@@ -294,6 +311,45 @@ export class GenericClusterProviderV2 implements ClusterProvider {
      */
     addFargateProfile(cluster: eks.Cluster, name: string, profileOptions: eks.FargateProfileOptions): eks.FargateProfile {
         return cluster.addFargateProfile(name, profileOptions);
+    }
+
+    /**
+     * Add a node pool to the cluster
+     */
+    addNodePool(cluster: eks.Cluster, name: string, pool: NodePoolV1Spec) {
+      const labels =  pool.labels || {};
+      const annotations = pool.annotations || {};
+      const taints = pool.taints || [];
+      const startupTaints = pool.startupTaints || [];
+      const requirements = pool.requirements || [];
+      const disruption = pool.disruption || null;
+      const limits = pool.limits || null;
+      const weight = pool.weight || null;
+      const poolManifest = {
+        apiVersion: "karpenter.sh/v1",
+        kind: "NodePool",
+        metadata: {name: name},
+        spec: {
+          template: {
+            metadata: {labels: labels, annotations: annotations},
+            spec: {
+              nodeClassRef: {
+                  name: "default",
+                  group: "eks.amazonaws.com",
+                  kind: "NodeClass"
+              },
+              taints: taints,
+              startupTaints: startupTaints,
+              requirements: utils.convertKeyPair(requirements),
+              expireAfter: pool.expireAfter
+            },
+          },
+          disruption: disruption,
+          limits: limits,
+          weight: weight,
+        },
+      };
+      return cluster.addManifest(name, poolManifest)
     }
 
     /**
