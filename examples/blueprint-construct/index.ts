@@ -132,7 +132,7 @@ export default class BlueprintConstruct {
       new addons.CertManagerAddOn(),
       new addons.AdotCollectorAddOn({
         namespace: "adot",
-        version: "auto",
+        version: "v0.109.0-eksbuild.2",
       }),
       new addons.EfsCsiDriverAddOn({
         replicaCount: 1,
@@ -148,7 +148,7 @@ export default class BlueprintConstruct {
       new addons.KarpenterV1AddOn({
         nodePoolSpec: this.nodePoolSpec,
         ec2NodeClassSpec: this.nodeClassSpec,
-        interruptionHandling: true
+        interruptionHandling: true,
       }),
 
       // other addons
@@ -245,7 +245,7 @@ export default class BlueprintConstruct {
       new addons.NeuronMonitorAddOn(),
       new addons.NginxAddOn({
         values: {
-          controller: { service: { create: false } },
+          controller: {service: {create: false}},
         },
       }),
       new addons.OpaGatekeeperAddOn(),
