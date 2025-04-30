@@ -55,3 +55,29 @@ test("Stack creation fails due to ruleFilePaths.length == 0", async () => {
     }
     fail("Expected exception wasnt thrown for AMP Addon-on Rule Path test.");
 });
+    
+test("Stack creation succeeds with resource limits", async () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.EksBlueprint.builder();
+
+    const stack = await blueprint.account("123567891").region('us-west-1').version("auto")
+    .addOns(new blueprints.addons.AwsLoadBalancerControllerAddOn())
+    .addOns(new blueprints.addons.CertManagerAddOn())
+    .addOns(new blueprints.addons.AdotCollectorAddOn())
+    .addOns(
+        new blueprints.addons.AmpAddOn({
+            ampPrometheusEndpoint: "test",
+            memoryLimit: "4Gi",
+            cpuLimit: "2",
+            ampRules: {
+                ampWorkspaceArn: "test",
+                ruleFilePaths: [
+                    __dirname + "/resources/recording-rules-test.yml",
+                ]
+            }
+        })
+    )
+    .buildAsync(app, 'amp-addon-stack-succeeds');
+    expect(stack).toBeDefined();
+});
