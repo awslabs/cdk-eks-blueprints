@@ -25,13 +25,13 @@ export interface AutomodeClusterProviderProps extends Partial<eks.ClusterCommonO
     [key: string]: string;
   };
 
-};
+}
 
 export class AutomodeClusterProvider extends GenericClusterProviderV2 {
 
     constructor(props?: AutomodeClusterProviderProps) {
         super({...defaultOptionsv2, ...props, ...{
-              compute: props as Omit<AutomodeClusterProviderProps, "id" | "tags">,
+              compute: props as Pick<AutomodeClusterProviderProps, "nodePools" | "nodeRole" |"extraNodePools">,
             }
         });
     }

@@ -130,11 +130,11 @@ export function conflictsWithAutoMode(minExpectedVersion: string | null) {
         throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.`);
       }
       else if (minExpectedVersion == null) {
-        logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`)
+        logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`);
         return originalMethod.apply(this, args);
       }
       else if (compareEksVersions(this.version, minExpectedVersion) >= 0){ // what to do if other nodegroups attached too?
-        logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`)
+        logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`);
         return originalMethod.apply(this, args);
       } else {
         throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.  If you would like to install this addon alongside automode, please upgrade to version ${minExpectedVersion}`);

@@ -249,7 +249,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
 
         const nodePools = Object.entries(this.props.compute?.extraNodePools ?? {});
         const nodePoolConstructs: eks.KubernetesManifest[] = [];
-        nodePools.forEach(([key, options]) => nodePoolConstructs.push(this.addNodePool(cluster as eks.Cluster, key, options)))
+        nodePools.forEach(([key, options]) => nodePoolConstructs.push(this.addNodePool(cluster as eks.Cluster, key, options)));
 
         return new ClusterInfo(cluster as eksv1.Cluster, version, nodeGroups as eksv1.Nodegroup[], autoscalingGroups, autoMode, fargateConstructs, cluster as eks.Cluster, nodeGroups as eks.Nodegroup[]);
     }
@@ -349,7 +349,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
           weight: weight,
         },
       };
-      return cluster.addManifest(name, poolManifest)
+      return cluster.addManifest(name, poolManifest);
     }
 
     /**
