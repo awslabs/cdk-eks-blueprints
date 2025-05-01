@@ -79,6 +79,15 @@ builder()
     )
     .build(app, 'ingress-nginx-blueprint');
 
+// Plan B: Blueprint to test aws gateway api controller. e2e tests create too large cfn template.
+builder()
+    .clusterProvider(new bp.MngClusterProvider(publicCluster))
+    .addOns(
+        new bp.addons.GatewayApiCrdsAddOn(),
+        new bp.addons.AwsGatewayApiControllerAddOn()
+    )
+    .build(app, 'aws-gateway-api-blueprint');
+
     bp.EksBlueprint.builder()
         .account(process.env.CDK_DEFAULT_ACCOUNT)
         .region(process.env.CDK_DEFAULT_REGION)

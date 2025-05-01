@@ -283,8 +283,6 @@ export default class BlueprintConstruct {
       new addons.XrayAdotAddOn({
         namespace: "adot",
       }),
-      new addons.GatewayApiCrdsAddOn(),
-      new addons.AwsGatewayApiControllerAddOn(),
     ];
 
     // Instantiated to for helm version check.
