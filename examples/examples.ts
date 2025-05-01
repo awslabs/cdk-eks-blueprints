@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { IngressNginxAddOn, AwsLoadBalancerControllerAddOn } from '../lib/addons';
 
+
 /**
  * You can run these examples with the following command:
  * <code>
@@ -30,7 +31,7 @@ const kmsKey: kms.Key = bp.getNamedResource(KMS_RESOURCE);
 const builder = () => base.clone();
 
 const publicCluster = {
-    version: KubernetesVersion.V1_30,
+    version: KubernetesVersion.V1_32,
     vpcSubnets: [{ subnetType: ec2.SubnetType.PUBLIC }]
 };
 
@@ -80,17 +81,28 @@ builder()
     )
     .build(app, 'ingress-nginx-blueprint');
 
-    bp.EksBlueprint.builder()
-        .account(process.env.CDK_DEFAULT_ACCOUNT)
-        .region(process.env.CDK_DEFAULT_REGION)
-        .version(KubernetesVersion.V1_29)
-        .compatibilityMode(false)
-        .build(app, 'eks-blueprint');
+bp.EksBlueprint.builder()
+    .account(process.env.CDK_DEFAULT_ACCOUNT)
+    .region(process.env.CDK_DEFAULT_REGION)
+    .version(KubernetesVersion.V1_29)
+    .compatibilityMode(false)
+    .build(app, 'eks-blueprint');
 
 // Autmode cluster
-builder()
-    .clusterProvider(new bp.AutomodeClusterProvider(publicCluster))
-    .build(app, 'eksv2-blueprint');
+bp.EksBlueprint.builder()
+  .account(process.env.CDK_DEFAULT_ACCOUNT)
+  .region(process.env.CDK_DEFAULT_REGION)
+  .resourceProvider(bp.GlobalResources.Vpc, new bp.VpcProvider("vpc-07b9e40ea515577e5"))
+  .clusterProvider(new bp.AutomodeClusterProvider({version: KubernetesVersion.V1_32}))
+  .addOns(
+    new IngressNginxAddOn({
+      crossZoneEnabled: true,
+      internetFacing: true,
+      targetType: "ip",
+    })
+  )
+  .build(app, "eksv2-blueprint");
+
 
 function buildArgoBootstrap() {
     return new bp.addons.ArgoCDAddOn({

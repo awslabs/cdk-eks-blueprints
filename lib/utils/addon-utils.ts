@@ -36,6 +36,9 @@ export function dependable(...addOns: string[]) {
       const stack = clusterInfo.cluster.stack.stackName;
 
       addOns.forEach( (addOn) => {
+        if(clusterInfo.autoMode && isAutoModeAddon(addOn)) {
+          return;
+        }
         const dep = clusterInfo.getScheduledAddOn(addOn);
        
         let targetString = target?.constructor?.toString().split("\n")[0] ?? "unknown";
@@ -145,3 +148,14 @@ export function conflictsWithAutoMode(minExpectedVersion: string | null) {
   };
 
 }
+function isAutoModeAddon(addOn: string) {
+  const automodeAddons = [
+    "EbsCsiDriverAddOn",
+    "AwsLoadBalancerControllerAddOn",
+    "VpcCniAddOn",
+    "CoreDnsAddOn",
+    "KubeProxyAddOn",
+  ];
+  return automodeAddons.includes(addOn);
+}
+

@@ -25,7 +25,7 @@ export interface AutomodeClusterProviderProps extends Partial<eks.ClusterCommonO
     [key: string]: string;
   };
 
-};
+}
 
 export class AutomodeClusterProvider extends GenericClusterProviderV2 {
 
