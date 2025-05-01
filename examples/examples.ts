@@ -41,7 +41,7 @@ builder()
 /**
  * Example managed node group cluster with launch template tags that propagate all the way to the EC2 instances.
  */
-const mng = builder()
+builder()
     .clusterProvider(new bp.MngClusterProvider({
         ...publicCluster, 
 
@@ -88,12 +88,12 @@ builder()
     )
     .build(app, 'aws-gateway-api-blueprint');
 
-    bp.EksBlueprint.builder()
-        .account(process.env.CDK_DEFAULT_ACCOUNT)
-        .region(process.env.CDK_DEFAULT_REGION)
-        .version(KubernetesVersion.V1_29)
-        .compatibilityMode(false)
-        .build(app, 'eks-blueprint');
+bp.EksBlueprint.builder()
+    .account(process.env.CDK_DEFAULT_ACCOUNT)
+    .region(process.env.CDK_DEFAULT_REGION)
+    .version(KubernetesVersion.V1_29)
+    .compatibilityMode(false)
+    .build(app, 'eks-blueprint');
 
 function buildArgoBootstrap() {
     return new bp.addons.ArgoCDAddOn({
