@@ -2,6 +2,8 @@
 
 The `GenericClusterProviderV2` allows you to provision an EKS cluster which leverages one or more [EKS managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html)(MNGs), one or more autoscaling groups[EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html), or EKS AutoMode for its compute capacity. Users can also configure multiple Fargate profiles along with the EC2 based compute capacity.
 
+This cluster provider uses the V2 of the EKS CDK to leverage native CFN constructs to provision the EKS cluster.  This reduces the number of customer resources and nested stacks, and enable you to use standard CFN guardrails to control resource usage and apply tagging.
+
 The `GenericClusterProviderV2` maintains all of the same capabilities as the `GenericClusterProvider`, and enables using EKS Auto Mode Clusters.
 
 Note: EKS Auto Mode is the default configuration.  If you want to use this cluster provider with Node Groups instead, set the `defaultCapacityType`.

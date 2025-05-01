@@ -1,6 +1,6 @@
 # Auto Mode Builder
 
-The `AutomodeBuilder` allows you to get started with a builder class to configure with required setup as you prepare a blueprint for setting up EKS cluster with EKS Auto Mode.
+The `AutomodeBuilder` allows you to get started with a builder class with required setup as you prepare a blueprint for setting up EKS cluster with EKS Auto Mode.
 
 The `AutomodeBuilder` creates the following:
 
@@ -16,7 +16,7 @@ The `AutomodeBuilder` creates the following:
 
 ### Demonstration - Running EKS Auto Mode
 
-The below usage helps you with a demonstration to use `AutomodeBuilder` to configure a required setup as you prepare a blueprint for setting up EKS Auto Mode on a new EKS cluster.
+The below usage demonstrates how to use `AutomodeBuilder` to set up EKS Auto Mode on a new EKS cluster.
 
 ```typescript
 import * as blueprints from "@aws-quickstart/eks-blueprints";
@@ -31,10 +31,6 @@ export default class AutomodeConstruct {
         const region = process.env.CDK_DEFAULT_REGION!;
         const stackID = `${id}-blueprint`;
 
-        const ampWorkspaceName = "automode-amp-workspaces";
-        const ampWorkspace: CfnWorkspace =
-            blueprints.getNamedResource(ampWorkspaceName);
-
         const options: Partial<blueprints.AutomodeClusterProviderProps> = {
             version: eks.KubernetesVersion.of("1.31"),
             nodePools: ['system', 'general-purpose']
@@ -47,40 +43,12 @@ export default class AutomodeConstruct {
                 blueprints.GlobalResources.Vpc,
                 new blueprints.VpcProvider()
             )
-            .resourceProvider(
-                "efs-file-system",
-                new blueprints.CreateEfsFileSystemProvider({
-                    name: "efs-file-systems",
-                })
-            )
-            .resourceProvider(
-                ampWorkspaceName,
-                new blueprints.CreateAmpProvider(
-                    ampWorkspaceName,
-                    ampWorkspaceName
-                )
-            )
             .addOns(
-                new blueprints.addons.IstioBaseAddOn(),
-                new blueprints.addons.IstioControlPlaneAddOn(),
-                new blueprints.addons.KubeStateMetricsAddOn(),
-                new blueprints.addons.MetricsServerAddOn(),
-                new blueprints.addons.PrometheusNodeExporterAddOn(),
-                new blueprints.addons.ExternalsSecretsAddOn(),
-                new blueprints.addons.SecretsStoreAddOn(),
-                new blueprints.addons.CalicoOperatorAddOn(),
-                new blueprints.addons.CertManagerAddOn(),
-                new blueprints.addons.AdotCollectorAddOn(),
-                new blueprints.addons.AmpAddOn({
-                    ampPrometheusEndpoint: ampWorkspace.attrPrometheusEndpoint
-                }),
-                new blueprints.addons.CloudWatchLogsAddon({
-                    logGroupPrefix: "/aws/eks/graviton-blueprint",
-                }),
-                new blueprints.addons.EfsCsiDriverAddOn(),
-                new blueprints.addons.FluxCDAddOn(),
-                new blueprints.addons.GrafanaOperatorAddon(),
-                new blueprints.addons.XrayAdotAddOn()
+              new IngressNginxAddOn({
+                crossZoneEnabled: true,
+                internetFacing: true,
+                targetType: "ip",
+              })
             )
             .build(scope, stackID);
     }
