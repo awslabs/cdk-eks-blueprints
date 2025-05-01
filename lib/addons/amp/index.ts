@@ -80,6 +80,18 @@ export interface AmpAddOnProps {
      * If not provided, the default will be used.
      */
     openTelemetryCollector?: OpenTelemetryCollector;
+
+    /**
+     * Memory limit for the ADOT Collector for AMP.
+     * @default 2Gi
+     */
+    memoryLimit?: any;
+
+    /**
+     * CPU limit for the ADOT Collector for AMP.
+     * @default 1
+     */
+    cpuLimit?: any;
 }
 
 export const enum DeploymentMode {
@@ -96,7 +108,9 @@ const defaultProps = {
     deploymentMode: DeploymentMode.DEPLOYMENT,
     name: 'adot-collector-amp',
     namespace: 'default',
-    enableAPIserverJob: false
+    enableAPIserverJob: false,
+    memoryLimit: '2Gi',
+    cpuLimit: '1'
 };
 
 /**
@@ -145,6 +159,8 @@ export class AmpAddOn implements ClusterAddOn {
             remoteWriteEndpoint: attrPrometheusEndpoint,
             awsRegion: cluster.stack.region,
             deploymentMode: this.ampAddOnProps.deploymentMode,
+            cpuLimit: this.ampAddOnProps.cpuLimit,
+            memoryLimit: this.ampAddOnProps.memoryLimit,
             namespace: this.ampAddOnProps.namespace,
             clusterName: cluster.clusterName,
             ...this.ampAddOnProps.openTelemetryCollector?.manifestParameterMap

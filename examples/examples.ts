@@ -87,6 +87,15 @@ builder()
         .compatibilityMode(false)
         .build(app, 'eks-blueprint');
 
+// Automode cluster
+bp.AutomodeBuilder.builder({
+  version: KubernetesVersion.V1_31,
+  nodePools: ["system", "general-purpose"]
+}).account(process.env.CDK_DEFAULT_ACCOUNT)
+  .region(process.env.CDK_DEFAULT_REGION)
+  .build(app, 'eksv2-blueprint');
+
+
 function buildArgoBootstrap() {
     return new bp.addons.ArgoCDAddOn({
         bootstrapRepo: {
