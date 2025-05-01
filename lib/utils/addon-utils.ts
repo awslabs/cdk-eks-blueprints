@@ -146,9 +146,14 @@ export function conflictsWithAutoMode(minExpectedVersion: string | null) {
 
         return descriptor;
   };
-
 }
-function isAutoModeAddon(addOn: string) {
+
+/**
+ * Checks if the passed addon is part of auto mode and deployed by the EKS CP. 
+ * @param addOn addOn name to check
+ * @returns true if it is one of the addOns that is managed by the EKS in Auto Mode
+ */
+function isAutoModeAddon(addOn: string) : boolean {
   const automodeAddons = [
     "EbsCsiDriverAddOn",
     "AwsLoadBalancerControllerAddOn",
