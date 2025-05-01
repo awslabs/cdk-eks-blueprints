@@ -33,7 +33,7 @@ const defaultProps: HelmAddOnProps & GpuOperatorAddonProps = {
 /**
  * Main class to instantiate the Helm chart for NVIDIA GPU operator
  * GPU operator manages the software and drivers needed for GPU accelerated workloads
- * It validates all requisite software is installed before scheduling GPU workload
+ * It validates all requisite software is installed before scheduling GPU workcload
  * Using MIG (Multi Instance GPUs) allows you to virtually split your GPU into multiple units
  */
 @supportsALL

@@ -88,12 +88,13 @@ bp.EksBlueprint.builder()
     .compatibilityMode(false)
     .build(app, 'eks-blueprint');
 
-// Autmode cluster
-bp.EksBlueprint.builder()
+// Automode cluster
+bp.AutomodeBuilder.builder({
+  version: KubernetesVersion.V1_31,
+  nodePools: ["system", "general-purpose"],
+})
   .account(process.env.CDK_DEFAULT_ACCOUNT)
   .region(process.env.CDK_DEFAULT_REGION)
-  .resourceProvider(bp.GlobalResources.Vpc, new bp.VpcProvider("vpc-07b9e40ea515577e5"))
-  .clusterProvider(new bp.AutomodeClusterProvider({version: KubernetesVersion.V1_32}))
   .addOns(
     new IngressNginxAddOn({
       crossZoneEnabled: true,
