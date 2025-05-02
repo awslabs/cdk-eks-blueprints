@@ -370,6 +370,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         // Create a managed node group.
         const nodegroupOptions: utils.Writeable<eks.NodegroupOptions> = {
             ...nodeGroup,
+            amiType: nodeGroup.amiType as eks.NodegroupAmiType,
             ...{
                 nodegroupName: nodeGroup.nodegroupName ?? nodeGroup.id,
                 capacityType,
