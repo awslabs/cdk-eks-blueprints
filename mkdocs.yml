@@ -105,7 +105,7 @@ nav:
     - Fargate Cluster Provider: 'cluster-providers/fargate-cluster-provider.md'
     - Import Cluster Provider: 'cluster-providers/import-cluster-provider.md'
     - Generic Cluster Provider V2: 'cluster-providers/generic-cluster-provider-v2.md'
-    - Auto Node Cluster Provider: 'cluster-providers/automode-cluster-provider.md'
+    - Auto Mode Cluster Provider: 'cluster-providers/automode-cluster-provider.md'
   - Resource Providers:
     - Overview: 'resource-providers/index.md'
     - AMP Resource Provider: 'resource-providers/amp-provider.md'
