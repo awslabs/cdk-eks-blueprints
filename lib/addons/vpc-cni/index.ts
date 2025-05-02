@@ -3,12 +3,13 @@ import * as eks from "aws-cdk-lib/aws-eks";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from 'constructs';
 import { ClusterInfo, Values } from "../../spi";
-import { loadYaml, readYamlDocument, ReplaceServiceAccount, supportsALL } from "../../utils";
+import { loadYaml, readYamlDocument, ReplaceServiceAccount, supportsALL, conflictsWithAutoMode} from "../../utils";
 import { CoreAddOn, CoreAddOnProps } from "../core-addon";
 import { KubectlProvider, ManifestDeployment } from "../helm-addon/kubectl-provider";
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
 
 const versionMap: Map<KubernetesVersion, string> = new Map([
+  [KubernetesVersion.V1_32, "v1.19.2-eksbuild.1"],
   [KubernetesVersion.V1_31, "v1.19.0-eksbuild.1"],
   [KubernetesVersion.V1_30, "v1.19.0-eksbuild.1"],
   [KubernetesVersion.V1_29, "v1.19.0-eksbuild.1"],
@@ -374,6 +375,7 @@ export class VpcCniAddOn extends CoreAddOn {
     (this.coreAddOnProps.configurationValues as any) = populateVpcCniConfigurationValues(props);
   }
 
+  @conflictsWithAutoMode("v1.19.0-eksbuild.1")
   deploy(clusterInfo: ClusterInfo): Promise<Construct> {
     const cluster = clusterInfo.cluster;
     let securityGroupId = cluster.clusterSecurityGroupId;

@@ -5,8 +5,8 @@ import { ClusterInfo, Values } from "../../spi";
 import { registries } from "../../utils/registry-utils";
 import { HelmAddOn, HelmAddOnUserProps } from "../helm-addon";
 import { AwsLoadbalancerControllerIamPolicy } from "./iam-policy";
-import { supportsALL } from "../../utils";
 import { Duration } from "aws-cdk-lib";
+import * as utils from "../../utils";
 
 
 /**
@@ -59,7 +59,7 @@ const defaultProps: AwsLoadBalancerControllerProps = {
     chart: AWS_LOAD_BALANCER_CONTROLLER,
     repository: 'https://aws.github.io/eks-charts',
     release: AWS_LOAD_BALANCER_CONTROLLER,
-    version: '1.11.0',
+    version: '1.12.0',
     enableShield: false,
     enableWaf: false,
     enableWafv2: false,
@@ -78,7 +78,7 @@ function lookupImage(registry?: string, region?: string): Values {
     return { image: { repository: registry + "amazon/aws-load-balancer-controller" } };
 }
 
-@supportsALL
+@utils.supportsALL
 export class AwsLoadBalancerControllerAddOn extends HelmAddOn {
     readonly options: AwsLoadBalancerControllerProps;
 
@@ -87,6 +87,7 @@ export class AwsLoadBalancerControllerAddOn extends HelmAddOn {
         this.options = this.props as AwsLoadBalancerControllerProps;
     }
 
+    @utils.conflictsWithAutoMode(null)
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
         const cluster = clusterInfo.cluster;
         const serviceAccount = cluster.addServiceAccount(

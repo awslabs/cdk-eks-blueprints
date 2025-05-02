@@ -42,11 +42,11 @@ export interface SecretsStoreAddOnProps extends HelmAddOnUserProps {
  * Defaults options for the add-on
  */
 const defaultProps: SecretsStoreAddOnProps = {
-    ascpUrl: 'https://raw.githubusercontent.com/aws/secrets-store-csi-driver-provider-aws/main/deployment/aws-provider-installer.yaml',
+    ascpUrl: 'https://raw.githubusercontent.com/aws/secrets-store-csi-driver-provider-aws/secrets-store-csi-driver-provider-aws-0.3.11/deployment/aws-provider-installer.yaml',
     chart: 'secrets-store-csi-driver',
     name: 'secrets-store-csi-driver',
     namespace: 'kube-system',
-    version: '1.4.6',
+    version: '1.5.0',
     release: 'blueprints-addon-secret-store-csi-driver',
     repository: 'https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts',
     rotationPollInterval: undefined,

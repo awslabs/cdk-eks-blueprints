@@ -1,4 +1,3 @@
-import 'source-map-support/register';
 import { Construct } from 'constructs';
 import {ClusterInfo, Values} from "../../spi";
 import { merge } from "ts-deepmerge";

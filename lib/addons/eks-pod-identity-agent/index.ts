@@ -1,8 +1,11 @@
+import { Construct } from "constructs";
+import { ClusterInfo } from "../../spi";
 import { CoreAddOn } from "../core-addon";
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
+import * as utils from "../../utils";
 
 const versionMap: Map<KubernetesVersion, string> = new Map([
-    [KubernetesVersion.V1_31, "v1.3.2-eksbuild.2"],
+    [KubernetesVersion.V1_31, "v1.3.4-eksbuild.1"],
     [KubernetesVersion.V1_30, "v1.3.2-eksbuild.2"],
     [KubernetesVersion.V1_29, "v1.3.2-eksbuild.2"],
     [KubernetesVersion.V1_28, "v1.3.2-eksbuild.2"],
@@ -24,6 +27,11 @@ const defaultProps = {
  * Implementation of Amazon EKS Pod Identity Agent add-on.
  */
 export class EksPodIdentityAgentAddOn extends CoreAddOn {
+
+    @utils.conflictsWithAutoMode('v1.3.4-eksbuild.1')
+    deploy(clusterInfo: ClusterInfo): Promise<Construct> {
+        return super.deploy(clusterInfo);
+    }
 
     constructor(version?: string) {
         super({

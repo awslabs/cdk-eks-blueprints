@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { IngressNginxAddOn, AwsLoadBalancerControllerAddOn } from '../lib/addons';
 
+
 /**
  * You can run these examples with the following command:
  * <code>
@@ -30,7 +31,7 @@ const kmsKey: kms.Key = bp.getNamedResource(KMS_RESOURCE);
 const builder = () => base.clone();
 
 const publicCluster = {
-    version: KubernetesVersion.V1_30,
+    version: KubernetesVersion.V1_32,
     vpcSubnets: [{ subnetType: ec2.SubnetType.PUBLIC }]
 };
 
@@ -41,12 +42,13 @@ builder()
 /**
  * Example managed node group cluster with launch template tags that propagate all the way to the EC2 instances.
  */
-const mng = builder()
+builder()
     .clusterProvider(new bp.MngClusterProvider({
         ...publicCluster, 
 
         launchTemplate: {
             requireImdsv2: true, 
+            httpPutResponseHopLimit: 2,
             tags: {
                 "cost-center": "2122", 
                 "old-cost-center": "2322",
@@ -79,12 +81,38 @@ builder()
     )
     .build(app, 'ingress-nginx-blueprint');
 
-    bp.EksBlueprint.builder()
-        .account(process.env.CDK_DEFAULT_ACCOUNT)
-        .region(process.env.CDK_DEFAULT_REGION)
-        .version(KubernetesVersion.V1_29)
-        .compatibilityMode(false)
-        .build(app, 'eks-blueprint');
+// Plan B: Blueprint to test aws gateway api controller. e2e tests create too large cfn template.
+builder()
+    .clusterProvider(new bp.MngClusterProvider(publicCluster))
+    .addOns(
+        new bp.addons.GatewayApiCrdsAddOn(),
+        new bp.addons.AwsGatewayApiControllerAddOn()
+    )
+    .build(app, 'aws-gateway-api-blueprint');
+
+bp.EksBlueprint.builder()
+    .account(process.env.CDK_DEFAULT_ACCOUNT)
+    .region(process.env.CDK_DEFAULT_REGION)
+    .version(KubernetesVersion.V1_29)
+    .compatibilityMode(false)
+    .build(app, 'eks-blueprint');
+
+// Automode cluster
+bp.AutomodeBuilder.builder({
+  version: KubernetesVersion.V1_31,
+  nodePools: ["system", "general-purpose"],
+})
+  .account(process.env.CDK_DEFAULT_ACCOUNT)
+  .region(process.env.CDK_DEFAULT_REGION)
+  .addOns(
+    new IngressNginxAddOn({
+      crossZoneEnabled: true,
+      internetFacing: true,
+      targetType: "ip",
+    })
+  )
+  .build(app, "eksv2-blueprint");
+
 
 function buildArgoBootstrap() {
     return new bp.addons.ArgoCDAddOn({

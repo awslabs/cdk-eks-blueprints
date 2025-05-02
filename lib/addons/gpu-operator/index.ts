@@ -23,7 +23,7 @@ const defaultProps: HelmAddOnProps & GpuOperatorAddonProps = {
     name: "gpu-operator-addon",
     namespace: "gpu-operator",
     chart: "gpu-operator",
-    version: "v24.6.2",
+    version: "v24.9.2",
     release: "nvidia-gpu-operator",
     repository:  "https://nvidia.github.io/gpu-operator",
     createNamespace: true,
@@ -33,7 +33,7 @@ const defaultProps: HelmAddOnProps & GpuOperatorAddonProps = {
 /**
  * Main class to instantiate the Helm chart for NVIDIA GPU operator
  * GPU operator manages the software and drivers needed for GPU accelerated workloads
- * It validates all requisite software is installed before scheduling GPU workload
+ * It validates all requisite software is installed before scheduling GPU workcload
  * Using MIG (Multi Instance GPUs) allows you to virtually split your GPU into multiple units
  */
 @supportsALL

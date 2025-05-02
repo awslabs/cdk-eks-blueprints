@@ -81,4 +81,22 @@ export function loadExternalYaml(url: string): any {
  */
 export function serializeYaml(document: any): string {
     return yaml.dump(document);
+
+}
+/**
+ * Helper function to convert a key-pair values (with an operator)
+ * of spec configurations to appropriate json format for addManifest function
+ * @param reqs
+ * @returns newReqs
+ * */
+export function convertKeyPair(reqs: { key: string; operator: string; values: string[] }[]): any[] {
+    const newReqs = [];
+    for (let req of reqs) {
+        const key = req["key"];
+        const op = req["operator"];
+        const val = req["values"];
+        const requirement = { key: key, operator: op, values: val };
+        newReqs.push(requirement);
+    }
+    return newReqs;
 }

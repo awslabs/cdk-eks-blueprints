@@ -17,9 +17,9 @@ export interface MngClusterProviderProps extends Partial<eks.CommonClusterOption
     name?: string;
 
     /**
-     * In this case id is optional and defaults tp the cluster name
+     * In this case id is optional and defaults to the cluster name
      */
-    id?: string,
+    id?: string;
 
     /**
      * Is it a private only EKS Cluster?
@@ -32,7 +32,7 @@ export interface MngClusterProviderProps extends Partial<eks.CommonClusterOption
      * Is the EKS Cluster in isolated subnets?
      * @default false
      */
-    isolatedCluster?: boolean,
+    isolatedCluster?: boolean;
 
     /**
      * Tags for the Cluster.

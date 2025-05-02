@@ -1,17 +1,8 @@
-
-import { KubectlV25Layer } from "@aws-cdk/lambda-layer-kubectl-v25";
-import { KubectlV26Layer } from "@aws-cdk/lambda-layer-kubectl-v26";
-import { KubectlV27Layer } from "@aws-cdk/lambda-layer-kubectl-v27";
-import { KubectlV28Layer } from "@aws-cdk/lambda-layer-kubectl-v28";
-import { KubectlV29Layer } from "@aws-cdk/lambda-layer-kubectl-v29";
-import { KubectlV30Layer } from "@aws-cdk/lambda-layer-kubectl-v30";
-import { KubectlV31Layer } from "@aws-cdk/lambda-layer-kubectl-v31";
-import { KubectlV32Layer } from "@aws-cdk/lambda-layer-kubectl-v32";
-
 import { Tags } from "aws-cdk-lib";
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as eks from "aws-cdk-lib/aws-eks";
+import * as eks from "@aws-cdk/aws-eks-v2-alpha";
+import * as eksv1 from 'aws-cdk-lib/aws-eks';
 import { AccountRootPrincipal, ManagedPolicy, Role } from "aws-cdk-lib/aws-iam";
 import { IKey } from "aws-cdk-lib/aws-kms";
 import { ILayerVersion } from "aws-cdk-lib/aws-lambda";
@@ -21,51 +12,30 @@ import * as utils from "../utils";
 import * as constants from './constants';
 import { AutoscalingNodeGroup, ManagedNodeGroup } from "./types";
 import assert = require('assert');
+import { selectKubectlLayer, AutoscalingNodeGroupConstraints, FargateProfileConstraints, ManagedNodeGroupConstraints} from "./generic-cluster-provider";
+import { NodePoolV1Spec } from "../addons/karpenter/types";
 
-
-export function clusterBuilder() {
-    return new ClusterBuilder();
+export function clusterBuilderv2() {
+    return new ClusterBuilderV2();
 }
 
-/**
- * Function that contains logic to map the correct kunbectl layer based on the passed in version.
- * @param scope in whch the kubectl layer must be created
- * @param version EKS version
- * @returns ILayerVersion or undefined
- */
-export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVersion): ILayerVersion | undefined {
-    switch(version.version) {
-        case "1.25":
-            return new KubectlV25Layer(scope, "kubectllayer25");
-        case "1.26":
-            return new KubectlV26Layer(scope, "kubectllayer26");
-        case "1.27":
-            return new KubectlV27Layer(scope, "kubectllayer27");
-        case "1.28":
-            return new KubectlV28Layer(scope, "kubectllayer28");
-        case "1.29":
-            return new KubectlV29Layer(scope, "kubectllayer29");
-        case "1.30":
-            return new KubectlV30Layer(scope, "kubectllayer30");
-        case "1.31":
-            return new KubectlV31Layer(scope, "kubectllayer30");
-        case "1.32":
-            return new KubectlV32Layer(scope, "kubectllayer32");
+export interface ComputeConfig extends eks.ComputeConfig {
+  
+  /**
+   * Extra node pools to be added to the Auto Mode Cluster
+   */
+  extraNodePools?: {
+    [key: string]: NodePoolV1Spec;
+  };
 
-    }
-
-    const minor = version.version.split('.')[1];
-
-    if(minor && parseInt(minor, 10) > 31) {
-        return new KubectlV30Layer(scope, "kubectllayer31"); // for all versions above 1.30 use 1.30 kubectl (unless explicitly supported in CDK)
-    }
-    return undefined;
 }
+
+
 /**
  * Properties for the generic cluster provider, containing definitions of managed node groups,
  * auto-scaling groups, fargate profiles.
  */
-export interface GenericClusterProviderProps extends Partial<eks.ClusterOptions> {
+export interface GenericClusterProviderV2Props extends Partial<eks.ClusterProps> {
 
     /**
      * Whether cluster has internet access.
@@ -88,6 +58,11 @@ export interface GenericClusterProviderProps extends Partial<eks.ClusterOptions>
     autoscalingNodeGroups?: AutoscalingNodeGroup[];
 
     /**
+     * EKS Automode compute config
+     */
+    compute?: ComputeConfig;
+
+    /**
      * Fargate profiles
      */
     fargateProfiles?: {
@@ -102,76 +77,12 @@ export interface GenericClusterProviderProps extends Partial<eks.ClusterOptions>
     }
 }
 
-export class ManagedNodeGroupConstraints implements utils.ConstraintsType<ManagedNodeGroup> {
-    /**
-     * id can be no less than 1 character long, and no greater than 63 characters long due to DNS system limitations.
-     * https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
-     */
-    id = new utils.StringConstraint(1, 63);
 
-    /**
-    * nodes per node group has a soft limit of 450 nodes, and as little as 0. But we multiply that by a factor of 5 to 2250 in case
-    * of situations of a hard limit request being accepted, and as a result the limit would be raised
-    * https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html
-    */
-    minSize = new utils.NumberConstraint(0, 2250);
-
-    /**
-     * nodes per node group has a soft limit of 450 nodes, and as little as 0. But we multiply that by a factor of 5 to 2250 in case
-     * of situations of a hard limit request being accepted, and as a result the limit would be raised
-     * https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html
-     */
-    maxSize = new utils.NumberConstraint(0, 2250);
-
-    /**
-     * Nodes per node group has a soft limit of 450 nodes, and as little as 0. But we multiply that by a factor of 5 to 2250 in case
-     * of situations of a hard limit request being accepted, and as a result the limit would be raised
-     * https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html
-     */
-    desiredSize = new utils.NumberConstraint(0, 2250);
-
-    /**
-     * amiReleaseVersion can be no less than 1 character long, and no greater than 1024 characters long.
-     * https://docs.aws.amazon.com/imagebuilder/latest/APIReference/API_Ami.html
-     */
-    amiReleaseVersion = new utils.StringConstraint(1, 1024);
+export class ComputeConfigConstraints implements utils.ConstraintsType<ComputeConfig> {
+    nodePools = new utils.ArrayConstraint(0, 2);
 }
 
-export class AutoscalingNodeGroupConstraints implements utils.ConstraintsType<AutoscalingNodeGroup> {
-    /**
-    * id can be no less than 1 character long, and no greater than 63 characters long due to DNS system limitations.
-    * https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
-    */
-    id = new utils.StringConstraint(1, 63);
-
-    /**
-    * Allowed range is 0 to 5000 inclusive.
-    * https://kubernetes.io/docs/setup/best-practices/cluster-large/
-    */
-    minSize = new utils.NumberConstraint(0, 5000);
-
-    /**
-    * Allowed range is 0 to 5000 inclusive.
-    * https://kubernetes.io/docs/setup/best-practices/cluster-large/
-    */
-    maxSize = new utils.NumberConstraint(0, 5000);
-
-    /**
-    * Allowed range is 0 to 5000 inclusive.
-    * https://kubernetes.io/docs/setup/best-practices/cluster-large/
-    */
-    desiredSize = new utils.NumberConstraint(0, 5000);
-}
-
-export class FargateProfileConstraints implements utils.ConstraintsType<eks.FargateProfileOptions> {
-    /**
-    * fargateProfileNames can be no less than 1 character long, and no greater than 63 characters long due to DNS system limitations.
-    * https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
-    */
-    fargateProfileName = new utils.StringConstraint(1, 63);
-}
-
-export class GenericClusterPropsConstraints implements utils.ConstraintsType<GenericClusterProviderProps> {
+export class GenericClusterPropsV2Constraints implements utils.ConstraintsType<GenericClusterProviderV2Props> {
     /**
     * managedNodeGroups per cluster have a soft limit of 30 managed node groups per EKS cluster, and as little as 0. But we multiply that
     * by a factor of 5 to 150 in case of situations of a hard limit request being accepted, and as a result the limit would be raised.
@@ -186,15 +97,16 @@ export class GenericClusterPropsConstraints implements utils.ConstraintsType<Gen
     autoscalingNodeGroups = new utils.ArrayConstraint(0, 5000);
 }
 
-export const defaultOptions = {
+export const defaultOptionsv2 = {
 };
 
-export class ClusterBuilder {
+export class ClusterBuilderV2 {
 
-    private props: Partial<GenericClusterProviderProps> = {};
+    private props: Partial<GenericClusterProviderV2Props> = {};
     private privateCluster = false;
     private managedNodeGroups: ManagedNodeGroup[] = [];
     private autoscalingNodeGroups: AutoscalingNodeGroup[] = [];
+    private compute: ComputeConfig;
     private fargateProfiles: {
         [key: string]: eks.FargateProfileOptions;
     } = {};
@@ -203,7 +115,7 @@ export class ClusterBuilder {
         this.props = { ...this.props };
     }
 
-    withCommonOptions(options: Partial<eks.ClusterOptions>): this {
+    withCommonOptions(options: Partial<eks.ClusterProps>): this {
         this.props = { ...this.props, ...options };
         return this;
     }
@@ -218,6 +130,11 @@ export class ClusterBuilder {
         return this;
     }
 
+    computeConfig(config: ComputeConfig): this {
+        this.compute = config;
+        return this;
+    }
+
     fargateProfile(name: string, options: eks.FargateProfileOptions): this {
         this.fargateProfiles[name] = options;
         return this;
@@ -229,11 +146,12 @@ export class ClusterBuilder {
     }
 
     build() {
-        return new GenericClusterProvider({
+        return new GenericClusterProviderV2({
             ...this.props,
             privateCluster: this.privateCluster,
             managedNodeGroups: this.managedNodeGroups,
             autoscalingNodeGroups: this.autoscalingNodeGroups,
+            compute: this.compute,
             fargateProfiles: this.fargateProfiles
         });
     }
@@ -242,15 +160,23 @@ export class ClusterBuilder {
 /**
  * Cluster provider implementation that supports multiple node groups.
  */
-export class GenericClusterProvider implements ClusterProvider {
+export class GenericClusterProviderV2 implements ClusterProvider {
 
-    constructor(readonly props: GenericClusterProviderProps) {
+    constructor(readonly props: GenericClusterProviderV2Props) {
 
         this.validateInput(props);
 
-        assert(!(props.managedNodeGroups && props.managedNodeGroups.length > 0
-            && props.autoscalingNodeGroups && props.autoscalingNodeGroups.length > 0),
-            "Mixing managed and autoscaling node groups is not supported. Please file a request on GitHub to add this support if needed.");
+        const computeTypesEnabled = [
+            props.managedNodeGroups && props.managedNodeGroups.length > 0,
+            props.autoscalingNodeGroups && props.autoscalingNodeGroups.length > 0,
+            props.compute != undefined
+        ].filter(Boolean).length;
+
+        // Assert that only one compute type is enabled
+        assert(
+            computeTypesEnabled <= 1,
+            'Only one compute type can be enabled: managed node groups, autoscaling node groups, or automode configuration.  Mixing these is not supported. Please file a request on GitHub to add this support if needed.'
+        );
     }
 
     /**
@@ -261,7 +187,6 @@ export class GenericClusterProvider implements ClusterProvider {
 
         // Props for the cluster.
         const clusterName = this.props.clusterName ?? id;
-        const outputClusterName = true;
         if (!kubernetesVersion && !this.props.version) {
             throw new Error("Version was not specified by cluster builder or in cluster provider props, must be specified in one of these");
         }
@@ -280,37 +205,30 @@ export class GenericClusterProvider implements ClusterProvider {
 
 
         const kubectlLayer = this.getKubectlLayer(scope, version);
+        const kubectlProviderOptions = kubectlLayer && {kubectlLayer};
         const tags = this.props.tags;
 
-        const defaultOptions: Partial<eks.ClusterProps> = {
+        const defaultOptionsv2: Partial<eks.ClusterProps> = {
             vpc,
             secretsEncryptionKey,
             clusterName,
             clusterLogging,
-            outputClusterName,
             version,
             vpcSubnets,
             endpointAccess,
-            kubectlLayer,
+            kubectlProviderOptions,
             tags,
             mastersRole,
-            defaultCapacity: 0, // we want to manage capacity ourselves
-            defaultCapacityType: eks.DefaultCapacityType.NODEGROUP
+            defaultCapacityType: eks.DefaultCapacityType.AUTOMODE
         };
 
-        const isolatedOptions: Partial<eks.ClusterProps> = isolatedCluster ? {
-            placeClusterHandlerInVpc: true,
-            clusterHandlerEnvironment: { AWS_STS_REGIONAL_ENDPOINTS: "regional" },
-            kubectlEnvironment: { AWS_STS_REGIONAL_ENDPOINTS: "regional" },
-        } : {};
-
-        const clusterOptions = { ...defaultOptions, ...isolatedOptions, ...this.props, version, ipFamily };
+        const clusterOptions = { ...defaultOptionsv2, ...this.props, version, ipFamily };
 
         // Create an EKS Cluster
         const cluster = this.internalCreateCluster(scope, id, clusterOptions);
         cluster.node.addDependency(vpc);
 
-        const nodeGroups: eks.Nodegroup[] = [];
+        const nodeGroups: (eks.Nodegroup | eksv1.Nodegroup)[] = [];
 
         this.props.managedNodeGroups?.forEach(n => {
             const nodeGroup = this.addManagedNodeGroup(cluster as eks.Cluster, n);
@@ -323,11 +241,17 @@ export class GenericClusterProvider implements ClusterProvider {
             autoscalingGroups.push(autoscalingGroup);
         });
 
+        const autoMode = clusterOptions.defaultCapacityType != undefined && (clusterOptions.defaultCapacityType as eks.DefaultCapacityType) == eks.DefaultCapacityType.AUTOMODE;
+
         const fargateProfiles = Object.entries(this.props.fargateProfiles ?? {});
         const fargateConstructs: eks.FargateProfile[] = [];
         fargateProfiles?.forEach(([key, options]) => fargateConstructs.push(this.addFargateProfile(cluster as eks.Cluster, key, options)));
 
-        return new ClusterInfo(cluster, version, nodeGroups, autoscalingGroups, false, fargateConstructs);
+        const nodePools = Object.entries(this.props.compute?.extraNodePools ?? {});
+        const nodePoolConstructs: eks.KubernetesManifest[] = [];
+        nodePools.forEach(([key, options]) => nodePoolConstructs.push(this.addNodePool(cluster as eks.Cluster, key, options)));
+
+        return new ClusterInfo(cluster as eksv1.Cluster, version, nodeGroups as eksv1.Nodegroup[], autoscalingGroups, autoMode, fargateConstructs, cluster as eks.Cluster, nodeGroups as eks.Nodegroup[]);
     }
 
     /**
@@ -337,7 +261,7 @@ export class GenericClusterProvider implements ClusterProvider {
      * @param clusterOptions
      * @returns
      */
-    protected internalCreateCluster(scope: Construct, id: string, clusterOptions: any): eks.Cluster {
+    protected internalCreateCluster(scope: Construct, id: string, clusterOptions: any): eks.Cluster | eksv1.Cluster {
         return new eks.Cluster(scope, id, clusterOptions);
     }
 
@@ -390,6 +314,45 @@ export class GenericClusterProvider implements ClusterProvider {
     }
 
     /**
+     * Add a node pool to the cluster
+     */
+    addNodePool(cluster: eks.Cluster, name: string, pool: NodePoolV1Spec) {
+      const labels =  pool.labels || {};
+      const annotations = pool.annotations || {};
+      const taints = pool.taints || [];
+      const startupTaints = pool.startupTaints || [];
+      const requirements = pool.requirements || [];
+      const disruption = pool.disruption || null;
+      const limits = pool.limits || null;
+      const weight = pool.weight || null;
+      const poolManifest = {
+        apiVersion: "karpenter.sh/v1",
+        kind: "NodePool",
+        metadata: {name: name},
+        spec: {
+          template: {
+            metadata: {labels: labels, annotations: annotations},
+            spec: {
+              nodeClassRef: {
+                  name: "default",
+                  group: "eks.amazonaws.com",
+                  kind: "NodeClass"
+              },
+              taints: taints,
+              startupTaints: startupTaints,
+              requirements: utils.convertKeyPair(requirements),
+              expireAfter: pool.expireAfter
+            },
+          },
+          disruption: disruption,
+          limits: limits,
+          weight: weight,
+        },
+      };
+      return cluster.addManifest(name, poolManifest);
+    }
+
+    /**
      * Adds a managed node group to the cluster.
      * @param cluster
      * @param nodeGroup
@@ -407,6 +370,7 @@ export class GenericClusterProvider implements ClusterProvider {
         // Create a managed node group.
         const nodegroupOptions: utils.Writeable<eks.NodegroupOptions> = {
             ...nodeGroup,
+            amiType: nodeGroup.amiType as eks.NodegroupAmiType,
             ...{
                 nodegroupName: nodeGroup.nodegroupName ?? nodeGroup.id,
                 capacityType,
@@ -451,13 +415,15 @@ export class GenericClusterProvider implements ClusterProvider {
         return result;
     }
 
-    private validateInput(props: GenericClusterProviderProps) {
+    private validateInput(props: GenericClusterProviderV2Props) {
 
-        utils.validateConstraints(new GenericClusterPropsConstraints, GenericClusterProvider.name, props);
+        utils.validateConstraints(new GenericClusterPropsV2Constraints, GenericClusterProviderV2.name, props);
         if (props.managedNodeGroups != undefined)
             utils.validateConstraints(new ManagedNodeGroupConstraints, "ManagedNodeGroup", ...props.managedNodeGroups);
         if (props.autoscalingNodeGroups != undefined)
             utils.validateConstraints(new AutoscalingNodeGroupConstraints, "AutoscalingNodeGroups", ...props.autoscalingNodeGroups);
+        if (props.compute != undefined)
+            utils.validateConstraints(new ComputeConfigConstraints, "ComputeConfigConstraints", props.compute);
         if (props.fargateProfiles as any != undefined)
             utils.validateConstraints(new FargateProfileConstraints, "FargateProfiles", ...Object.values(props.fargateProfiles as any));
     }
