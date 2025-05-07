@@ -270,7 +270,7 @@ export type NodePoolV1Spec = {
    * @param expireAfter How long Karpenter waits to expire nodes
    */
   disruption?: {
-    consolidationPolicy?: "WhenUnderutilized" | "WhenEmpty";
+    consolidationPolicy?: "WhenEmptyOrUnderutilized" | "WhenEmpty";
     consolidateAfter?: Sec | Min | Hour;
     budgets?: DisruptionBudget[];
   };

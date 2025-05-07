@@ -109,7 +109,7 @@ export default class BlueprintConstruct {
         {key: "karpenter.sh/capacity-type", operator: "In", values: ["spot"]},
       ],
       expireAfter: "20m",
-      disruption: {consolidationPolicy: "WhenEmpty", consolidateAfter: "30s"},
+      disruption: {consolidationPolicy: "WhenEmptyOrUnderutilized", consolidateAfter: "30s"},
     };
 
     this.addOns = [
