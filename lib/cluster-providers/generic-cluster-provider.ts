@@ -267,10 +267,8 @@ export class GenericClusterProvider implements ClusterProvider {
         }
         const version: eks.KubernetesVersion = kubernetesVersion || this.props.version || eks.KubernetesVersion.V1_30;
 
-        let privateCluster = this.props.privateCluster ?? utils.valueFromContext(scope, constants.PRIVATE_CLUSTER, false);
-        privateCluster = privateCluster ? privateCluster === 'true' : false;
-        let isolatedCluster = this.props.isolatedCluster ?? utils.valueFromContext(scope, constants.ISOLATED_CLUSTER, false);
-        isolatedCluster = isolatedCluster ? isolatedCluster === 'true' : false;
+        const privateCluster : boolean = this.props.privateCluster ?? utils.booleanFromContext(scope, constants.PRIVATE_CLUSTER, false);
+        const isolatedCluster = this.props.isolatedCluster ?? utils.booleanFromContext(scope, constants.ISOLATED_CLUSTER, false);
 
         const endpointAccess = (privateCluster === true) ? eks.EndpointAccess.PRIVATE : eks.EndpointAccess.PUBLIC_AND_PRIVATE;
         const vpcSubnets = this.props.vpcSubnets ?? (isolatedCluster === true ? [{ subnetType: ec2.SubnetType.PRIVATE_ISOLATED }] : privateCluster === true ? [{ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }] : undefined);

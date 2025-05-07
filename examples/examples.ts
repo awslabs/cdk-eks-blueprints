@@ -114,6 +114,11 @@ bp.AutomodeBuilder.builder({
   .build(app, "eksv2-blueprint");
 
 
+  bp.EksBlueprint.builder()
+  .clusterProvider(new bp.GenericClusterProvider({ privateCluster: true }))
+  .version("auto")
+  .build(app, 'private-clusterv1');
+
 function buildArgoBootstrap() {
     return new bp.addons.ArgoCDAddOn({
         bootstrapRepo: {
