@@ -117,6 +117,7 @@ nav:
     - VPC Resource Providers: 'resource-providers/vpc-providers.md'
   - Builders:
     - Overview: 'builders/index.md'
+    - Auto Mode Builder: 'builders/automode-builder.md'
     - Bedrock Builder: 'builders/bedrock-builder.md' 
     - Graviton Builder: 'builders/graviton-builder.md'
     - GPU Builder: 'builders/gpu-builder.md'
