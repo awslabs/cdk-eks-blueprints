@@ -45,7 +45,7 @@ export class BlueprintBuilder extends BlueprintConstructBuilder implements spi.A
  */
 export class EksBlueprint extends cdk.Stack {
 
-    static readonly USAGE_ID = "(uksb-mjpcijbp3i)"; //"qs-1s1r465hk";
+    static readonly USAGE_ID = "uksb-mjpcijbp3i"; //"qs-1s1r465hk";
 
     private asyncTasks: Promise<void | Construct[]>;
 
