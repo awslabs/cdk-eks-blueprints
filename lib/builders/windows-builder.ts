@@ -1,11 +1,8 @@
 import { BlueprintBuilder } from '../stacks';
 import * as addons from '../addons';
 import * as utils from "../utils";
-import * as spi from '../spi';
 import * as clusterproviders from '../cluster-providers';
 import * as resourceproviders from '../resource-providers';
-import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
 import * as eks from "aws-cdk-lib/aws-eks";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -160,10 +157,7 @@ export class WindowsBuilder extends BlueprintBuilder {
                 })
             )
             .addOns(
-                new addons.NestedStackAddOn({
-                    id: "usage-tracking-addon",
-                    builder: UsageTrackingAddOn.builder(),
-                }),
+              new addons.UsageTrackingAddOn({tags: ["windows-builder"]})
             );
         return builder;
     }
@@ -181,25 +175,6 @@ export class WindowsBuilder extends BlueprintBuilder {
 
 }
 
-/**
- * Nested stack that is used as tracker for Windows Accelerator
- */
-class UsageTrackingAddOn extends NestedStack {
-
-    static readonly USAGE_ID = "qs-1ubotj5kl";
-
-    public static builder(): spi.NestedStackBuilder {
-        return {
-            build(scope: Construct, id: string, props: NestedStackProps) {
-                return new UsageTrackingAddOn(scope, id, props);
-            }
-        };
-    }
-
-    constructor(scope: Construct, id: string, props: NestedStackProps) {
-        super(scope, id, utils.withUsageTracking(UsageTrackingAddOn.USAGE_ID, props));
-    }
-}
 
 /**
  *  Return the instanceType based off nodegroup or if not defined from options instanceClass and instanceSize. Default to m5.4xlarge

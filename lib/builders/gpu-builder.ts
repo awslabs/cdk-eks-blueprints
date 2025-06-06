@@ -1,10 +1,6 @@
 import { BlueprintBuilder } from '../stacks';
 import * as addons from '../addons';
-import * as utils from "../utils";
-import * as spi from '../spi';
 import * as clusterproviders from '../cluster-providers';
-import { NestedStack, NestedStackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
 import * as eks from "aws-cdk-lib/aws-eks";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import { NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
@@ -116,31 +112,9 @@ export class GpuBuilder extends BlueprintBuilder {
             })
         )
         .addOns(
-            new addons.NestedStackAddOn({
-                id: "usage-tracking-addon",
-                builder: UsageTrackingAddOn.builder(),
-            })); 
+            new addons.UsageTrackingAddOn({tags: ["gpu-builder"]}),
+        ); 
         return builder;
-    }
-}
-
-/**
- * Nested stack that is used as tracker for GPU Accelerator
- */
-class UsageTrackingAddOn extends NestedStack {
-
-    static readonly USAGE_ID = "qs-1ug68anj6";
-
-    public static builder(): spi.NestedStackBuilder {
-        return {
-            build(scope: Construct, id: string, props: NestedStackProps) {
-                return new UsageTrackingAddOn(scope, id, props);
-            }
-        };
-    }
-
-    constructor(scope: Construct, id: string, props: NestedStackProps) {
-        super(scope, id, utils.withUsageTracking(UsageTrackingAddOn.USAGE_ID, props));
     }
 }
 
