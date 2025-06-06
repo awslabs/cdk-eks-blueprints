@@ -1,7 +1,6 @@
 import { Construct } from "constructs";
 import { ClusterAddOn, ClusterInfo } from "../../spi";
 import * as eksv2 from "@aws-cdk/aws-eks-v2-alpha";
-import * as cdk from "aws-cdk-lib";
 
 /** 
  * Properties for UsageTracking
@@ -28,19 +27,15 @@ export class UsageTrackingAddOn implements ClusterAddOn {
     let stack;
 
     if (clusterInfo.clusterv2 instanceof eksv2.Cluster) {
-      stack = clusterInfo.clusterv2.stack
+      stack = clusterInfo.clusterv2.stack;
     } else {
-      stack = clusterInfo.cluster.stack
+      stack = clusterInfo.cluster.stack;
     }
-    const tracking = new TaggedUsageTracking(stack.templateOptions.description || '')
-    tracking.addTags(this.props.tags)
+    const tracking = new TaggedUsageTracking(stack.templateOptions.description || '');
+    tracking.addTags(this.props.tags);
 
-    const newDescription = tracking.buildDescription()
-    if (newDescription.length > 1024) {
-      console.error('Stack description is too long. Please remove some tags.');
-    } else {
-      stack.templateOptions.description = newDescription;
-    }
+    
+    stack.templateOptions.description = tracking.buildDescription();
   }
 
 }
@@ -55,7 +50,7 @@ class TaggedUsageTracking {
 
   constructor(description: string) {
     this.description = description;
-    const tagsMatch = this.description.match(TaggedUsageTracking.TAGS_REGEX)
+    const tagsMatch = this.description.match(TaggedUsageTracking.TAGS_REGEX);
     if (tagsMatch) {
       const existingTagsString = tagsMatch[1].trim();
       this.tags = existingTagsString.split(',').map(tag => tag.trim());
@@ -75,11 +70,20 @@ class TaggedUsageTracking {
 
     const tagsMatch = this.description.match(TaggedUsageTracking.TAGS_REGEX);
 
+    let newDescription: string;
     // if tags section exists, replace, otherwise add new section
     if (tagsMatch) {
-      return this.description.replace(TaggedUsageTracking.TAGS_REGEX, `(tag: ${tagsString})`);
+      newDescription = this.description.replace(TaggedUsageTracking.TAGS_REGEX, `(tag: ${tagsString})`);
     } else {
-      return `${this.description} (tag: ${tagsString})`.trim();
+      newDescription = `${this.description} (tag: ${tagsString})`.trim();
+    }
+
+    // if length is too long, print to stderr and return old description
+    if (newDescription.length > 1024) {
+      console.error('Stack description is too long. Please remove some tags.');
+      return this.description;
+    } else {
+      return newDescription;
     }
   }
 
