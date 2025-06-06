@@ -59,6 +59,9 @@ export class UsageTrackingAddOn implements ClusterAddOn {
       newDescription = `${currentDescription} (tag: ${tagsString})`;
     }
 
+    if (newDescription.length > 1024) {
+      throw new Error('Stack description is too long. Please remove some tags.');
+    }
     stack.templateOptions.description = newDescription;
   }
  
