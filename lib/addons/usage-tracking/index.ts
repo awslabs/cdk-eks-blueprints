@@ -25,45 +25,65 @@ export class UsageTrackingAddOn implements ClusterAddOn {
     if (this.props.tags.length == 0) {
       return;
     }
+    let stack;
 
     if (clusterInfo.clusterv2 instanceof eksv2.Cluster) {
-      const stack = clusterInfo.clusterv2.stack;
-      this.updateStackDescription(stack, this.props.tags);
+      stack = clusterInfo.clusterv2.stack
     } else {
-      const stack = clusterInfo.cluster.stack;
-      this.updateStackDescription(stack, this.props.tags);
+      stack = clusterInfo.cluster.stack
+    }
+    const tracking = new TaggedUsageTracking(stack.templateOptions.description || '')
+    tracking.addTags(this.props.tags)
+
+    const newDescription = tracking.buildDescription()
+    if (newDescription.length > 1024) {
+      console.error('Stack description is too long. Please remove some tags.');
+    } else {
+      stack.templateOptions.description = newDescription;
     }
   }
 
-  private updateStackDescription(stack: cdk.Stack, tags: string[]): void {
-    const currentDescription = stack.templateOptions.description || '';
-    const tagsRegex = /\(tag: ([^)]+)\)$/;
-    const tagsMatch = currentDescription.match(tagsRegex);
+}
 
-    let newDescription: string;
+class TaggedUsageTracking {
 
-    // If tags exist, append tags
+  static TAGS_REGEX = /\(tag: ([^)]+)\)$/;
+
+  description: string;
+
+  tags: string[] = [];
+
+  constructor(description: string) {
+    this.description = description;
+    const tagsMatch = this.description.match(TaggedUsageTracking.TAGS_REGEX)
     if (tagsMatch) {
       const existingTagsString = tagsMatch[1].trim();
-      const existingTags = existingTagsString.split(',').map(tag => tag.trim());
-
-      const allTags = [...new Set([...existingTags, ...tags])];
- 
-      const updatedTagsString = allTags.join(', ');
-
-      newDescription = currentDescription.replace(tagsRegex, `(tag: ${updatedTagsString})`);
-
-      // otherwise add tags to description
-    } else {
-      const tagsString = tags.join(', ');
-      newDescription = `${currentDescription} (tag: ${tagsString})`;
+      this.tags = existingTagsString.split(',').map(tag => tag.trim());
     }
-
-    if (newDescription.length > 1024) {
-      throw new Error('Stack description is too long. Please remove some tags.');
-    }
-    stack.templateOptions.description = newDescription;
   }
- 
+
+  addTags(tags: string | string[]) {
+    const newTags = Array.isArray(tags) ? tags : [tags];
+    this.tags = [...new Set([...this.tags, ...newTags])];
+  }
+
+  buildDescription(): string {
+    if (this.tags.length === 0) {
+      return this.description.replace(TaggedUsageTracking.TAGS_REGEX, '').trim();
+    }
+    const tagsString = this.tags.join(', ');
+
+    const tagsMatch = this.description.match(TaggedUsageTracking.TAGS_REGEX);
+
+    // if tags section exists, replace, otherwise add new section
+    if (tagsMatch) {
+      return this.description.replace(TaggedUsageTracking.TAGS_REGEX, `(tag: ${tagsString})`);
+    } else {
+      return `${this.description} (tag: ${tagsString})`.trim();
+    }
+  }
+
+  
+
 
 }
