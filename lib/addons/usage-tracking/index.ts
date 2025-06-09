@@ -78,8 +78,9 @@ class TaggedUsageTracking {
       newDescription = `${this.description} (tag: ${tagsString})`.trim();
     }
 
-    // if length is too long, print to stderr and return old description
-    if (newDescription.length > 1024) {
+    const byteLength = Buffer.byteLength(newDescription, 'utf16le');
+    // if length too long, print error and return to old description
+    if (byteLength > 1024) {
       console.error('Stack description is too long. Please remove some tags.');
       return this.description;
     } else {
