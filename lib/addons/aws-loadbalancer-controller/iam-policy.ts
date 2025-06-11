@@ -28,6 +28,9 @@ export const AwsLoadbalancerControllerIamPolicy = (partition: string) => {
                     "ec2:DescribeTags",
                     "ec2:GetCoipPoolUsage",
                     "ec2:DescribeCoipPools",
+                    "ec2:GetSecurityGroupsForVpc",
+                    "ec2:DescribeIpamPools",
+                    "ec2:DescribeRouteTables",
                     "elasticloadbalancing:DescribeLoadBalancers",
                     "elasticloadbalancing:DescribeLoadBalancerAttributes",
                     "elasticloadbalancing:DescribeListeners",
@@ -39,7 +42,8 @@ export const AwsLoadbalancerControllerIamPolicy = (partition: string) => {
                     "elasticloadbalancing:DescribeTargetHealth",
                     "elasticloadbalancing:DescribeTags",
                     "elasticloadbalancing:DescribeTrustStores",
-                    "elasticloadbalancing:DescribeListenerAttributes"
+                    "elasticloadbalancing:DescribeListenerAttributes",
+                    "elasticloadbalancing:DescribeCapacityReservation"
                 ],
                 "Resource": "*"
             },
@@ -189,7 +193,9 @@ export const AwsLoadbalancerControllerIamPolicy = (partition: string) => {
                     "elasticloadbalancing:ModifyTargetGroup",
                     "elasticloadbalancing:ModifyTargetGroupAttributes",
                     "elasticloadbalancing:DeleteTargetGroup",
-                    "elasticloadbalancing:ModifyListenerAttributes"
+                    "elasticloadbalancing:ModifyListenerAttributes",
+                    "elasticloadbalancing:ModifyCapacityReservation",
+                    "elasticloadbalancing:ModifyIpPools"
                 ],
                 "Resource": "*",
                 "Condition": {
@@ -235,7 +241,8 @@ export const AwsLoadbalancerControllerIamPolicy = (partition: string) => {
                     "elasticloadbalancing:ModifyListener",
                     "elasticloadbalancing:AddListenerCertificates",
                     "elasticloadbalancing:RemoveListenerCertificates",
-                    "elasticloadbalancing:ModifyRule"
+                    "elasticloadbalancing:ModifyRule",
+                    "elasticloadbalancing:SetRulePriorities"
                 ],
                 "Resource": "*"
             }
