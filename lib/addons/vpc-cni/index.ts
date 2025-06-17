@@ -375,7 +375,7 @@ export class VpcCniAddOn extends CoreAddOn {
     (this.coreAddOnProps.configurationValues as any) = populateVpcCniConfigurationValues(props);
   }
 
-  @conflictsWithAutoMode("v1.19.0-eksbuild.1")
+  @conflictsWithAutoMode(VpcCniAddOn.name,"v1.19.0-eksbuild.1")
   deploy(clusterInfo: ClusterInfo): Promise<Construct> {
     const cluster = clusterInfo.cluster;
     let securityGroupId = cluster.clusterSecurityGroupId;

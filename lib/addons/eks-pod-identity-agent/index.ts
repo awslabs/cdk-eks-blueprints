@@ -28,7 +28,7 @@ const defaultProps = {
  */
 export class EksPodIdentityAgentAddOn extends CoreAddOn {
 
-    @utils.conflictsWithAutoMode('v1.3.4-eksbuild.1')
+    @utils.conflictsWithAutoMode(EksPodIdentityAgentAddOn.name,'v1.3.4-eksbuild.1')
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
         return super.deploy(clusterInfo);
     }
