@@ -30,7 +30,7 @@ const defaultProps = {
 @utils.supportsALL
 export class KubeProxyAddOn extends CoreAddOn {
 
-    @utils.conflictsWithAutoMode(null)
+    @utils.conflictsWithAutoMode(KubeProxyAddOn.name, null)
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
         return super.deploy(clusterInfo);
     }

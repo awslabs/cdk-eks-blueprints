@@ -41,7 +41,7 @@ export class CoreDnsAddOn extends CoreAddOn {
         });
     }
 
-    @utils.conflictsWithAutoMode("v1.9.3-eksbuild.7")
+    @utils.conflictsWithAutoMode(CoreDnsAddOn.name, "v1.9.3-eksbuild.7")
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
 
         const addonPromise: Promise<Construct> = super.deploy(clusterInfo);
