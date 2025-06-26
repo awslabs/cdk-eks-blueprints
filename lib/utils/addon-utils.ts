@@ -132,7 +132,7 @@ export function conflictsWithAutoMode(minExpectedVersion: string | null) {
       if (minExpectedVersion === "fail") {
         throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.`);
       }
-      else if (minExpectedVersion == null) {
+      else if (minExpectedVersion == null || this.version == null || this.version == "auto") {
         logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`);
         return originalMethod.apply(this, args);
       }
