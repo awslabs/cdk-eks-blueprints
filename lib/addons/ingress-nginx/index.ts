@@ -245,7 +245,7 @@ export class IngressNginxAddOn extends HelmAddOn {
 
         // Merge user-defined values with defaults for the Helm chart deployment
         const mergedValues = merge(values, this.props.values ?? {});
-        const nginxHelmChart = this.addHelmChart(clusterInfo, mergedValues);
+        const nginxHelmChart = this.addHelmChart(clusterInfo, mergedValues, undefined, true);
 
         return Promise.resolve(nginxHelmChart);
     }
