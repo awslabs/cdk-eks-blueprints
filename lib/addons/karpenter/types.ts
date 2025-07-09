@@ -64,7 +64,7 @@ export type Ec2NodeClassSpec = {
    * AMI Family: required for v0.32.0 and above, optional otherwise
    * Karpenter will automatically query the appropriate EKS optimized AMI via AWS Systems Manager
    */
-  amiFamily?: "AL2" | "Bottlerocket" | "Ubuntu" | "Windows2019" | "Windows2022";
+  amiFamily?: "AL2" | "AL2023" | "Bottlerocket" | "Ubuntu" | "Windows2019" | "Windows2022";
 
   /**
    * Optional field to control how instance store volumes are handled. Set it to RAID0
