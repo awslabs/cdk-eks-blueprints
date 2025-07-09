@@ -136,6 +136,41 @@ export function getEbsDriverPolicyDocument(
           },
         },
       },
+      {
+        Effect: "Allow",
+        Action: ["ec2:CreateVolume", "ec2:EnableFastSnapshotRestores"],
+        Resource: `arn:${partition}:ec2:*:*:snapshot/*`,
+      },
+      {
+        Effect: "Allow",
+        Action: ["ec2:DeleteVolume"],
+        Resource: `arn:${partition}:ec2:*:*:volume/*`,
+        Condition: {
+          StringLike: {
+            "ec2:ResourceTag/kubernetes.io/created-for/pvc/name": "*",
+          },
+        },
+      },
+      {
+        Effect: "Allow",
+        Action: ["ec2:CreateSnapshot"],
+        Resource: `arn:${partition}:ec2:*:*:snapshot/*`,
+        Condition: {
+          StringLike: {
+            "aws:RequestTag/CSIVolumeSnapshotName": "*",
+          },
+        },
+      },
+      {
+        Effect: "Allow",
+        Action: ["ec2:CreateSnapshot"],
+        Resource: `arn:${partition}:ec2:*:*:snapshot/*`,
+        Condition: {
+          StringLike: {
+            "aws:RequestTag/ebs.csi.aws.com/cluster": "true",
+          },
+        },
+      },
     ],
   };
   if (kmsKeys) {
