@@ -95,7 +95,7 @@ export function conflictsWith(...addOns: string[]) {
   };
 }
 
-function compareEksVersions(version1: string, version2: string): number {
+function compareAddonEksVersions(version1: string, version2: string): number {
   // Extract semver and build number from both versions
   const [semver1, build1] = parseEksVersion(version1);
   const [semver2, build2] = parseEksVersion(version2);
@@ -118,7 +118,7 @@ function parseEksVersion(version: string): [string, number] {
 }
 
 
-export function conflictsWithAutoMode(minExpectedVersion: string | null) {
+export function conflictsWithAutoMode(minExpectedVersion?: string) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return function(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
@@ -134,14 +134,14 @@ export function conflictsWithAutoMode(minExpectedVersion: string | null) {
       if('getAddonVersion' in this && typeof this.getAddonVersion === 'function'){
         version = this.getAddonVersion();
       }
-      if (minExpectedVersion === "fail") {
+      if (minExpectedVersion == "fail") {
         throw new Error(`Deploying ${stack} failed. Add-on ${addonName} is already available on the cluster with EKS Auto Mode.`);
       }
       else if (minExpectedVersion == null || version ==  "auto") {
         logger.warn(`Add-on ${addonName} is already available on the cluster with EKS Auto Mode. Please check https://docs.aws.amazon.com/eks/latest/userguide/auto-enable-existing.html#auto-addons-required to ensure that the specified version is compatible`);
         return originalMethod.apply(this, args);
       }
-      else if (compareEksVersions(version, minExpectedVersion) >= 0){ // what to do if other nodegroups attached too?
+      else if (compareAddonEksVersions(version, minExpectedVersion) >= 0){ // what to do if other nodegroups attached too?
         return originalMethod.apply(this, args);
       } else {
         throw new Error(`Deploying ${stack} failed. Add-on ${addonName} is already available on the cluster with EKS Auto Mode.  If you would like to install this addon alongside automode, please upgrade to version ${minExpectedVersion}`);
