@@ -126,21 +126,25 @@ export function conflictsWithAutoMode(minExpectedVersion: string | null) {
     descriptor.value = function(this: any, ...args: any[]) {
       const clusterInfo: ClusterInfo = args[0];
       const stack = clusterInfo.cluster.stack.stackName;
+      const addonName = this.constructor.name;
       if (!clusterInfo.autoMode) {
         return originalMethod.apply(this, args);
       }
-      if (minExpectedVersion === "fail") {
-        throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.`);
+      let version = null;
+      if('getAddonVersion' in this && typeof this.getAddonVersion === 'function'){
+        version = this.getAddonVersion();
       }
-      else if (minExpectedVersion == null || this.version == null || this.version == "auto") {
-        logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`);
+      if (minExpectedVersion === "fail") {
+        throw new Error(`Deploying ${stack} failed. Add-on ${addonName} is already available on the cluster with EKS Auto Mode.`);
+      }
+      else if (minExpectedVersion == null || version ==  "auto") {
+        logger.warn(`Add-on ${addonName} is already available on the cluster with EKS Auto Mode. Please check https://docs.aws.amazon.com/eks/latest/userguide/auto-enable-existing.html#auto-addons-required to ensure that the specified version is compatible`);
         return originalMethod.apply(this, args);
       }
-      else if (compareEksVersions(this.version, minExpectedVersion) >= 0){ // what to do if other nodegroups attached too?
-        logger.warn(`This add-on is already available on the cluster with EKS Auto Mode.`);
+      else if (compareEksVersions(version, minExpectedVersion) >= 0){ // what to do if other nodegroups attached too?
         return originalMethod.apply(this, args);
       } else {
-        throw new Error(`Deploying ${stack} failed. This add-on is already available on the cluster with EKS Auto Mode.  If you would like to install this addon alongside automode, please upgrade to version ${minExpectedVersion}`);
+        throw new Error(`Deploying ${stack} failed. Add-on ${addonName} is already available on the cluster with EKS Auto Mode.  If you would like to install this addon alongside automode, please upgrade to version ${minExpectedVersion}`);
       }
     };
 
