@@ -46,7 +46,7 @@ export class HelmAddonPropsConstraints implements utils.ConstraintsType<HelmAddO
     version = new utils.StringConstraint(1, 1024);
 }
 
-export abstract class HelmAddOn implements spi.ClusterAddOn {
+export abstract class HelmAddOn implements spi.ClusterAddOn, spi.AutoModeAddon {
 
     props: HelmAddOnProps;
 
@@ -57,6 +57,10 @@ export abstract class HelmAddOn implements spi.ClusterAddOn {
         this.props = utils.cloneDeep(props); // avoids polution when reusing the same props across stacks, such as values
         utils.validateConstraints(new HelmAddonPropsConstraints, HelmAddOn.name, props);
         HelmAddOn.validateVersion(props);
+    }
+
+    getAddonVersion(): string {
+      return this.props.version;
     }
 
     public static validateVersion(helmChart: HelmChartVersion) {

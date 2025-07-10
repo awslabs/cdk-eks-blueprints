@@ -87,7 +87,7 @@ export class AwsLoadBalancerControllerAddOn extends HelmAddOn {
         this.options = this.props as AwsLoadBalancerControllerProps;
     }
 
-    @utils.conflictsWithAutoMode(null)
+    @utils.conflictsWithAutoMode()
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
         const cluster = clusterInfo.cluster;
         const serviceAccount = cluster.addServiceAccount(

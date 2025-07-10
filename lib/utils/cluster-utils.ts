@@ -2,7 +2,6 @@ import { Construct } from "constructs";
 import * as customResource from 'aws-cdk-lib/custom-resources';
 import { ClusterInfo } from "../spi";
 
-
 interface Tag {
   Key: string;
   Value: string;

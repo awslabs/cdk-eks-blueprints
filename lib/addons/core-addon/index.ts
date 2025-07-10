@@ -1,6 +1,6 @@
 import { CfnAddon, FargateCluster, ServiceAccount } from "aws-cdk-lib/aws-eks";
 import { ClusterAddOn } from "../..";
-import { ClusterInfo, Values } from "../../spi";
+import { AutoModeAddon, ClusterInfo, Values } from "../../spi";
 import { Construct, IConstruct } from "constructs";
 import { IManagedPolicy, ManagedPolicy, PolicyDocument } from "aws-cdk-lib/aws-iam";
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
@@ -53,7 +53,7 @@ const DEFAULT_NAMESPACE = "kube-system";
 /**
  * Implementation of EKS Managed add-ons.
  */
-export class CoreAddOn implements ClusterAddOn {
+export class CoreAddOn implements ClusterAddOn, AutoModeAddon{
 
     readonly coreAddOnProps: CoreAddOnProps;
 
@@ -223,5 +223,9 @@ export class CoreAddOn implements ClusterAddOn {
             return versionMap.get(version) ?? versionMap.values().next().value!;
         }
         throw new Error(`No default version found for add-on ${this.coreAddOnProps.addOnName}`);
+    }
+
+    getAddonVersion(): string {
+      return this.coreAddOnProps.version;
     }
 }

@@ -14,6 +14,7 @@ import { AutoscalingNodeGroup, ManagedNodeGroup } from "./types";
 import assert = require('assert');
 import { selectKubectlLayer, AutoscalingNodeGroupConstraints, FargateProfileConstraints, ManagedNodeGroupConstraints} from "./generic-cluster-provider";
 import { NodePoolV1Spec } from "../addons/karpenter/types";
+import * as semver from "semver";
 
 export function clusterBuilderv2() {
     return new ClusterBuilderV2();
@@ -242,6 +243,9 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         });
 
         const autoMode = clusterOptions.defaultCapacityType != undefined && (clusterOptions.defaultCapacityType as eks.DefaultCapacityType) == eks.DefaultCapacityType.AUTOMODE;
+        if (autoMode && semver.lt(semver.coerce(version.version)!,"1.29.0")) {
+          throw new Error("EKS Auto Mode is only supported for cluster versions of 1.29 or higher.");
+        }
 
         const fargateProfiles = Object.entries(this.props.fargateProfiles ?? {});
         const fargateConstructs: eks.FargateProfile[] = [];

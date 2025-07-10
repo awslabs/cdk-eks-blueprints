@@ -20,6 +20,12 @@ export declare interface ClusterAddOn {
     deploy(clusterInfo: types.ClusterInfo): Promise<Construct> | void;
 }
 
+export declare interface AutoModeAddon {
+
+  getAddonVersion(): string;
+
+}
+
 /**
  * Optional interface to allow cluster bootstrapping after provisioning of add-ons and teams is complete.
  * Can be leveraged to bootstrap workloads, perform cluster checks. 
