@@ -43,16 +43,19 @@ export function validateSupportedArchitecture(addOnName: string, arch: ArchType,
  * @returns 
  */
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function supportsX86(constructor: Function) {
   const addonName = constructor.name;
   addAddonArch(addonName, ArchType.X86);
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function supportsARM(constructor: Function) {
   const addonName = constructor.name;
   addAddonArch(addonName, ArchType.ARM);
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function supportsALL(constructor: Function) {
   const addonName = constructor.name;
   addAddonArch(addonName, ArchType.X86);

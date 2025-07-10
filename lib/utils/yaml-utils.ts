@@ -68,6 +68,7 @@ export function loadYaml(document: string): any {
  * @returns a list of parsed YAML documents
  */
 export function loadExternalYaml(url: string): any {
+    /* eslint-disable */
     const request = require('sync-request'); // moved away from import as it is causing open handles that prevents jest from completion
     const response = request('GET', url);
     return yaml.loadAll(response.getBody().toString());

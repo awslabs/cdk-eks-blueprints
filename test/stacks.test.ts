@@ -518,5 +518,5 @@ function assertBlueprint(stack: blueprints.EksBlueprint, ...charts: string[]) {
             Chart: chart
         });
     }
-    expect(stack.templateOptions.description).toContain("Blueprints tracking (uksb");
+    expect(stack.templateOptions.description).toContain("Blueprints tracking (qs");
 }

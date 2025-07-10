@@ -72,7 +72,8 @@ export function dependable(...addOns: string[]) {
  * @returns 
  */
 export function conflictsWith(...addOns: string[]) {
-  return function (target: object, key: string | symbol, descriptor: PropertyDescriptor) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  return function (target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function( ...args: any[]) {
@@ -118,7 +119,8 @@ function parseEksVersion(version: string): [string, number] {
 
 
 export function conflictsWithAutoMode(minExpectedVersion?: string) {
-  return function(target: object, key: string | symbol, descriptor: PropertyDescriptor) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  return function(target: Object, key: string | symbol, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function(this: any, ...args: any[]) {
