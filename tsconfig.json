@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
         "outDir": "dist",
-        "target": "ES2018",
+        "target": "ES2022",
         "module": "commonjs",
         "lib": [
-            "es2018",
+            "ES2022",
             "dom"
         ],
         "declaration": true,
