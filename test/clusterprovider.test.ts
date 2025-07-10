@@ -47,7 +47,7 @@ test("Generic cluster provider correctly registers managed node groups", async (
         .addOns(new blueprints.ClusterAutoScalerAddOn)
         .build(app, 'stack-with-resource-providers');
     
-    expect(addNodegroupCapacityMock).toBeCalledWith(
+    expect(addNodegroupCapacityMock).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
             "instanceTypes": expect.any(Array<ec2.InstanceType>),
@@ -93,7 +93,7 @@ test("Generic cluster provider correctly registers managed node groups with inst
         .addOns(new blueprints.ClusterAutoScalerAddOn)
         .buildAsync(app, 'stack-with-resource-providers');
 
-    expect(addNodegroupCapacityMock).toBeCalledWith(
+    expect(addNodegroupCapacityMock).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
             "instanceTypes": expect.any(Array<ec2.InstanceType>),
@@ -137,7 +137,7 @@ test("Generic cluster provider correctly registers autoscaling node groups", () 
         .addOns(new blueprints.ClusterAutoScalerAddOn)
         .build(app, 'stack-with-resource-providers');
     
-    expect(addAutoScalingGroupCapacityMock).toBeCalledWith(
+    expect(addAutoScalingGroupCapacityMock).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
             "instanceType": expect.any(ec2.InstanceType),
@@ -167,7 +167,7 @@ test("Generic cluster provider correctly registers autoscaling node groups with 
         .addOns(new blueprints.ClusterAutoScalerAddOn)
         .build(app, 'stack-with-resource-providers');
 
-    expect(addAutoScalingGroupCapacityMock).toBeCalledWith(
+    expect(addAutoScalingGroupCapacityMock).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
             "instanceType": expect.any(ec2.InstanceType),

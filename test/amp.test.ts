@@ -51,6 +51,7 @@ test("Stack creation fails due to ruleFilePaths.length == 0", async () => {
         expect(stack).toBeDefined();
     }
     catch (error){
+        blueprints.utils.logger.error(error);
         return;
     }
     fail("Expected exception wasnt thrown for AMP Addon-on Rule Path test.");
