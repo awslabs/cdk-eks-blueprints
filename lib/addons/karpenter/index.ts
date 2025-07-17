@@ -21,6 +21,7 @@ export * from './karpenter-v1';
 
 class versionMap {
     private static readonly versionMap: Map<string, string> = new Map([
+        [KubernetesVersion.V1_33.version, '1.5.0'],
         [KubernetesVersion.V1_32.version, '1.2.0'],
         [KubernetesVersion.V1_31.version, '0.37.5'],
         [KubernetesVersion.V1_30.version, '0.37.5'],
