@@ -87,10 +87,11 @@ The framework currently supports the following add-ons.
 | [`ApacheAirflowAddOn`](./apache-airflow.md)                                           | This add-on is an implementation of Apache Airflow on EKS using the official helm chart.                                                  | ✅ |
 | [`ArgoCDAddOn`](./argo-cd.md)                                             | Provisions Argo CD into your cluster.                                                                                                 | ✅ | ✅ |
 | [`AWS Batch for EKS`](./aws-batch-on-eks.md)                              | Enables EKS cluster to be used with AWS Batch on EKS                                                                    | ✅ | ✅ |
-| [`AWS CloudWatch Insgihts`](./aws-cloudwatch-insights.md) | Provisions CloudWatch Insights to be used with the EKS cluster. | ✅ | ✅ |  
+| [`AWS CloudWatch Insights`](./aws-cloudwatch-insights.md) | Provisions CloudWatch Insights to be used with the EKS cluster. | ✅ | ✅ |  
 | [`AWS for Fluent Bit`](./aws-gateway-api-controller.md)                           | Provisions Fluent Bit into your cluster for log aggregation and consumption.   
 | [`AWS Gateway API Controller Add-on`](./aws-for-fluent-bit.md)                           | Installs the [AWS Gateway API Controller](https://www.gateway-api-controller.eks.aws.dev/latest) in your cluster to enable Amazon VPC Lattice service networking capabilities.                                                                      | ✅ | ✅
 | [`AWS Load Balancer Controller`](./aws-load-balancer-controller.md)       | Provisions the AWS Load Balancer Controller into your cluster.                                                                        | ✅ | ✅ |
+| [`AWS ALB Default Ingress Class`](./aws-alb-default-ingress-class.md.md)       | Adds a default ALB ingress class to your cluster.                                                                        | ✅ | ✅ |
 | [`AWS Node Termination Handler`](./aws-node-termination-handler.md)       | Provisions Node Termination Handler into your cluster.                                                                        | ✅ |
 | [`AWS Private CA Issuer`](./aws-privateca-issuer.md)                      | Installs AWS Private CA Issuer into your cluster.                                                                        | ✅ |
 | [`Backstage`](./backstage.md)                      | Installs Backstage.                                                                        | ✅ |
