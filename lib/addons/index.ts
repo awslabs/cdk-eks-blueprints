@@ -9,6 +9,7 @@ export * from './argocd/argo-gitops-factory';
 export * from './aws-batch-on-eks';
 export * from './aws-for-fluent-bit';
 export * from './aws-loadbalancer-controller';
+export * from './aws-alb-default-ingress-class';
 export * from './aws-node-termination-handler';
 export * from './aws-privateca-issuer';
 export * from './backstage';
