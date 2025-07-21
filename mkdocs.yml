@@ -30,6 +30,7 @@ nav:
     - AWS For Fluent Bit: 'addons/aws-for-fluent-bit.md'
     - AWS Gateway API Controller: 'addons/aws-gateway-api-controller.md'
     - AWS Load Balancer Controller: 'addons/aws-load-balancer-controller.md'
+    - AWS ALB Default IngressClass: 'addons/aws-alb-default-ingress-class.md'
     - AWS Node Termination Handler: 'addons/aws-node-termination-handler.md'
     - AWS Private CA Issuer: 'addons/aws-privateca-issuer.md'
     - Backstage: 'addons/backstage.md'

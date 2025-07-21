@@ -43,7 +43,8 @@ export default class AutomodeConstruct {
         blueprints.GlobalResources.Vpc,
         new blueprints.VpcProvider(),
       )
-      .addOns(new blueprints.addons.ALBDefaultIngressClassAddOn())
+      .addOns(new blueprints.addons.ArgoCDAddOn())
+      .addALBIngressClass()
       .build(scope, stackID);
   }
 }
@@ -52,6 +53,8 @@ export default class AutomodeConstruct {
 ## Using ALBDefaultIngressClassAddOn with Auto Mode
 
 EKS Auto Mode comes with the AWS Load Balancer Controller pre-installed, but it doesn't create a default IngressClass resource. The `ALBDefaultIngressClassAddOn` complements the Auto Mode setup by creating a default IngressClass named `alb` that's configured to work with the AWS Load Balancer Controller.
+
+To add this AddOn to your cluster, use the `addALBIngressClass()` function of the AutomodeBuilder.
 
 Adding this addon to your Auto Mode cluster enables you to:
 

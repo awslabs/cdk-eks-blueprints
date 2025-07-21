@@ -1,11 +1,12 @@
 import { ClusterAddOn, ClusterInfo } from '../../spi';
 import { KubernetesManifest } from 'aws-cdk-lib/aws-eks';
-import { supportsALL } from '../../utils';
+import { conflictsWith, supportsALL } from '../../utils';
 
 
 @supportsALL
 export class ALBDefaultIngressClassAddOn implements ClusterAddOn {
 
+  @conflictsWith('AwsLoadBalancerControllerAddOn')
   deploy(clusterInfo: ClusterInfo): void {
     const cluster = clusterInfo.cluster;
     const ingressClassManifest = {

@@ -1,6 +1,12 @@
 # AWS ALB Default IngressClass Add-on
 
-The AWS ALB Default IngressClass Add-on creates a default IngressClass resource for the AWS Application Load Balancer (ALB) Controller in your EKS cluster. This add-on simplifies the process of using the AWS Load Balancer Controller with Kubernetes Ingress resources by providing a default IngressClass that's automatically configured to work with the ALB controller.
+> [!WARNING]
+> **This AddOn is for use specifically with EKS Auto Mode, and will not work with non-Auto Mode clusters.  For non-Auto Mode clusters, please use [AwsLoadBalancerControllerAddOn](./aws-load-balancer-controller.md)**
+
+The AWS ALB Default IngressClass Add-on creates a default IngressClass resource for the AWS Application Load Balancer (ALB) Controller in your EKS cluster. This add-on simplifies the process of using the AWS Load Balancer Controller on EKS Auto Mode with Kubernetes Ingress resources by providing a default IngressClass that's automatically configured to work with the ALB controller.
+
+> [!NOTE]
+> AWS Load Balancer Controller is automatically deployed and managed on your cluster as a part of EKS Auto Mode
 
 ## Usage
 
@@ -13,7 +19,7 @@ const app = new cdk.App();
 
 const addOn = new blueprints.addons.ALBDefaultIngressClassAddOn();
 
-const blueprint = blueprints.EksBlueprint.builder()
+const blueprint = blueprints.AutomodeBuilder.builder()
   .addOns(addOn)
   .build(app, 'my-stack-name');
 ```
@@ -25,12 +31,6 @@ This add-on deploys a Kubernetes IngressClass resource with the following charac
 1. Creates an IngressClass named `alb` in the cluster
 2. Configures the IngressClass to use the AWS ALB controller (`eks.amazonaws.com/alb`)
 3. Adds appropriate labels for integration with the AWS Load Balancer Controller
-
-## EKS Auto Mode Compatibility
-
-When using EKS Auto Mode, the AWS Load Balancer Controller is already installed by default, so this add-on complements the existing controller by providing a default IngressClass. You don't need to explicitly install the AWS Load Balancer Controller when using Auto Mode.
-
-If you're not using EKS Auto Mode, you'll need to ensure the AWS Load Balancer Controller is installed separately using the `AwsLoadBalancerControllerAddOn`.
 
 ## Validation
 
