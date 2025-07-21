@@ -21,5 +21,10 @@ export class AutomodeBuilder extends BlueprintBuilder {
 
         return builder; 
     }
+    
+    public addALBIngressClass(): AutomodeBuilder{
+      this.addOns(new addons.ALBDefaultIngressClassAddOn());
+      return this;
+    }
 }
 
