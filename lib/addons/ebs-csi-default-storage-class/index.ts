@@ -1,12 +1,13 @@
 import { ClusterAddOn, ClusterInfo } from '../../spi';
 import { KubernetesManifest } from 'aws-cdk-lib/aws-eks';
-import { conflictsWith, supportsALL } from '../../utils';
+import { conflictsWith, mustRunOnAutoMode, supportsALL } from '../../utils';
 
 
 @supportsALL
 export class EbsCsiDefaultStorageClassAddOn implements ClusterAddOn {
 
   @conflictsWith('EbsCsiDriverAddOn')
+  @mustRunOnAutoMode()
   deploy(clusterInfo: ClusterInfo): void {
     const cluster = clusterInfo.cluster;
     const storageClassManifest = {

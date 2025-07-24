@@ -150,6 +150,28 @@ export function conflictsWithAutoMode(minExpectedVersion?: string) {
   };
 }
 
+export function mustRunOnAutoMode() {
+  return function(target: object, key: string | symbol, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = function(this: any, ...args: any[]) {
+      const clusterInfo: ClusterInfo = args[0];
+      const stack = clusterInfo.cluster.stack.stackName;
+      const addonName = this.constructor.name;
+      if (clusterInfo.autoMode) {
+        return originalMethod.apply(this, args);
+      } else {
+        throw new Error(`Deploying ${stack} failed. Add-on ${addonName} can only be run on EKS Auto Mode clusters.`)
+      }
+    };
+
+        return descriptor;
+
+  }
+
+
+}
+
 /**
  * Checks if the passed addon is part of auto mode and deployed by the EKS CP. 
  * @param addOn addOn name to check

@@ -65,3 +65,38 @@ describe('Unit tests for EBS CSI Default Storage Class addon', () => {
         expect(blueprint).toBeDefined();
     });
 });
+
+describe('Unit tests for Auto Mode only addons', () => {
+  test("Stack creation fails due to ALB Default IngressClass on non Auto Mode Cluster", () => {
+    const app = new cdk.App();
+
+    const blueprint = new blueprints.BlueprintBuilder();
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .clusterProvider(new blueprints.MngClusterProvider())
+      .addOns(new blueprints.ALBDefaultIngressClassAddOn())
+
+    expect(() => {
+        blueprint.build(app, 'alb-ingressclass-non-auto');
+    }).toThrow("Deploying alb-ingressclass-non-auto failed. Add-on ALBDefaultIngressClassAddOn can only be run on EKS Auto Mode clusters.");
+
+  });
+
+  test("Stack creation fails due to EBS Default StorageClass on non Auto Mode Cluster", () => {
+    const app = new cdk.App();
+
+    const blueprint = new blueprints.BlueprintBuilder();
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .clusterProvider(new blueprints.MngClusterProvider())
+      .addOns(new blueprints.EbsCsiDefaultStorageClassAddOn())
+
+    expect(() => {
+        blueprint.build(app, 'ebs-storageclass-non-auto');
+    }).toThrow("Deploying ebs-storageclass-non-auto failed. Add-on EbsCsiDefaultStorageClassAddOn can only be run on EKS Auto Mode clusters.");
+
+  });
+
+});
