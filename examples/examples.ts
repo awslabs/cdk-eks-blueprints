@@ -111,6 +111,8 @@ bp.AutomodeBuilder.builder({
       targetType: "ip",
     })
   )
+  .addALBIngressClass()
+  .addEBSStorageClass()
   .build(app, "eksv2-blueprint");
 
 
