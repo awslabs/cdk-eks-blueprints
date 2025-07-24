@@ -23,6 +23,7 @@ export * from './cluster-autoscaler';
 export * from './container-insights';
 export * from './coredns';
 export * from './ebs-csi-driver';
+export * from './ebs-csi-default-storage-class/';
 export * from './efs-csi-driver';
 export * from './eks-pod-identity-agent';
 export * from './emr-on-eks';
@@ -73,5 +74,5 @@ export * from './gateway-api-crds';
 export * from './usage-tracking';
 
 export class Constants {
-    public static readonly BLUEPRINTS_ADDON = "blueprints-addon";
+  public static readonly BLUEPRINTS_ADDON = "blueprints-addon";
 }

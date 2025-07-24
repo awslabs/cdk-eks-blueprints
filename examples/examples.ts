@@ -112,6 +112,7 @@ bp.AutomodeBuilder.builder({
     })
   )
   .addALBIngressClass()
+  .addEBSStorageClass()
   .build(app, "eksv2-blueprint");
 
 

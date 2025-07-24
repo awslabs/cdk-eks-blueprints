@@ -1,9 +1,8 @@
 # AWS ALB Default IngressClass Add-on
 
-> [!WARNING]
-> **This AddOn is for use specifically with EKS Auto Mode, and will not work with non-Auto Mode clusters.  For non-Auto Mode clusters, please use [AwsLoadBalancerControllerAddOn](./aws-load-balancer-controller.md)**
+> [!WARNING] > **This AddOn is for use specifically with EKS Auto Mode, and will not work with non-Auto Mode clusters. For non-Auto Mode clusters, please use [AwsLoadBalancerControllerAddOn](./aws-load-balancer-controller.md)**
 
-The AWS ALB Default IngressClass Add-on creates a default IngressClass resource for the AWS Application Load Balancer (ALB) Controller in your EKS cluster. This add-on simplifies the process of using the AWS Load Balancer Controller on EKS Auto Mode with Kubernetes Ingress resources by providing a default IngressClass that's automatically configured to work with the ALB controller.
+The AWS ALB Default IngressClass Add-on creates a default IngressClass resource for the AWS Application Load Balancer (ALB) Controller in your EKS cluster. This add-on simplifies the process of using the AWS Load Balancer Controller on EKS Auto Mode with Kubernetes Ingress resources by providing a default IngressClass that's automatically configured.
 
 > [!NOTE]
 > AWS Load Balancer Controller is automatically deployed and managed on your cluster as a part of EKS Auto Mode
@@ -11,9 +10,9 @@ The AWS ALB Default IngressClass Add-on creates a default IngressClass resource 
 ## Usage
 
 ```typescript
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import * as blueprints from '@aws-quickstart/eks-blueprints';
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import * as blueprints from "@aws-quickstart/eks-blueprints";
 
 const app = new cdk.App();
 
@@ -21,7 +20,7 @@ const addOn = new blueprints.addons.ALBDefaultIngressClassAddOn();
 
 const blueprint = blueprints.AutomodeBuilder.builder()
   .addOns(addOn)
-  .build(app, 'my-stack-name');
+  .build(app, "my-stack-name");
 ```
 
 ## Functionality
@@ -57,18 +56,18 @@ kind: Ingress
 metadata:
   name: my-ingress
 spec:
-  ingressClassName: alb  # Uses the default ALB IngressClass
+  ingressClassName: alb # Uses the default ALB IngressClass
   rules:
-  - host: example.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: my-service
-            port:
-              number: 80
+    - host: example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-service
+                port:
+                  number: 80
 ```
 
 ## Benefits of Using This Add-on

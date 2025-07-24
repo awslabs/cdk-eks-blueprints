@@ -4,7 +4,7 @@ import * as blueprints from '../lib';
 const account = "1234567891"
 const region = "us-west-1"
 
-describe('Unit tests for AWS ALB Default Ingress Classaddon', () => {
+describe('Unit tests for AWS ALB Default Ingress Class addon', () => {
     test("Stack creation fails due to conflict with AwsLoadBalancerController AddOn", () => {
         const app = new cdk.App();
 
@@ -30,6 +30,37 @@ describe('Unit tests for AWS ALB Default Ingress Classaddon', () => {
             .version("auto")
             .addALBIngressClass()
             .build(app, 'alb-ingressclass-stack-succeeds');
+
+        expect(blueprint).toBeDefined();
+    });
+});
+
+describe('Unit tests for EBS CSI Default Storage Class addon', () => {
+    test("Stack creation fails due to conflict with EbsCsiDriverAddOn", () => {
+        const app = new cdk.App();
+
+        const blueprint = blueprints.AutomodeBuilder.builder({});
+
+        blueprint.account(account).region(region)
+            .version("auto")
+            .addOns(new blueprints.EbsCsiDriverAddOn())
+            .addEBSStorageClass()
+
+        expect(() => {
+            blueprint.build(app, 'ebs-sc-addon-conflict');
+        }).toThrow("Deploying ebs-sc-addon-conflict failed due to conflicting add-on: EbsCsiDriverAddOn.");
+    });
+
+    test("Kubernetes stack creation succeeds with default EBS StorageClass", () => {
+        const app = new cdk.App();
+
+        const blueprint = blueprints.AutomodeBuilder.builder({});
+
+
+        blueprint.account(account).region(region)
+            .version("auto")
+            .addEBSStorageClass()
+            .build(app, 'ebs-storageclass-stack-succeeds');
 
         expect(blueprint).toBeDefined();
     });

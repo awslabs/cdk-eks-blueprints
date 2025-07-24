@@ -105,6 +105,7 @@ The framework currently supports the following add-ons.
 | [`DatadogAddOn`](./datadog.md) | Adds [Datadog](https://www.datadoghq.com/) Amazon EKS add-on. Datadog is the monitoring and security platform for cloud applications.  |                         ✅ | ✅
 | [`Dynatrace`](https://github.com/dynatrace-oss/dynatrace-eks-blueprints-addon)           | Adds the [Dynatrace](https://www.dynatrace.com/) [OneAgent Operator](https://github.com/Dynatrace/dynatrace-oneagent-operator).        | ✅ | 
 | [`EbsCsiDriverAddOn`](./ebs-csi-driver.md)                             | Adds EBS CSI Driver Amazon EKS add-on. This driver manages the lifecycle of Amazon EBS volumes for persistent storage.                 | ✅ | ✅ |
+| [`EBS CSI Default StorageClass`](./ebs-csi-default-storage-class.md)           |                                                         Adds a default EBS storageclass to your EKS Auto Mode cluster.                                                         |      ✅      |  ✅   |
 | [`EfsCsiDriverAddOn`](./efs-csi-driver.md)                             | Adds EFS CSI Driver Amazon EKS add-on. This driver manages the lifecycle of Amazon EFS volumes for persistent storage.                 | ✅ | ✅ |
 | [`EmrOnEksAddOn`](./emr-eks.md)                             | Enable EKS cluster to be used with EMR on EKS          | ✅ | ✅ |
 | [`ExternalDnsAddOn`](./external-dns.md)                                   | Adds [External DNS](https://github.com/kubernetes-sigs/external-dns) support for AWS to the cluster, integrating with Amazon Route 53. | ✅ | ✅ |
