@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
 
-const account = "1234567891"
-const region = "us-west-1"
+const account = "1234567891";
+const region = "us-west-1";
 
 describe('Unit tests for AWS ALB Default Ingress Class addon', () => {
     test("Stack creation fails due to conflict with AwsLoadBalancerController AddOn", () => {
@@ -13,7 +13,7 @@ describe('Unit tests for AWS ALB Default Ingress Class addon', () => {
         blueprint.account(account).region(region)
             .version("auto")
             .addOns(new blueprints.AwsLoadBalancerControllerAddOn())
-            .addALBIngressClass()
+            .addALBIngressClass();
 
         expect(() => {
             blueprint.build(app, 'aws-lbc-addon-conflict');
@@ -44,7 +44,7 @@ describe('Unit tests for EBS CSI Default Storage Class addon', () => {
         blueprint.account(account).region(region)
             .version("auto")
             .addOns(new blueprints.EbsCsiDriverAddOn())
-            .addEBSStorageClass()
+            .addEBSStorageClass();
 
         expect(() => {
             blueprint.build(app, 'ebs-sc-addon-conflict');
@@ -75,7 +75,7 @@ describe('Unit tests for Auto Mode only addons', () => {
     blueprint.account(account).region(region)
       .version("auto")
       .clusterProvider(new blueprints.MngClusterProvider())
-      .addOns(new blueprints.ALBDefaultIngressClassAddOn())
+      .addOns(new blueprints.ALBDefaultIngressClassAddOn());
 
     expect(() => {
         blueprint.build(app, 'alb-ingressclass-non-auto');
@@ -91,7 +91,7 @@ describe('Unit tests for Auto Mode only addons', () => {
     blueprint.account(account).region(region)
       .version("auto")
       .clusterProvider(new blueprints.MngClusterProvider())
-      .addOns(new blueprints.EbsCsiDefaultStorageClassAddOn())
+      .addOns(new blueprints.EbsCsiDefaultStorageClassAddOn());
 
     expect(() => {
         blueprint.build(app, 'ebs-storageclass-non-auto');

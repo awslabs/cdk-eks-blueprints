@@ -26,7 +26,7 @@ export class EbsCsiDefaultStorageClassAddOn implements ClusterAddOn {
         encrypted: "true"
       }
     };
-    const storageClass = new KubernetesManifest(cluster.stack, 'ebs-storage-class', {
+    new KubernetesManifest(cluster.stack, 'ebs-storage-class', {
       cluster,
       manifest: [storageClassManifest],
       overwrite: true

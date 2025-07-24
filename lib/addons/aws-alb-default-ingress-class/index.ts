@@ -22,7 +22,7 @@ export class ALBDefaultIngressClassAddOn implements ClusterAddOn {
         controller: "eks.amazonaws.com/alb"
       }
     };
-    const ingressClass = new KubernetesManifest(cluster.stack, 'alb-ingress-class', {
+    new KubernetesManifest(cluster.stack, 'alb-ingress-class', {
       cluster,
       manifest: [ingressClassManifest],
       overwrite: true

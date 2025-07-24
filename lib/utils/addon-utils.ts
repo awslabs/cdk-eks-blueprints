@@ -161,13 +161,13 @@ export function mustRunOnAutoMode() {
       if (clusterInfo.autoMode) {
         return originalMethod.apply(this, args);
       } else {
-        throw new Error(`Deploying ${stack} failed. Add-on ${addonName} can only be run on EKS Auto Mode clusters.`)
+        throw new Error(`Deploying ${stack} failed. Add-on ${addonName} can only be run on EKS Auto Mode clusters.`);
       }
     };
 
         return descriptor;
 
-  }
+  };
 
 
 }
