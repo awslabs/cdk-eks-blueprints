@@ -366,7 +366,7 @@ export class KarpenterV1AddOn extends HelmAddOn {
 
         // Map Node Role to aws-auth
         cluster.awsAuth.addRoleMapping(karpenterNodeRole, {
-            groups: ["system:bootstrapper", "system:nodes"],
+            groups: ["system:bootstrappers", "system:nodes"],
             username: "system:node:{{EC2PrivateDNSName}}",
         });
 
