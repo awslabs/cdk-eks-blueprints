@@ -23,16 +23,26 @@ export class ObservabilityBuilder extends BlueprintBuilder {
      * This method helps you prepare a blueprint for setting up observability 
      * returning an array of blueprint addons for AWS native services
      */
-    public enableNativePatternAddOns(): ObservabilityBuilder {
+    public enableNativePatternAddOns(isAutoModeCluster?: boolean): ObservabilityBuilder {
+        const nativePatternAddOns = [
+                new addons.CertManagerAddOn(this.certManagerProps),
+                new addons.CloudWatchInsights(this.cloudWatchInsightsAddOnProps),
+                new addons.KubeStateMetricsAddOn(this.kubeStateMetricsProps),
+                new addons.MetricsServerAddOn(this.metricsServerProps),
+                new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps)
+        ];
+        if (isAutoModeCluster){
+            return this.addOns(
+                new addons.ALBDefaultIngressClassAddOn(),
+                ...nativePatternAddOns
+            );
+        }
         return this.addOns(
             new addons.AwsLoadBalancerControllerAddOn(this.awsLoadbalancerProps),
-            new addons.CertManagerAddOn(this.certManagerProps),
-            new addons.CloudWatchInsights(this.cloudWatchInsightsAddOnProps),
             new addons.CoreDnsAddOn(this.coreDnsVersion,this.coreDnsProps),
             new addons.KubeProxyAddOn(this.kubeProxyVersion,this.kubeProxyProps),
-            new addons.KubeStateMetricsAddOn(this.kubeStateMetricsProps),
-            new addons.MetricsServerAddOn(this.metricsServerProps),
-            new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps));
+            ...nativePatternAddOns
+        );
     }
     /**
      * This method helps you prepare a blueprint for setting up observability 
@@ -54,35 +64,55 @@ export class ObservabilityBuilder extends BlueprintBuilder {
      * returning an array of blueprint addons for combination of AWS native and 
      * AWS managed open source services
      */
-    public enableMixedPatternAddOns(): ObservabilityBuilder {
-        return this.addOns(
-            new addons.AwsLoadBalancerControllerAddOn(this.awsLoadbalancerProps),
+    public enableMixedPatternAddOns(isAutoModeCluster?: boolean): ObservabilityBuilder {
+        const mixedPatternAddOns = [
             new addons.CertManagerAddOn(this.certManagerProps),
             new addons.AdotCollectorAddOn(this.adotCollectorProps),
-            new addons.CoreDnsAddOn(this.coreDnsVersion,this.coreDnsProps),
-            new addons.KubeProxyAddOn(this.kubeProxyVersion, this.kubeProxyProps),
             new addons.KubeStateMetricsAddOn(this.kubeStateMetricsProps),
             new addons.MetricsServerAddOn(this.metricsServerProps),
-            new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps));
+            new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps)
+        ];
+        if(isAutoModeCluster){
+            return this.addOns(
+                new addons.ALBDefaultIngressClassAddOn(),
+                ...mixedPatternAddOns
+            );
+        }
+        return this.addOns(
+            new addons.AwsLoadBalancerControllerAddOn(this.awsLoadbalancerProps),
+            new addons.CoreDnsAddOn(this.coreDnsVersion,this.coreDnsProps),
+            new addons.KubeProxyAddOn(this.kubeProxyVersion, this.kubeProxyProps),
+            ...mixedPatternAddOns
+        );
     }
 
     /**
      * This method helps you prepare a blueprint for setting up observability 
      * returning an array of blueprint addons for AWS managed open source services
      */
-    public enableOpenSourcePatternAddOns(): ObservabilityBuilder {
+    public enableOpenSourcePatternAddOns(isAutoModeCluster?: boolean): ObservabilityBuilder {
+        const openSourcePatternAddOns = [                
+                new addons.CertManagerAddOn(this.certManagerProps),
+                new addons.AdotCollectorAddOn(this.adotCollectorProps),
+                new addons.AmpAddOn(this.ampProps),
+                new addons.ExternalsSecretsAddOn(this.externalSecretProps),
+                new addons.GrafanaOperatorAddon(this.grafanaOperatorProps),
+                new addons.KubeStateMetricsAddOn(this.kubeStateMetricsProps),
+                new addons.MetricsServerAddOn(this.metricsServerProps),
+                new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps)
+        ];
+        if (isAutoModeCluster) {
+            return this.addOns(
+                new addons.ALBDefaultIngressClassAddOn(),
+                ...openSourcePatternAddOns
+            );
+        }
         return this.addOns(
             new addons.AwsLoadBalancerControllerAddOn(this.awsLoadbalancerProps),
-            new addons.CertManagerAddOn(this.certManagerProps),
-            new addons.AdotCollectorAddOn(this.adotCollectorProps),
-            new addons.AmpAddOn(this.ampProps),
             new addons.CoreDnsAddOn(this.coreDnsVersion,this.coreDnsProps),
-            new addons.ExternalsSecretsAddOn(this.externalSecretProps),
-            new addons.GrafanaOperatorAddon(this.grafanaOperatorProps),
             new addons.KubeProxyAddOn(this.kubeProxyVersion,this.kubeProxyProps),
-            new addons.KubeStateMetricsAddOn(this.kubeStateMetricsProps),
-            new addons.MetricsServerAddOn(this.metricsServerProps),
-            new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps));
+            ...openSourcePatternAddOns
+        );
     }
 
     /**
