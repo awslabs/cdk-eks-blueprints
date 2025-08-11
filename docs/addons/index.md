@@ -87,10 +87,11 @@ The framework currently supports the following add-ons.
 | [`ApacheAirflowAddOn`](./apache-airflow.md)                                           | This add-on is an implementation of Apache Airflow on EKS using the official helm chart.                                                  | ✅ |
 | [`ArgoCDAddOn`](./argo-cd.md)                                             | Provisions Argo CD into your cluster.                                                                                                 | ✅ | ✅ |
 | [`AWS Batch for EKS`](./aws-batch-on-eks.md)                              | Enables EKS cluster to be used with AWS Batch on EKS                                                                    | ✅ | ✅ |
-| [`AWS CloudWatch Insgihts`](./aws-cloudwatch-insights.md) | Provisions CloudWatch Insights to be used with the EKS cluster. | ✅ | ✅ |  
+| [`AWS CloudWatch Insights`](./aws-cloudwatch-insights.md) | Provisions CloudWatch Insights to be used with the EKS cluster. | ✅ | ✅ |  
 | [`AWS for Fluent Bit`](./aws-gateway-api-controller.md)                           | Provisions Fluent Bit into your cluster for log aggregation and consumption.   
 | [`AWS Gateway API Controller Add-on`](./aws-for-fluent-bit.md)                           | Installs the [AWS Gateway API Controller](https://www.gateway-api-controller.eks.aws.dev/latest) in your cluster to enable Amazon VPC Lattice service networking capabilities.                                                                      | ✅ | ✅
 | [`AWS Load Balancer Controller`](./aws-load-balancer-controller.md)       | Provisions the AWS Load Balancer Controller into your cluster.                                                                        | ✅ | ✅ |
+| [`AWS ALB Default Ingress Class`](./aws-alb-default-ingress-class.md)       | Adds a default ALB ingress class to your EKS Auto Mode cluster.                                                                        | ✅ | ✅ |
 | [`AWS Node Termination Handler`](./aws-node-termination-handler.md)       | Provisions Node Termination Handler into your cluster.                                                                        | ✅ |
 | [`AWS Private CA Issuer`](./aws-privateca-issuer.md)                      | Installs AWS Private CA Issuer into your cluster.                                                                        | ✅ |
 | [`Backstage`](./backstage.md)                      | Installs Backstage.                                                                        | ✅ |
@@ -104,6 +105,7 @@ The framework currently supports the following add-ons.
 | [`DatadogAddOn`](./datadog.md) | Adds [Datadog](https://www.datadoghq.com/) Amazon EKS add-on. Datadog is the monitoring and security platform for cloud applications.  |                         ✅ | ✅
 | [`Dynatrace`](https://github.com/dynatrace-oss/dynatrace-eks-blueprints-addon)           | Adds the [Dynatrace](https://www.dynatrace.com/) [OneAgent Operator](https://github.com/Dynatrace/dynatrace-oneagent-operator).        | ✅ | 
 | [`EbsCsiDriverAddOn`](./ebs-csi-driver.md)                             | Adds EBS CSI Driver Amazon EKS add-on. This driver manages the lifecycle of Amazon EBS volumes for persistent storage.                 | ✅ | ✅ |
+| [`EBS CSI Default StorageClass`](./ebs-csi-default-storage-class.md)           |                                                         Adds a default EBS storageclass to your EKS Auto Mode cluster.                                                         |      ✅      |  ✅   |
 | [`EfsCsiDriverAddOn`](./efs-csi-driver.md)                             | Adds EFS CSI Driver Amazon EKS add-on. This driver manages the lifecycle of Amazon EFS volumes for persistent storage.                 | ✅ | ✅ |
 | [`EmrOnEksAddOn`](./emr-eks.md)                             | Enable EKS cluster to be used with EMR on EKS          | ✅ | ✅ |
 | [`ExternalDnsAddOn`](./external-dns.md)                                   | Adds [External DNS](https://github.com/kubernetes-sigs/external-dns) support for AWS to the cluster, integrating with Amazon Route 53. | ✅ | ✅ |
@@ -124,7 +126,7 @@ The framework currently supports the following add-ons.
 | [`KnativeAddOn`](./knative-operator.md)                                         | Deploys the [KNative Operator](https://knative.dev/docs/install/operator/knative-with-operators/) to ease setting up the rest of KNatives CRDs                                                          | ✅ | ✅ 
 | [`KomodorAddOn`](https://github.com/komodorio/komodor-eks-blueprints-addon)    | Adds the [Komodor Agent](https://github.com/komodorio/helm-charts/tree/master/charts/komodor-agent) to the EKS Cluster.                                                         | ✅ | ✅ 
 | [`KonveyorAddOn`](https://github.com/claranet-ch/konveyor-eks-blueprint-addon)    | Adds [Konveyor](https://www.konveyor.io/) to the EKS Cluster.                                                         | ✅ | ✅ |
-| [`KubecostAddOn`](./kubecost.md)                                       | Adds [Kubecost](https://kubecost.com) cost analyzer to the EKS cluster.                                                  | ✅ |               
+| [`KubecostAddOn`](./kubecost.md)                                       | Adds [Kubecost](https://www.apptio.com/products/kubecost/) cost analyzer to the EKS cluster.                                                  | ✅ |               
 | [`KubeflowAddOn`](./kubeflow.md)                                       | Adds [kubeflow](https://awslabs.github.io/kubeflow-manifests/) Kubeflow pipeline addon the EKS cluster.                                | ✅ | 
 | [`KubeRayAddOn`](./kuberay-operator.md)                      | Installs the [KubeRay Operator](https://docs.ray.io/en/latest/cluster/kubernetes/index.html).                                                                        | ✅ | ✅ | 
 | [`KubeviousAddOn`](./kubevious.md)                                     | Adds [Kubevious](https://github.com/kubevious/kubevious) open source Kubernetes dashboard to an EKS cluster.                           |  ✅ | 
@@ -150,7 +152,7 @@ The framework currently supports the following add-ons.
 | [`VeleroAddOn`](./velero.md)                                           | Adds [Velero](https://velero.io/) to the EKS Cluster.                                                                                  | ✅ | ✅ |
 | [`XrayAddOn`](./xray.md)                                                  | Adds XRay Daemon to the EKS Cluster.                                                                                                   | NA | NA
 | [`XrayAdotAddOn`](./xray-adot-addon.md)                                   | Deploys ADOT Collector for Xray to receive traces from your workloads.                                                                 | ✅ | ✅ |
-| ~~[`GmaestroAddOn`](./gmaestro.md)~~ | Deprecated due to EOL. Adds [gMaestro](https://app.granulate.io) cost optimization solution for EKS cluster.                                                                         |
+| ~~[`GmaestroAddOn`](./gmaestro.md)~~ | Deprecated due to EOL.                                                                        |
 | [`EksPodIdentityAgentAddOn`](./eks-pod-identity-agent.md)       | [Setting up the EKS Pod Identity Agent](https://docs.aws.amazon.com/en_ca/eks/latest/userguide/pod-id-agent-setup.html)                  | ✅ | ✅ |
 
 
