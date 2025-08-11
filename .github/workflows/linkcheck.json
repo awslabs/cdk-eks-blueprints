@@ -14,6 +14,7 @@
     ],
     "ignorePatterns": [
       { "pattern": "localhost" },
+      { "pattern": "https://www.apptio.com/products/kubecost/" },
       { "pattern": "127.0.0.1" },
       { "pattern": "../api" },
       { "pattern": "https://helm.datadoghq.com" },
