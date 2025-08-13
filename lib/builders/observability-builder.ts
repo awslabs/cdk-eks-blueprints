@@ -2,6 +2,10 @@ import {BlueprintBuilder, ControlPlaneLogType} from '../stacks';
 import * as addons from '../addons';
 import {cloneDeep} from "../utils";
 
+export class ObservabilityBuilderProps {
+  readonly isAutoModeCluster: boolean;
+}
+
 export class ObservabilityBuilder extends BlueprintBuilder {
 
     private awsLoadbalancerProps: addons.AwsLoadBalancerControllerProps;
@@ -18,12 +22,13 @@ export class ObservabilityBuilder extends BlueprintBuilder {
     private externalSecretProps: addons.ExternalsSecretsAddOnProps;
     private grafanaOperatorProps: addons.GrafanaOperatorAddonProps;
     private ampProps: addons.AmpAddOnProps;
+    private builderProps: ObservabilityBuilderProps;
 
     /**
      * This method helps you prepare a blueprint for setting up observability 
      * returning an array of blueprint addons for AWS native services
      */
-    public enableNativePatternAddOns(isAutoModeCluster?: boolean): ObservabilityBuilder {
+    public enableNativePatternAddOns(): ObservabilityBuilder {
         const nativePatternAddOns = [
                 new addons.CertManagerAddOn(this.certManagerProps),
                 new addons.CloudWatchInsights(this.cloudWatchInsightsAddOnProps),
@@ -31,7 +36,7 @@ export class ObservabilityBuilder extends BlueprintBuilder {
                 new addons.MetricsServerAddOn(this.metricsServerProps),
                 new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps)
         ];
-        if (isAutoModeCluster){
+        if (this.builderProps?.isAutoModeCluster){
             return this.addOns(
                 new addons.ALBDefaultIngressClassAddOn(),
                 ...nativePatternAddOns
@@ -64,7 +69,7 @@ export class ObservabilityBuilder extends BlueprintBuilder {
      * returning an array of blueprint addons for combination of AWS native and 
      * AWS managed open source services
      */
-    public enableMixedPatternAddOns(isAutoModeCluster?: boolean): ObservabilityBuilder {
+    public enableMixedPatternAddOns(): ObservabilityBuilder {
         const mixedPatternAddOns = [
             new addons.CertManagerAddOn(this.certManagerProps),
             new addons.AdotCollectorAddOn(this.adotCollectorProps),
@@ -72,7 +77,7 @@ export class ObservabilityBuilder extends BlueprintBuilder {
             new addons.MetricsServerAddOn(this.metricsServerProps),
             new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps)
         ];
-        if(isAutoModeCluster){
+        if(this.builderProps?.isAutoModeCluster){
             return this.addOns(
                 new addons.ALBDefaultIngressClassAddOn(),
                 ...mixedPatternAddOns
@@ -90,7 +95,7 @@ export class ObservabilityBuilder extends BlueprintBuilder {
      * This method helps you prepare a blueprint for setting up observability 
      * returning an array of blueprint addons for AWS managed open source services
      */
-    public enableOpenSourcePatternAddOns(isAutoModeCluster?: boolean): ObservabilityBuilder {
+    public enableOpenSourcePatternAddOns(): ObservabilityBuilder {
         const openSourcePatternAddOns = [                
                 new addons.CertManagerAddOn(this.certManagerProps),
                 new addons.AdotCollectorAddOn(this.adotCollectorProps),
@@ -101,7 +106,7 @@ export class ObservabilityBuilder extends BlueprintBuilder {
                 new addons.MetricsServerAddOn(this.metricsServerProps),
                 new addons.PrometheusNodeExporterAddOn(this.prometheusNodeExporterProps)
         ];
-        if (isAutoModeCluster) {
+        if (this.builderProps?.isAutoModeCluster) {
             return this.addOns(
                 new addons.ALBDefaultIngressClassAddOn(),
                 ...openSourcePatternAddOns
@@ -178,7 +183,7 @@ export class ObservabilityBuilder extends BlueprintBuilder {
         return this;
     }
 
-    public withExternalSecretsProps(props:addons.ExternalDnsProps) : this {
+    public withExternalSecretsProps(props:addons.ExternalsSecretsAddOnProps) : this {
         this.externalSecretProps = { ...this.externalSecretProps, ...cloneDeep(props) };
         return this;
     }
@@ -192,12 +197,20 @@ export class ObservabilityBuilder extends BlueprintBuilder {
         return this;
     }
 
+    private withBuilderProps(props: ObservabilityBuilderProps): this {
+        this.builderProps = { ...this.builderProps, ...cloneDeep(props) };
+        return this;
+    }
+
     /**
      * This method helps you prepare a blueprint for setting up observability with 
      * usage tracking addon
      */
-    public static builder(): ObservabilityBuilder {
+    public static builder(options?: ObservabilityBuilderProps): ObservabilityBuilder {
         const builder = new ObservabilityBuilder();
+        if(options){
+          builder.withBuilderProps(options);
+        }
         builder.addOns(
             new addons.UsageTrackingAddOn({tags: ["observability-builder"]})
         );

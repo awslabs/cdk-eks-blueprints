@@ -125,12 +125,12 @@ export default class ExistingEksMixedobservabilityConstruct {
 
 ### Usage 3 - Observability For a New EKS AutoMode Cluster
 
-For `ObservabilityBuilder` with `AutomodeClusterProvider`, set the parameter `isAutoModeCluster` to `true` when enabling observability pattern addons.
+For `ObservabilityBuilder` with `AutomodeClusterProvider`, set the parameter `isAutoModeCluster` to `true` in the `ObservabilityBuilder` `builderProps`.
 ```typescript
 import { Construct } from 'constructs';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import * as eks from "aws-cdk-lib/aws-eks";
-import { ObservabilityBuilder } from '@aws-quickstart/eks-blueprints';
+import { ObservabilityBuilder, ObservabilityBuilderProps } from '@aws-quickstart/eks-blueprints';
 
 export default class SingleNewEksAutoModeConstruct {
     constructor(scope: Construct, id: string) {
@@ -152,11 +152,15 @@ export default class SingleNewEksAutoModeConstruct {
             nodePools: ["system", "general-purpose"]
         });
 
-        ObservabilityBuilder.builder()
+        const builderProps: ObservabilityBuilderProps = {
+            isAutoModeCluster: true
+        };
+
+        ObservabilityBuilder.builder(builderProps)
             .account(account)
             .region(region)
             .clusterProvider(clusterProvider)
-            .enableNativePatternAddOns(true) // set isAutoModeCluster to true
+            .enableNativePatternAddOns()
             .enableControlPlaneLogging()
             .addOns(...addOns)
             .build(scope, stackId);
