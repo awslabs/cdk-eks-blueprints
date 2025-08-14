@@ -126,7 +126,7 @@ The framework currently supports the following add-ons.
 | [`KnativeAddOn`](./knative-operator.md)                                         | Deploys the [KNative Operator](https://knative.dev/docs/install/operator/knative-with-operators/) to ease setting up the rest of KNatives CRDs                                                          | ✅ | ✅ 
 | [`KomodorAddOn`](https://github.com/komodorio/komodor-eks-blueprints-addon)    | Adds the [Komodor Agent](https://github.com/komodorio/helm-charts/tree/master/charts/komodor-agent) to the EKS Cluster.                                                         | ✅ | ✅ 
 | [`KonveyorAddOn`](https://github.com/claranet-ch/konveyor-eks-blueprint-addon)    | Adds [Konveyor](https://www.konveyor.io/) to the EKS Cluster.                                                         | ✅ | ✅ |
-| [`KubecostAddOn`](./kubecost.md)                                       | Adds [Kubecost](https://kubecost.com) cost analyzer to the EKS cluster.                                                  | ✅ |               
+| [`KubecostAddOn`](./kubecost.md)                                       | Adds [Kubecost](https://www.apptio.com/products/kubecost/) cost analyzer to the EKS cluster.                                                  | ✅ |               
 | [`KubeflowAddOn`](./kubeflow.md)                                       | Adds [kubeflow](https://awslabs.github.io/kubeflow-manifests/) Kubeflow pipeline addon the EKS cluster.                                | ✅ | 
 | [`KubeRayAddOn`](./kuberay-operator.md)                      | Installs the [KubeRay Operator](https://docs.ray.io/en/latest/cluster/kubernetes/index.html).                                                                        | ✅ | ✅ | 
 | [`KubeviousAddOn`](./kubevious.md)                                     | Adds [Kubevious](https://github.com/kubevious/kubevious) open source Kubernetes dashboard to an EKS cluster.                           |  ✅ | 
@@ -152,7 +152,7 @@ The framework currently supports the following add-ons.
 | [`VeleroAddOn`](./velero.md)                                           | Adds [Velero](https://velero.io/) to the EKS Cluster.                                                                                  | ✅ | ✅ |
 | [`XrayAddOn`](./xray.md)                                                  | Adds XRay Daemon to the EKS Cluster.                                                                                                   | NA | NA
 | [`XrayAdotAddOn`](./xray-adot-addon.md)                                   | Deploys ADOT Collector for Xray to receive traces from your workloads.                                                                 | ✅ | ✅ |
-| ~~[`GmaestroAddOn`](./gmaestro.md)~~ | Deprecated due to EOL. Adds [gMaestro](https://app.granulate.io) cost optimization solution for EKS cluster.                                                                         |
+| ~~[`GmaestroAddOn`](./gmaestro.md)~~ | Deprecated due to EOL.                                                                        |
 | [`EksPodIdentityAgentAddOn`](./eks-pod-identity-agent.md)       | [Setting up the EKS Pod Identity Agent](https://docs.aws.amazon.com/en_ca/eks/latest/userguide/pod-id-agent-setup.html)                  | ✅ | ✅ |
 
 
