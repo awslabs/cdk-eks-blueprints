@@ -78,7 +78,7 @@ export class KarpenterV1AddOn extends HelmAddOn {
     }
 
     @utils.conflictsWith("ClusterAutoScalerAddOn")
-    @utils.conflictsWithAutoMode("fail")
+    @utils.conflictsWithAutoMode(utils.AutoModeConflictType.PRE_INSTALLED)
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
         assert(
             clusterInfo.cluster instanceof Cluster,
