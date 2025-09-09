@@ -30,7 +30,7 @@ const defaultProps = {
 @utils.supportsALL
 export class KubeProxyAddOn extends CoreAddOn {
 
-    @utils.conflictsWithAutoMode("v1.29.10-eksbuild.3")
+    @utils.conflictsWithAutoMode(utils.AutoModeConflictType.VERSION_MISMATCH, "v1.29.10-eksbuild.3")
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
         return super.deploy(clusterInfo);
     }

@@ -100,3 +100,124 @@ describe('Unit tests for Auto Mode only addons', () => {
   });
 
 });
+
+describe('Unit tests for Auto Mode conflicting addons', () => {
+  test("Stack creation succeeds for ALB LoadBalancer Controller on AutoMode", () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.AutomodeBuilder.builder({});
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .addOns(new blueprints.AwsLoadBalancerControllerAddOn());
+
+    expect(() => {
+        blueprint.build(app, 'aws-lbc-auto');
+    }).toBeDefined();
+
+  });
+
+  test("Stack creation succeeds for CoreDnsAddOn on AutoMode", () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.AutomodeBuilder.builder({});
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .addOns(new blueprints.CoreDnsAddOn());
+
+    expect(() => {
+        blueprint.build(app, 'cdns-auto');
+    }).toBeDefined();
+
+  });
+
+  test("Stack creation fails for EbsCsiDriverAddOn with old version on AutoMode", () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.AutomodeBuilder.builder({});
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .addOns(new blueprints.EbsCsiDriverAddOn({version: "v1.30.0-eksbuild.1"}));
+
+    expect(() => {
+        blueprint.build(app, 'aws-ebscsi-auto');
+    }).toThrow("Add-on EbsCsiDriverAddOn version v1.30.0-eksbuild.1 is incompatible. Minimum required version: v1.37.0-eksbuild.1");
+  });
+
+  test("Stack creation fails for EksPodIdentityAgentAddOn with old version on AutoMode", () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.AutomodeBuilder.builder({});
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .addOns(new blueprints.EksPodIdentityAgentAddOn("v1.3.0-eksbuild.1"));
+
+    expect(() => {
+        blueprint.build(app, 'eks-podidentity-auto');
+    }).toThrow("Add-on EksPodIdentityAgentAddOn version v1.3.0-eksbuild.1 is incompatible. Minimum required version: v1.3.4-eksbuild.1");
+  });
+
+  test("Stack creation fails for KubeProxyAddOn with old version on AutoMode", () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.AutomodeBuilder.builder({});
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .addOns(new blueprints.KubeProxyAddOn("v1.10.0-eksbuild.1"));
+
+    expect(() => {
+        blueprint.build(app, 'kubeproxy-auto');
+    }).toThrow("Add-on KubeProxyAddOn version v1.10.0-eksbuild.1 is incompatible. Minimum required version: v1.29.10-eksbuild.3");
+
+  });
+
+  test("Stack creation fails for VpcCniAddOn with old version on AutoMode", () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.AutomodeBuilder.builder({});
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .addOns(new blueprints.VpcCniAddOn({version: "v1.10.0-eksbuild.1"}));
+
+    expect(() => {
+        blueprint.build(app, 'vpccni-auto');
+    }).toThrow("Add-on VpcCniAddOn version v1.10.0-eksbuild.1 is incompatible. Minimum required version: v1.19.0-eksbuild.1");
+
+  });
+
+  test("Stack creation fails for KarpenterV1AddOn on AutoMode", () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.AutomodeBuilder.builder({});
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .addOns(new blueprints.KarpenterV1AddOn());
+
+    expect(() => {
+        blueprint.build(app, 'karpenter-auto');
+    }).toThrow("Add-on KarpenterV1AddOn is already available on the cluster with EKS Auto Mode");
+
+  });
+
+  test("Stack creation fails for SSMAgentAddOn on AutoMode", () => {
+    const app = new cdk.App();
+
+    const blueprint = blueprints.AutomodeBuilder.builder({});
+
+    blueprint.account(account).region(region)
+      .version("auto")
+      .addOns(new blueprints.SSMAgentAddOn());
+
+    expect(() => {
+        blueprint.build(app, 'ssm-auto');
+    }).toThrow("Add-on SSMAgentAddOn is not supported on EKS Auto Mode");
+
+  });
+
+});

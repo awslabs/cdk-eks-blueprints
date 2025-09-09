@@ -41,7 +41,7 @@ export class CoreDnsAddOn extends CoreAddOn {
         });
     }
 
-    @utils.conflictsWithAutoMode()
+    @utils.conflictsWithAutoMode(utils.AutoModeConflictType.VERSION_UNKNOWN)
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
 
         const addonPromise: Promise<Construct> = super.deploy(clusterInfo);
