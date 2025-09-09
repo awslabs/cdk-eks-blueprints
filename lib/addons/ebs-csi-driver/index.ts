@@ -76,7 +76,7 @@ export class EbsCsiDriverAddOn extends CoreAddOn {
     );
   }
 
-  @utils.conflictsWithAutoMode(utils.AutoModeConflictType.VERSION, "v1.37.0-eksbuild.1")
+  @utils.conflictsWithAutoMode(utils.AutoModeConflictType.VERSION_MISMATCH, "v1.37.0-eksbuild.1")
   async deploy(clusterInfo: ClusterInfo): Promise<Construct> {
     const baseDeployment = await super.deploy(clusterInfo);
 

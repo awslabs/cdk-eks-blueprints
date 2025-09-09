@@ -117,11 +117,21 @@ function parseEksVersion(version: string): [string, number] {
 }
 
 export enum AutoModeConflictType {
-  VERSION = "version",
-  UNKNOWN_VERSION = "unknown-version",
-  PRE_INSTALLED = "pre-installed",
+  VERSION_MISMATCH = "version-mismatch",
+  VERSION_UNKNOWN = "version-unknown",
+  ALREADY_INSTALLED = "already-installed", 
   NOT_SUPPORTED = "not-supported"
-};
+}
+
+function getAutoModeMessage(conflictType: AutoModeConflictType, addonName: string, version?: string, minVersion?: string): string {
+  const messages: Record<AutoModeConflictType, string> = {
+    [AutoModeConflictType.VERSION_MISMATCH]: `Add-on ${addonName} version ${version} is incompatible. Minimum required version: ${minVersion}`,
+    [AutoModeConflictType.VERSION_UNKNOWN]: `Add-on ${addonName} version could not be determined. Please verify compatibility at https://docs.aws.amazon.com/eks/latest/userguide/auto-enable-existing.html#auto-addons-required`,
+    [AutoModeConflictType.ALREADY_INSTALLED]: `Add-on ${addonName} is already available on the cluster with EKS Auto Mode`,
+    [AutoModeConflictType.NOT_SUPPORTED]: `Add-on ${addonName} is not supported on EKS Auto Mode`
+  };
+  return messages[conflictType];
+}
 
 export function conflictsWithAutoMode(conflictType: AutoModeConflictType, minExpectedVersion?: string) {
   return function(target: object, key: string | symbol, descriptor: PropertyDescriptor) {
@@ -139,20 +149,27 @@ export function conflictsWithAutoMode(conflictType: AutoModeConflictType, minExp
         version = this.getAddonVersion();
       }
 
-      if (conflictType == AutoModeConflictType.NOT_SUPPORTED) {
-        throw new Error(`Deploying ${stack} failed. Add-on ${addonName} is not supported on EKS Auto Mode.`);
-      }
-      else if (conflictType == AutoModeConflictType.PRE_INSTALLED) {
-        throw new Error(`Deploying ${stack} failed. Add-on ${addonName} is already available on the cluster with EKS Auto Mode.`);
-      }
-      else if (conflictType == AutoModeConflictType.UNKNOWN_VERSION || version ==  "auto") {
-        logger.warn(`Add-on ${addonName} is already available on the cluster with EKS Auto Mode. Please check https://docs.aws.amazon.com/eks/latest/userguide/auto-enable-existing.html#auto-addons-required to ensure that the specified version is compatible`);
-        return originalMethod.apply(this, args);
-      }
-      else if (conflictType == AutoModeConflictType.VERSION, compareAddonEksVersions(version, minExpectedVersion!) >= 0){ // what to do if other nodegroups attached too?
-        return originalMethod.apply(this, args);
-      } else {
-        throw new Error(`Deploying ${stack} failed. Add-on ${addonName} is already available on the cluster with EKS Auto Mode.  If you would like to install this addon alongside automode, please upgrade to version ${minExpectedVersion}`);
+      switch (conflictType) {
+        case AutoModeConflictType.VERSION_UNKNOWN:
+          logger.warn(getAutoModeMessage(conflictType, addonName, version, minExpectedVersion));
+          return originalMethod.apply(this, args);
+        case AutoModeConflictType.VERSION_MISMATCH:
+          if (version === "auto") {
+            logger.warn(getAutoModeMessage(AutoModeConflictType.VERSION_UNKNOWN, addonName, version, minExpectedVersion));
+            return originalMethod.apply(this, args);
+          }
+          if (compareAddonEksVersions(version, minExpectedVersion!) >= 0) {
+            return originalMethod.apply(this, args);
+          }
+        case AutoModeConflictType.NOT_SUPPORTED:
+        case AutoModeConflictType.ALREADY_INSTALLED:
+          throw new Error(`Deploying ${stack} failed. ${getAutoModeMessage(conflictType, addonName, version, minExpectedVersion)}`);
+        case AutoModeConflictType.VERSION_UNKNOWN:
+          if (version === "auto") {
+            logger.warn(getAutoModeMessage(conflictType, addonName));
+            return originalMethod.apply(this, args);
+          }
+          break;
       }
     };
 
