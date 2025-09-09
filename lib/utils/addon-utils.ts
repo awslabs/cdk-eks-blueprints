@@ -164,12 +164,6 @@ export function conflictsWithAutoMode(conflictType: AutoModeConflictType, minExp
         case AutoModeConflictType.NOT_SUPPORTED:
         case AutoModeConflictType.ALREADY_INSTALLED:
           throw new Error(`Deploying ${stack} failed. ${getAutoModeMessage(conflictType, addonName, version, minExpectedVersion)}`);
-        case AutoModeConflictType.VERSION_UNKNOWN:
-          if (version === "auto") {
-            logger.warn(getAutoModeMessage(conflictType, addonName));
-            return originalMethod.apply(this, args);
-          }
-          break;
       }
     };
 
