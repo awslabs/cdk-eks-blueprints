@@ -3,7 +3,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as kms from 'aws-cdk-lib/aws-kms';
 import * as bp from '../lib';
 import * as bcrypt from 'bcrypt';
-import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import { KubernetesVersion, NodegroupAmiType } from 'aws-cdk-lib/aws-eks';
 import { IngressNginxAddOn, AwsLoadBalancerControllerAddOn } from '../lib/addons';
 
 
@@ -120,6 +120,15 @@ bp.AutomodeBuilder.builder({
   .clusterProvider(new bp.GenericClusterProvider({ privateCluster: true }))
   .version("auto")
   .build(app, 'private-clusterv1');
+
+  bp.GravitonBuilder.builder({
+    version: KubernetesVersion.V1_32,
+    instanceTypes: [ec2.InstanceType.of(ec2.InstanceClass.M7G, ec2.InstanceSize.XLARGE)],
+    amiType: NodegroupAmiType.BOTTLEROCKET_ARM_64,
+    desiredSize: 2,
+    minSize: 1,
+    maxSize: 3,
+  }).build(app, "graviton-builder");
 
 function buildArgoBootstrap() {
     return new bp.addons.ArgoCDAddOn({
