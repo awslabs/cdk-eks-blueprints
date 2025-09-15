@@ -1,5 +1,6 @@
 import { Construct } from "constructs";
 import { ClusterAddOn, ClusterInfo } from "../../spi";
+import { supportsALL } from "../../utils";
 import * as eksv2 from "@aws-cdk/aws-eks-v2-alpha";
 
 /** 
@@ -11,6 +12,8 @@ export class UsageTrackingAddOnProps {
   */
   readonly tags: string[];
 }
+
+@supportsALL
 export class UsageTrackingAddOn implements ClusterAddOn {
 
   readonly props: UsageTrackingAddOnProps;
