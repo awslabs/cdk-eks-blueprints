@@ -27,6 +27,7 @@ export const KarpenterControllerPolicy = {
                 "ec2:DescribeSpotPriceHistory",
                 "ssm:GetParameter",
                 "pricing:GetProducts",
+                "iam:ListInstanceProfiles",
             ],
             "Resource": "*"
         }

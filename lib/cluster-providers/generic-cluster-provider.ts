@@ -7,6 +7,7 @@ import { KubectlV29Layer } from "@aws-cdk/lambda-layer-kubectl-v29";
 import { KubectlV30Layer } from "@aws-cdk/lambda-layer-kubectl-v30";
 import { KubectlV31Layer } from "@aws-cdk/lambda-layer-kubectl-v31";
 import { KubectlV32Layer } from "@aws-cdk/lambda-layer-kubectl-v32";
+import { KubectlV33Layer } from "@aws-cdk/lambda-layer-kubectl-v33";
 
 import { Tags } from "aws-cdk-lib";
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
@@ -51,6 +52,8 @@ export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVers
             return new KubectlV31Layer(scope, "kubectllayer30");
         case "1.32":
             return new KubectlV32Layer(scope, "kubectllayer32");
+        case "1.33":
+            return new KubectlV33Layer(scope, "kubectllayer33");
 
     }
 

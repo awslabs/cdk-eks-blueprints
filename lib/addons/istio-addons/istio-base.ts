@@ -6,7 +6,7 @@ import { merge } from "ts-deepmerge";
 import { Duration } from "aws-cdk-lib";
 import { supportsALL } from "../../utils";
 
-export const ISTIO_VERSION = "1.25.2";
+export const ISTIO_VERSION = "1.27.1";
 
 /**
  * Configuration options for the add-on.

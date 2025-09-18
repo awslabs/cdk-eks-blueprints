@@ -5,6 +5,8 @@ import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
 import * as utils from "../../utils";
 
 const versionMap: Map<KubernetesVersion, string> = new Map([
+    [KubernetesVersion.V1_33, "v1.3.8-eksbuild.2"],
+    [KubernetesVersion.V1_32, "v1.3.8-eksbuild.2"],
     [KubernetesVersion.V1_31, "v1.3.4-eksbuild.1"],
     [KubernetesVersion.V1_30, "v1.3.2-eksbuild.2"],
     [KubernetesVersion.V1_29, "v1.3.2-eksbuild.2"],
