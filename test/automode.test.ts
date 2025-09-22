@@ -43,7 +43,7 @@ describe('Unit tests for EBS CSI Default Storage Class addon', () => {
 
         blueprint.account(account).region(region)
             .version("auto")
-            .addOns(new blueprints.EbsCsiDriverAddOn())
+            .addOns(new blueprints.EbsCsiDriverAddOn({version: "v1.48.0-eksbuild.2"}))
             .addEBSStorageClass();
 
         expect(() => {
@@ -124,7 +124,7 @@ describe('Unit tests for Auto Mode conflicting addons', () => {
 
     blueprint.account(account).region(region)
       .version("auto")
-      .addOns(new blueprints.CoreDnsAddOn());
+      .addOns(new blueprints.CoreDnsAddOn("v1.12.1-eksbuild.2"))
 
     expect(() => {
         blueprint.build(app, 'cdns-auto');

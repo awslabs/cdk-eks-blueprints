@@ -27,7 +27,6 @@ export const KarpenterControllerPolicy = {
                 "ec2:DescribeSpotPriceHistory",
                 "ssm:GetParameter",
                 "pricing:GetProducts",
-                "iam:ListInstanceProfiles",
             ],
             "Resource": "*"
         }
@@ -253,7 +252,10 @@ export const KarpenterControllerPolicyBeta = (cluster: Cluster, partition: strin
                 "Sid": "AllowInstanceProfileReadActions",
                 "Effect": "Allow",
                 "Resource": "*",
-                "Action": "iam:GetInstanceProfile"
+                "Action": [
+                    "iam:GetInstanceProfile", 
+                    "iam:ListInstanceProfiles"
+                ]
             },
             {
                 "Sid": "AllowAPIServerEndpointDiscovery",
