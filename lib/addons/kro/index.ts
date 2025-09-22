@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 import { ClusterInfo, Values } from "../../spi";
 import { merge } from "ts-deepmerge";
 import { HelmAddOn, HelmAddOnUserProps } from "../helm-addon"
+import * as utils from "../../utils"
 
 const KRO_VERSION="0.4.1";
 
@@ -25,6 +26,7 @@ const defaultProps = {
   createNamespace: true
 };
 
+@utils.supportsALL
 export class KroAddOn extends HelmAddOn {
 
   readonly options: KroAddOnProps;
@@ -33,6 +35,7 @@ export class KroAddOn extends HelmAddOn {
     super({...defaultProps, ...props});
     this.options = this.props as KroAddOnProps;
   }
+  
   deploy(clusterInfo: ClusterInfo): void | Promise<Construct> {
     let values: Values = this.options.values ?? {};
     values = merge(values, this.props.values ?? {});
