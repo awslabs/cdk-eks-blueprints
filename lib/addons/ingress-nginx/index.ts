@@ -218,7 +218,8 @@ export class IngressNginxAddOn extends HelmAddOn {
                     default: props.isDefaultClass ?? false,
                     controllerValue: props.controllerClass || "k8s.io/ingress-nginx"
                 },
-                electionID: props.electionId || "ingress-controller-leader"
+                electionID: props.electionId || "ingress-controller-leader",
+                progressDeadlineSeconds: 600
             }
         };
 
