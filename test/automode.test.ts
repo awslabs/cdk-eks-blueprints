@@ -124,7 +124,7 @@ describe('Unit tests for Auto Mode conflicting addons', () => {
 
     blueprint.account(account).region(region)
       .version("auto")
-      .addOns(new blueprints.CoreDnsAddOn("v1.12.1-eksbuild.2"))
+      .addOns(new blueprints.CoreDnsAddOn("v1.12.1-eksbuild.2"));
 
     expect(() => {
         blueprint.build(app, 'cdns-auto');
