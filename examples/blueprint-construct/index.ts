@@ -272,7 +272,7 @@ export default class BlueprintConstruct {
 
     this.clusterProvider = getClusterProvider([
       addGenericNodeGroup(),
-      addCustomNodeGroup(),
+      //addCustomNodeGroup(),
       addWindowsNodeGroup(), //  commented out to check the impact on e2e
       addGpuNodeGroup(),
     ]);
@@ -382,8 +382,8 @@ export function addCustomNodeGroup(): blueprints.ManagedNodeGroup {
       machineImage: ec2.MachineImage.genericLinux({
         "eu-west-1": "ami-06cbaae8cf8057acc",
         "us-east-1": "ami-0767f1fe1d85e096f",
-        "us-west-2": "ami-0abcb3049535dd4f3",
-        "us-east-2": "ami-01fb54be171dec11a",
+        "us-west-2": "ami-0c5e7e8af3493a528",
+        "us-east-2": "ami-0d39276e3c888c5e5",
         "us-west-1": "ami-01fac70e0d3dca976",
         //"us-gov-west-1": "ami-0e9ebbf0d3f263e9b",
         //"us-gov-east-1": "ami-033eb9bc6daf8bfb1",
