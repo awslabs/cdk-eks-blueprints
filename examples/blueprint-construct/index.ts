@@ -163,12 +163,12 @@ export default class BlueprintConstruct {
       //  ampPrometheusEndpoint: this.ampWorkspace.attrPrometheusEndpoint,
       //  namespace: "adot",
       //}), ADOT Dependency doesnt work on 1.33
-      new addons.ApacheAirflowAddOn({
-        enableLogging: true,
-        s3Bucket: "apache-airflow-s3-bucket-provider",
-        enableEfs: true,
-        efsFileSystem: "apache-airflow-efs-provider",
-      }),
+      //new addons.ApacheAirflowAddOn({
+      //  enableLogging: true,
+      //  s3Bucket: "apache-airflow-s3-bucket-provider",
+      //  enableEfs: true,
+      //  efsFileSystem: "apache-airflow-efs-provider",
+      //}), Airflow helm chart latest version (1.18.0) is affected by bitnami deprecation
       new addons.AppMeshAddOn(),
       new addons.ArgoCDAddOn(),
       new addons.AwsBatchAddOn(),
