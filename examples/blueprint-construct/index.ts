@@ -130,10 +130,10 @@ export default class BlueprintConstruct {
       }),
       new addons.AwsLoadBalancerControllerAddOn(),
       new addons.CertManagerAddOn(),
-      //new addons.AdotCollectorAddOn({
-      //  namespace: "adot",
-      //  version: "v0.109.0-eksbuild.2",
-      //}), DOES NOT WORK ON 1.33 yet
+      new addons.AdotCollectorAddOn({
+        namespace: "adot",
+        version: "v0.131.0-eksbuild.2",
+      }),
       new addons.EfsCsiDriverAddOn({
         replicaCount: 1,
         kmsKeys: [
@@ -159,10 +159,10 @@ export default class BlueprintConstruct {
         serviceName: blueprints.AckServiceName.S3,
       }),
 
-      //new addons.AmpAddOn({
-      //  ampPrometheusEndpoint: this.ampWorkspace.attrPrometheusEndpoint,
-      //  namespace: "adot",
-      //}), ADOT Dependency doesnt work on 1.33
+      new addons.AmpAddOn({
+        ampPrometheusEndpoint: this.ampWorkspace.attrPrometheusEndpoint,
+        namespace: "adot",
+      }),
       //new addons.ApacheAirflowAddOn({
       //  enableLogging: true,
       //  s3Bucket: "apache-airflow-s3-bucket-provider",
@@ -260,9 +260,9 @@ export default class BlueprintConstruct {
         clusterAccessRole: blueprints.getNamedResource("node-role"),
       }),
       new addons.XrayAddOn(),
-      //new addons.XrayAdotAddOn({
-      //  namespace: "adot",
-      //}), 
+      new addons.XrayAdotAddOn({
+        namespace: "adot",
+      }), 
     ];
 
     // Instantiated to for helm version check.
