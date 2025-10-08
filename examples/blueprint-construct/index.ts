@@ -132,7 +132,7 @@ export default class BlueprintConstruct {
       new addons.CertManagerAddOn(),
       new addons.AdotCollectorAddOn({
         namespace: "adot",
-        version: "v0.131.0-eksbuild.2",
+        version: "v0.131.0-eksbuild.1",
       }),
       new addons.EfsCsiDriverAddOn({
         replicaCount: 1,
