@@ -31,6 +31,11 @@ export type EbsCsiDriverAddOnProps = Omit<CoreAddOnProps, "policyDocumentProvide
    */
   storageClass?: string;
   /**
+   * Determines whether the storage class should allow volume expansion or not.
+   * @default false
+   */
+  allowVolumeExpansion?: boolean;
+  /**
    * Version of the EBS CSI driver to be used
    */
   version?: string;
@@ -45,6 +50,7 @@ const defaultProps: CoreAddOnProps & EbsCsiDriverAddOnProps = {
   versionMap: versionMap,
   saName: "ebs-csi-controller-sa",
   storageClass: "gp3", // Set the default StorageClass to gp3
+  allowVolumeExpansion: false,
 };
 
 /**
@@ -127,6 +133,7 @@ export class EbsCsiDriverAddOn extends CoreAddOn {
               provisioner: "ebs.csi.aws.com",
               reclaimPolicy: "Delete",
               volumeBindingMode: "WaitForFirstConsumer",
+              allowVolumeExpansion: this.ebsProps.allowVolumeExpansion,
               parameters: {
                 type: "gp3",
                 fsType: "ext4",
