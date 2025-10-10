@@ -356,6 +356,7 @@ export function addGenericNodeGroup(): blueprints.ManagedNodeGroup {
         Instance: "ONDEMAND",
       },
       requireImdsv2: false,
+      httpPutResponseHopLimit: 2
     },
   };
 }
