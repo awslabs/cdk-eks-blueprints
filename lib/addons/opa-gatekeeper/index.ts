@@ -5,7 +5,7 @@ import { HelmAddOn, HelmAddOnProps, HelmAddOnUserProps } from "../helm-addon";
 /**
  * Properties available to configure opa gatekeeper.
  * namespace default is gatekeeper-system
- * version default is 3.12.0
+ * version default is 3.20.1
  * values as per https://github.com/open-policy-agent/gatekeeper/tree/master/charts/gatekeeper
  */
 export type OpaGatekeeperAddOnProps = HelmAddOnUserProps;
@@ -20,7 +20,7 @@ const defaultProps: HelmAddOnProps = {
     namespace: 'gatekeeper-system',
     chart: 'gatekeeper',
     repository: "https://open-policy-agent.github.io/gatekeeper/charts",
-    version: '3.19.1'
+    version: '3.20.1'
 };
 
 @supportsALL

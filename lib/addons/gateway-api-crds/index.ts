@@ -7,8 +7,8 @@ import { ClusterInfo, NestedStackBuilder } from '../../spi';
 import { NestedStackAddOn, NestedStackAddOnProps } from '../nested-stack';
 
 export const GatewayCrdChannels = {
-    STANDARD: 'https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml',
-    EXPERIMENTAL: 'https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml',
+    STANDARD: 'https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml',
+    EXPERIMENTAL: 'https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml',
 };
 
 export interface GatewayApiCrdsAddOnProps extends NestedStackProps {

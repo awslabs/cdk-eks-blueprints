@@ -81,7 +81,7 @@ export class SSMAgentAddOn implements ClusterAddOn {
                                 name: "cronfile",
                                 hostPath: {
                                     path: "/etc/cron.d",
-                                    type: "Directory"
+                                    type: "DirectoryOrCreate"
                                 }
                             }
                         ],
