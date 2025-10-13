@@ -74,7 +74,7 @@ const AIRFLOWPVC = 'efs-apache-airflow-pvc';
     name: AIRFLOW,
     namespace: AIRFLOW,
     chart: AIRFLOW,
-    version: "1.16.0",
+    version: "1.18.0",
     release: RELEASE,
     repository:  "https://airflow.apache.org",
     enableAlb: false,

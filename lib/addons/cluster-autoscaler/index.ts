@@ -41,6 +41,11 @@ const defaultProps: ClusterAutoScalerAddOnProps = {
  * Version of the autoscaler, controls the image tag
  */
 const versionMap: Map<string, string> = new Map([
+    [KubernetesVersion.V1_33.version, "9.50.1"],
+    [KubernetesVersion.V1_32.version, "9.50.1"],
+    [KubernetesVersion.V1_31.version, "9.50.1"],
+    [KubernetesVersion.V1_30.version, "9.50.1"],
+    [KubernetesVersion.V1_29.version, "9.50.1"],
     [KubernetesVersion.V1_28.version, "9.34.0"],
     [KubernetesVersion.V1_27.version, "9.33.0"],
     [KubernetesVersion.V1_26.version, "9.29.0"],

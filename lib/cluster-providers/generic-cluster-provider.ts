@@ -7,6 +7,7 @@ import { KubectlV29Layer } from "@aws-cdk/lambda-layer-kubectl-v29";
 import { KubectlV30Layer } from "@aws-cdk/lambda-layer-kubectl-v30";
 import { KubectlV31Layer } from "@aws-cdk/lambda-layer-kubectl-v31";
 import { KubectlV32Layer } from "@aws-cdk/lambda-layer-kubectl-v32";
+import { KubectlV33Layer } from "@aws-cdk/lambda-layer-kubectl-v33";
 
 import { Tags } from "aws-cdk-lib";
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
@@ -51,6 +52,8 @@ export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVers
             return new KubectlV31Layer(scope, "kubectllayer30");
         case "1.32":
             return new KubectlV32Layer(scope, "kubectllayer32");
+        case "1.33":
+            return new KubectlV33Layer(scope, "kubectllayer33");
 
     }
 
@@ -398,6 +401,7 @@ export class GenericClusterProvider implements ClusterProvider {
         const releaseVersion = nodeGroup.amiReleaseVersion;
         const instanceTypeContext = utils.valueFromContext(cluster, constants.INSTANCE_TYPE_KEY, constants.DEFAULT_INSTANCE_TYPE);
         const instanceTypes = nodeGroup.instanceTypes ?? ([typeof instanceTypeContext === 'string' ? new ec2.InstanceType(instanceTypeContext) : instanceTypeContext]);
+        const amiType = nodeGroup.amiType ?? constants.DEFAULT_AMI;
         const minSize = nodeGroup.minSize ?? utils.valueFromContext(cluster, constants.MIN_SIZE_KEY, constants.DEFAULT_NG_MINSIZE);
         const maxSize = nodeGroup.maxSize ?? utils.valueFromContext(cluster, constants.MAX_SIZE_KEY, constants.DEFAULT_NG_MAXSIZE);
         const desiredSize = nodeGroup.desiredSize ?? utils.valueFromContext(cluster, constants.DESIRED_SIZE_KEY, minSize);
@@ -409,6 +413,7 @@ export class GenericClusterProvider implements ClusterProvider {
                 nodegroupName: nodeGroup.nodegroupName ?? nodeGroup.id,
                 capacityType,
                 instanceTypes,
+                amiType,
                 minSize,
                 maxSize,
                 desiredSize,

@@ -132,7 +132,7 @@ export default class BlueprintConstruct {
       new addons.CertManagerAddOn(),
       new addons.AdotCollectorAddOn({
         namespace: "adot",
-        version: "v0.109.0-eksbuild.2",
+        version: "v0.131.0-eksbuild.1",
       }),
       new addons.EfsCsiDriverAddOn({
         replicaCount: 1,
@@ -159,16 +159,16 @@ export default class BlueprintConstruct {
         serviceName: blueprints.AckServiceName.S3,
       }),
 
-      new addons.AmpAddOn({
-        ampPrometheusEndpoint: this.ampWorkspace.attrPrometheusEndpoint,
-        namespace: "adot",
-      }),
-      new addons.ApacheAirflowAddOn({
-        enableLogging: true,
-        s3Bucket: "apache-airflow-s3-bucket-provider",
-        enableEfs: true,
-        efsFileSystem: "apache-airflow-efs-provider",
-      }),
+      //new addons.AmpAddOn({
+      //  ampPrometheusEndpoint: this.ampWorkspace.attrPrometheusEndpoint,
+      //  namespace: "adot",
+      //}), bug with port 8888
+      //new addons.ApacheAirflowAddOn({
+      //  enableLogging: true,
+      //  s3Bucket: "apache-airflow-s3-bucket-provider",
+      //  enableEfs: true,
+      //  efsFileSystem: "apache-airflow-efs-provider",
+      //}), Airflow helm chart latest version (1.18.0) is affected by bitnami deprecation
       new addons.AppMeshAddOn(),
       new addons.ArgoCDAddOn(),
       new addons.AwsBatchAddOn(),
@@ -262,7 +262,7 @@ export default class BlueprintConstruct {
       new addons.XrayAddOn(),
       new addons.XrayAdotAddOn({
         namespace: "adot",
-      }),
+      }), 
     ];
 
     // Instantiated to for helm version check.
@@ -272,7 +272,7 @@ export default class BlueprintConstruct {
 
     this.clusterProvider = getClusterProvider([
       addGenericNodeGroup(),
-      addCustomNodeGroup(),
+      //addCustomNodeGroup(),
       addWindowsNodeGroup(), //  commented out to check the impact on e2e
       addGpuNodeGroup(),
     ]);
@@ -324,7 +324,7 @@ export default class BlueprintConstruct {
 
 export function getClusterProvider(managedNodeGroups: ManagedNodeGroup[]) {
   return new blueprints.GenericClusterProvider({
-    version: KubernetesVersion.V1_31,
+    version: KubernetesVersion.V1_33,
     tags: {
       Name: "blueprints-example-cluster",
       Type: "generic-cluster",
@@ -341,7 +341,7 @@ export function getClusterProvider(managedNodeGroups: ManagedNodeGroup[]) {
 export function addGenericNodeGroup(): blueprints.ManagedNodeGroup {
   return {
     id: "mng1",
-    amiType: NodegroupAmiType.AL2_X86_64,
+    amiType: NodegroupAmiType.AL2023_X86_64_STANDARD,
     instanceTypes: [new ec2.InstanceType("m5.4xlarge")],
     desiredSize: 1,
     maxSize: 1,
@@ -356,6 +356,7 @@ export function addGenericNodeGroup(): blueprints.ManagedNodeGroup {
         Instance: "ONDEMAND",
       },
       requireImdsv2: false,
+      httpPutResponseHopLimit: 2
     },
   };
 }
@@ -366,7 +367,7 @@ export function addCustomNodeGroup(): blueprints.ManagedNodeGroup {
 
   return {
     id: "mng2-customami",
-    amiType: NodegroupAmiType.AL2_X86_64,
+    amiType: NodegroupAmiType.AL2023_X86_64_STANDARD,
     instanceTypes: [new ec2.InstanceType("t3.large")],
     nodeGroupCapacityType: CapacityType.SPOT,
     desiredSize: 0,
@@ -380,13 +381,13 @@ export function addCustomNodeGroup(): blueprints.ManagedNodeGroup {
         Instance: "SPOT",
       },
       machineImage: ec2.MachineImage.genericLinux({
-        "eu-west-1": "ami-00805477850d62b8c",
-        "us-east-1": "ami-08e520f5673ee0894",
-        "us-west-2": "ami-0403ff342ceb30967",
-        "us-east-2": "ami-07109d69738d6e1ee",
-        "us-west-1": "ami-07bda4b61dc470985",
-        "us-gov-west-1": "ami-0e9ebbf0d3f263e9b",
-        "us-gov-east-1": "ami-033eb9bc6daf8bfb1",
+        "eu-west-1": "ami-06cbaae8cf8057acc",
+        "us-east-1": "ami-0767f1fe1d85e096f",
+        "us-west-2": "ami-0c5e7e8af3493a528",
+        "us-east-2": "ami-0d39276e3c888c5e5",
+        "us-west-1": "ami-01fac70e0d3dca976",
+        //"us-gov-west-1": "ami-0e9ebbf0d3f263e9b",
+        //"us-gov-east-1": "ami-033eb9bc6daf8bfb1",
       }),
       userData: userData,
     },
@@ -414,7 +415,7 @@ export function addWindowsNodeGroup(): blueprints.ManagedNodeGroup {
 export function addGpuNodeGroup(): blueprints.ManagedNodeGroup {
   return {
     id: "mng-linux-gpu",
-    amiType: NodegroupAmiType.AL2_X86_64_GPU,
+    amiType: NodegroupAmiType.AL2023_X86_64_NVIDIA,
     instanceTypes: [new ec2.InstanceType("g5.xlarge")],
     desiredSize: 0,
     minSize: 0,
@@ -434,6 +435,7 @@ export function addGpuNodeGroup(): blueprints.ManagedNodeGroup {
 export function addInferentiaNodeGroup(): blueprints.ManagedNodeGroup {
   return {
     id: "mng4-inferentia",
+    amiType: NodegroupAmiType.AL2023_X86_64_NEURON,
     instanceTypes: [new ec2.InstanceType("inf1.2xlarge")],
     desiredSize: 1,
     minSize: 1,

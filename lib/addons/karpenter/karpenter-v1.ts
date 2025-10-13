@@ -18,7 +18,7 @@ import * as md5 from "ts-md5";
 const defaultProps: HelmAddOnProps = {
     name: KARPENTER,
     namespace: "kube-system",
-    version: "1.3.0",
+    version: "1.7.1",
     chart: KARPENTER,
     release: KARPENTER,
     repository: "oci://public.ecr.aws/karpenter/karpenter",

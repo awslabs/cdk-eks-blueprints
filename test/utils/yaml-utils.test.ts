@@ -30,7 +30,7 @@ describe('Unit tests for yaml utils', () => {
     });
 
     test("External YAML Document is read correctly", () => {
-        const doc = yaml.loadExternalYaml('https://raw.githubusercontent.com/kubernetes/examples/master/guestbook/legacy/frontend-controller.yaml');
+        const doc = yaml.loadExternalYaml( 'https://raw.githubusercontent.com/kubernetes/examples/refs/heads/master/web/guestbook/legacy/frontend-controller.yaml');
         const part = {
             apiVersion: "v1",
             kind: "ReplicationController",

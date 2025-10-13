@@ -163,7 +163,7 @@ const defaultProps: IngressNginxAddOnProps = {
     name: "kubernetes-ingress",
     chart: "ingress-nginx",
     release: "k8s-ingress",
-    version: "4.12.1",
+    version: "4.13.2",
     repository: "https://kubernetes.github.io/ingress-nginx",
     backendProtocol: 'http',
     crossZoneEnabled: true,
@@ -218,7 +218,8 @@ export class IngressNginxAddOn extends HelmAddOn {
                     default: props.isDefaultClass ?? false,
                     controllerValue: props.controllerClass || "k8s.io/ingress-nginx"
                 },
-                electionID: props.electionId || "ingress-controller-leader"
+                electionID: props.electionId || "ingress-controller-leader",
+                progressDeadlineSeconds: 600
             }
         };
 
