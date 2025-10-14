@@ -33,7 +33,7 @@ export type EbsCsiDriverAddOnProps = Omit<CoreAddOnProps, "policyDocumentProvide
    */
   storageClass?: string;
   /**
-   * Determines whether the storage class should allow volume expansion or not.
+   * Determines whether the default storage class created by the addon should allow volume expansion or not.
    * @default false
    */
   allowVolumeExpansion?: boolean;
