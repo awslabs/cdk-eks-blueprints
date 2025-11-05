@@ -1,7 +1,7 @@
 import { defaultOptionsv2, GenericClusterProviderV2 } from "./generic-cluster-provider-v2";
 import * as eks from "@aws-cdk/aws-eks-v2-alpha";
 import { IRole } from "aws-cdk-lib/aws-iam";
-import { NodePoolV1Spec } from "../addons/karpenter/types";
+import { AutoModeNodeClassSpec, AutoModeNodePoolSpec } from "./types";
 
 export interface AutomodeClusterProviderProps extends Partial<eks.ClusterCommonOptions>{
 
@@ -18,7 +18,11 @@ export interface AutomodeClusterProviderProps extends Partial<eks.ClusterCommonO
   nodeRole?: IRole;
 
   extraNodePools?: {
-    [key: string]: NodePoolV1Spec;
+    [key: string]: AutoModeNodePoolSpec;
+  };
+
+  extraNodeClasses?: {
+    [key: string]: AutoModeNodeClassSpec;
   };
 
   tags?: {
@@ -31,7 +35,7 @@ export class AutomodeClusterProvider extends GenericClusterProviderV2 {
 
     constructor(props?: AutomodeClusterProviderProps) {
         super({...defaultOptionsv2, ...props, ...{
-              compute: props as Pick<AutomodeClusterProviderProps, "nodePools" | "nodeRole" |"extraNodePools">,
+              compute: props as Pick<AutomodeClusterProviderProps, "nodePools" | "nodeRole" |"extraNodePools" | "extraNodeClasses">,
             }
         });
     }
