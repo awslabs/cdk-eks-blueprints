@@ -372,7 +372,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         kind: "NodeClass",
         metadata: {name: name},
         spec: nodeClass
-      }
+      };
 
       return cluster.addManifest(name, classManifest);
     }
