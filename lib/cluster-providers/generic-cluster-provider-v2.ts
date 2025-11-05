@@ -10,10 +10,9 @@ import { Construct } from "constructs";
 import { ClusterInfo, ClusterProvider } from "../spi";
 import * as utils from "../utils";
 import * as constants from './constants';
-import { AutoscalingNodeGroup, ManagedNodeGroup } from "./types";
+import { AutoModeNodeClassSpec, AutoModeNodePoolSpec, AutoscalingNodeGroup, ManagedNodeGroup } from "./types";
 import assert = require('assert');
 import { selectKubectlLayer, AutoscalingNodeGroupConstraints, FargateProfileConstraints, ManagedNodeGroupConstraints} from "./generic-cluster-provider";
-import { NodePoolV1Spec } from "../addons/karpenter/types";
 import * as semver from "semver";
 
 export function clusterBuilderv2() {
@@ -26,8 +25,15 @@ export interface ComputeConfig extends eks.ComputeConfig {
    * Extra node pools to be added to the Auto Mode Cluster
    */
   extraNodePools?: {
-    [key: string]: NodePoolV1Spec;
+    [key: string]: AutoModeNodePoolSpec;
   };
+
+  /**
+   * Extra node classes to be added to the Auto Mode Cluster
+   */
+  extraNodeClasses?: {
+    [key: string]: AutoModeNodeClassSpec;
+  }
 
 }
 
@@ -255,6 +261,10 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         const nodePoolConstructs: eks.KubernetesManifest[] = [];
         nodePools.forEach(([key, options]) => nodePoolConstructs.push(this.addNodePool(cluster as eks.Cluster, key, options)));
 
+        const nodeClasses = Object.entries(this.props.compute?.extraNodeClasses ?? {});
+        const nodeClassConstructs: eks.KubernetesManifest[] = [];
+        nodeClasses.forEach(([key, options]) => nodeClassConstructs.push(this.addNodeClass(cluster as eks.Cluster, key, options)));
+
         return new ClusterInfo(cluster as eksv1.Cluster, version, nodeGroups as eksv1.Nodegroup[], autoscalingGroups, autoMode, fargateConstructs, cluster as eks.Cluster, nodeGroups as eks.Nodegroup[]);
     }
 
@@ -320,7 +330,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
     /**
      * Add a node pool to the cluster
      */
-    addNodePool(cluster: eks.Cluster, name: string, pool: NodePoolV1Spec) {
+    addNodePool(cluster: eks.Cluster, name: string, pool: AutoModeNodePoolSpec) {
       const labels =  pool.labels || {};
       const annotations = pool.annotations || {};
       const taints = pool.taints || [];
@@ -338,7 +348,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
             metadata: {labels: labels, annotations: annotations},
             spec: {
               nodeClassRef: {
-                  name: "default",
+                  name: pool.nodeClassName || "default",
                   group: "eks.amazonaws.com",
                   kind: "NodeClass"
               },
@@ -354,6 +364,17 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         },
       };
       return cluster.addManifest(name, poolManifest);
+    }
+    
+    addNodeClass(cluster: eks.Cluster, name: string, nodeClass: AutoModeNodeClassSpec) {
+      const classManifest = {
+        apiVersion: "eks.amazonaws.com/v1",
+        kind: "NodeClass",
+        metadata: {name: name},
+        spec: nodeClass
+      }
+
+      return cluster.addManifest(name, classManifest);
     }
 
     /**
