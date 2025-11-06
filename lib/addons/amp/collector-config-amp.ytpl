@@ -9,7 +9,7 @@ metadata:
   namespace: "{{namespace}}"
 spec:
   mode: "{{deploymentMode}}"
-  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.41.1
+  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.45.1
   resources:
     limits:
       cpu: "{{cpuLimit}}"
@@ -1899,8 +1899,8 @@ spec:
         endpoint: "{{remoteWriteEndpoint}}"
         auth:
           authenticator: sigv4auth
-      logging:
-        loglevel: info
+      debug:
+        verbosity: normal
     extensions:
       sigv4auth:
         region: "{{awsRegion}}"
@@ -1915,7 +1915,7 @@ spec:
       pipelines:
         metrics:
           receivers: [prometheus]
-          exporters: [logging, prometheusremotewrite]
+          exporters: [debug, prometheusremotewrite]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
