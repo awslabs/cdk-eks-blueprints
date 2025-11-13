@@ -1,9 +1,9 @@
 import { Construct } from "constructs";
 import { ClusterInfo, Values } from "../../spi";
 import { HelmAddOn, HelmAddOnProps, HelmAddOnUserProps } from "../helm-addon";
-import { dependable, getSecretValue, setPath } from "../../utils";
+import { dependable, getSecretValue, ReplaceServiceAccount, setPath } from "../../utils";
 import { IBucket } from "aws-cdk-lib/aws-s3";
-import { IdentityType } from "aws-cdk-lib/aws-eks";
+import { CfnPodIdentityAssociation, IdentityType } from "aws-cdk-lib/aws-eks";
 import { UnionDataplaneCRDsAddOn } from "./dataplane-crds";
 import { UnionIAMPolicy } from "./iam-policy";
 import * as iam from "aws-cdk-lib/aws-iam";
@@ -50,7 +50,7 @@ const defaultProps: HelmAddOnProps & Partial<UnionDataplaneAddOnProps>= {
   name: "unionai-dataplane",
   chart: "dataplane",
   release: "blueprints-addon-union-dataplane",
-  version: "2025.10.4",
+  version: "2025.11.3",
   repository: "https://unionai.github.io/helm-charts",
   namespace: "unionai",
   createNamespace: true,
@@ -75,25 +75,36 @@ export class UnionDataplaneAddOn extends HelmAddOn {
     values = merge(values, this.options.values ?? {})
     const chart = this.addHelmChart(clusterInfo, values, this.options.createNamespace);
 
-    const unionPolicyDocument = iam.PolicyDocument.fromJson(UnionIAMPolicy(bucket.bucketName))
+    const unionPolicyDocument = iam.PolicyDocument.fromJson(UnionIAMPolicy(bucket.bucketName));
 
-    const unionPolicy = new iam.ManagedPolicy(clusterInfo.cluster, "UnionDataplanePolicy", {document: unionPolicyDocument})
+    const unionPolicy = new iam.ManagedPolicy(clusterInfo.cluster, "UnionDataplanePolicy", {document: unionPolicyDocument});
 
-    const opsServiceAccount = clusterInfo.cluster.addServiceAccount("operator-system", {
+    const opsServiceAccount = new ReplaceServiceAccount(clusterInfo.cluster,"operator-system", {
+      cluster: clusterInfo.cluster,
       name: "operator-system",
       namespace: this.options.namespace,
       identityType: IdentityType.POD_IDENTITY
-    })
-    opsServiceAccount.role.addManagedPolicy(unionPolicy)
-    opsServiceAccount.node.addDependency(chart)
+    });
+    opsServiceAccount.role.addManagedPolicy(unionPolicy);
+    opsServiceAccount.node.addDependency(chart);
 
-    const proxyServiceAccount = clusterInfo.cluster.addServiceAccount("proxy-system", {
+    const proxyServiceAccount = new ReplaceServiceAccount(clusterInfo.cluster,"proxy-system", {
+      cluster: clusterInfo.cluster,
       name: "proxy-system",
       namespace: this.options.namespace,
       identityType: IdentityType.POD_IDENTITY
-    })
-    proxyServiceAccount.role.addManagedPolicy(unionPolicy)
-    proxyServiceAccount.node.addDependency(chart)
+    });
+    proxyServiceAccount.role.addManagedPolicy(unionPolicy);
+    proxyServiceAccount.node.addDependency(chart);
+
+    const fluentbitServiceAccount = new ReplaceServiceAccount(clusterInfo.cluster,"fluentbit-system", {
+      cluster: clusterInfo.cluster,
+      name: "fluentbit-system",
+      namespace: this.options.namespace,
+      identityType: IdentityType.POD_IDENTITY
+    });
+    fluentbitServiceAccount.role.addManagedPolicy(unionPolicy);
+    fluentbitServiceAccount.node.addDependency(chart);
     
     return Promise.resolve(chart);
   }
@@ -132,22 +143,6 @@ async function populateValues(options: UnionDataplaneAddOnProps, clusterInfo: Cl
         create: true,
         clientId,
         clientSecret
-      }
-    },
-    operator: {
-      serviceAccount: {
-        create: false
-      }
-    },
-    proxy: {
-      serviceAccount: {
-        create: false
-      }
-    },
-    fluentbit: {
-      enabled: false,
-      serviceAccount: {
-        create: false
       }
     },
     prometheus: {
