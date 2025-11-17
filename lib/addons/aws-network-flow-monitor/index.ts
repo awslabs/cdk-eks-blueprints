@@ -1,10 +1,18 @@
-import { ClusterInfo } from "../../spi";
+import { ClusterInfo, Values } from "../../spi";
 import { CoreAddOn, CoreAddOnProps } from "../core-addon";
 import * as utils from "../../utils";
 import { IdentityType, KubernetesVersion, ServiceAccount } from "aws-cdk-lib/aws-eks";
 import * as iam from "aws-cdk-lib/aws-iam"
 import { Construct } from "constructs";
 import { EksPodIdentityAgentAddOn } from "../eks-pod-identity-agent";
+
+export interface AwsNetworkFlowMonitorAddOnProps {
+  openMetrics?: string;
+
+  openMetricsPort?: number;
+
+  openMetricsAddress?: string;
+}
 
 /* VersioMap showing the default version for supported Kubernetes versions */
 const versionMap: Map<KubernetesVersion, string> = new Map([
@@ -34,15 +42,18 @@ const defaultProps: CoreAddOnProps = {
 @utils.supportsALL
 export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
 
-  constructor(readonly options?: CoreAddOnProps) {
-    super({...defaultProps, ...options})
+  readonly awsNetworkFlowMonitorAddOnProps: AwsNetworkFlowMonitorAddOnProps;
+
+  constructor(props?: AwsNetworkFlowMonitorAddOnProps) {
+    super({...defaultProps, ...props})
+    this.awsNetworkFlowMonitorAddOnProps = {...defaultProps, ...props};
+    (this.coreAddOnProps.configurationValues as any) = populateNFMAddonConfigurationValues()
   }
 
   @utils.dependable(EksPodIdentityAgentAddOn.name)
   deploy(clusterInfo: ClusterInfo): Promise<Construct> {
     return super.deploy(clusterInfo);
   }
-
 
   /**
    * Overrides the core addon method in order to replace the SA if exists (which is the case for aws-node).
@@ -71,3 +82,16 @@ export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
 
 
 }
+
+function populateNFMAddonConfigurationValues(props?: AwsNetworkFlowMonitorAddOnProps): Values {
+  const values: Values = {
+    env: {
+      OPEN_METRICS: props?.openMetrics,
+      OPEN_METRICS_PORT: props?.openMetricsPort,
+      OPEN_METRICS_ADDRESS: props?.openMetricsAddress
+    }
+  }
+
+  return values
+}
+
