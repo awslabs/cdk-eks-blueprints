@@ -129,6 +129,7 @@ export default class BlueprintConstruct {
         ],
       }),
       new addons.AwsLoadBalancerControllerAddOn(),
+      new addons.AwsNetworkFlowMonitorAddOn(),
       new addons.CertManagerAddOn(),
       new addons.AdotCollectorAddOn({
         namespace: "adot",
