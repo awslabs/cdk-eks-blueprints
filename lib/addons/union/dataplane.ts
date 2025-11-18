@@ -3,11 +3,13 @@ import { ClusterInfo, Values } from "../../spi";
 import { HelmAddOn, HelmAddOnProps, HelmAddOnUserProps } from "../helm-addon";
 import { dependable, getSecretValue, ReplaceServiceAccount, setPath } from "../../utils";
 import { IBucket } from "aws-cdk-lib/aws-s3";
-import { CfnPodIdentityAssociation, IdentityType } from "aws-cdk-lib/aws-eks";
+import { IdentityType } from "aws-cdk-lib/aws-eks";
 import { UnionDataplaneCRDsAddOn } from "./dataplane-crds";
 import { UnionIAMPolicy } from "./iam-policy";
+import { CfnJson } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { merge } from "ts-deepmerge";
+import { Identity } from "aws-cdk-lib/aws-ses";
 
 export interface UnionDataplaneAddOnProps extends HelmAddOnUserProps {
   /*
@@ -71,41 +73,38 @@ export class UnionDataplaneAddOn extends HelmAddOn {
   async deploy(clusterInfo: ClusterInfo): Promise<Construct> {
     const bucket = clusterInfo.getRequiredResource<IBucket>(this.options.s3BucketProviderName!);
 
-    let values = await populateValues(this.options, clusterInfo, clusterInfo.cluster.stack.region, bucket);
-    values = merge(values, this.options.values ?? {})
-    const chart = this.addHelmChart(clusterInfo, values, this.options.createNamespace);
-
     const unionPolicyDocument = iam.PolicyDocument.fromJson(UnionIAMPolicy(bucket.bucketName));
 
     const unionPolicy = new iam.ManagedPolicy(clusterInfo.cluster, "UnionDataplanePolicy", {document: unionPolicyDocument});
 
-    const opsServiceAccount = new ReplaceServiceAccount(clusterInfo.cluster,"operator-system", {
-      cluster: clusterInfo.cluster,
-      name: "operator-system",
-      namespace: this.options.namespace,
-      identityType: IdentityType.POD_IDENTITY
+    const conditions = new CfnJson(clusterInfo.cluster, 'ConditionJson', {
+      value: {
+        [`${clusterInfo.cluster.openIdConnectProvider.openIdConnectProviderIssuer}:aud`]: 'sts.amazonaws.com',
+        [`${clusterInfo.cluster.openIdConnectProvider.openIdConnectProviderIssuer}:sub`]: `system:serviceaccount:*`,
+      },
     });
-    opsServiceAccount.role.addManagedPolicy(unionPolicy);
-    opsServiceAccount.node.addDependency(chart);
+    const principal = new iam.OpenIdConnectPrincipal(clusterInfo.cluster.openIdConnectProvider).withConditions({
+      StringLike: conditions,
+    });
+    const unionRole = new iam.Role(clusterInfo.cluster, 'union-user-role', { assumedBy: principal });
+    unionRole.addManagedPolicy(unionPolicy);
 
-    const proxyServiceAccount = new ReplaceServiceAccount(clusterInfo.cluster,"proxy-system", {
-      cluster: clusterInfo.cluster,
-      name: "proxy-system",
-      namespace: this.options.namespace,
-      identityType: IdentityType.POD_IDENTITY
-    });
-    proxyServiceAccount.role.addManagedPolicy(unionPolicy);
-    proxyServiceAccount.node.addDependency(chart);
+    let values = await populateValues(this.options, clusterInfo, clusterInfo.cluster.stack.region, bucket, unionRole.roleArn);
+    values = merge(values, this.options.values ?? {})
+    const chart = this.addHelmChart(clusterInfo, values, this.options.createNamespace);
 
-    const fluentbitServiceAccount = new ReplaceServiceAccount(clusterInfo.cluster,"fluentbit-system", {
-      cluster: clusterInfo.cluster,
-      name: "fluentbit-system",
-      namespace: this.options.namespace,
-      identityType: IdentityType.POD_IDENTITY
+    const serviceAccountNames = ["operator-system","proxy-system", "fluentbit-system", "flytepropeller-system"];
+    serviceAccountNames.forEach(saName => {
+      const serviceAccount = new ReplaceServiceAccount(clusterInfo.cluster, saName, {
+        cluster: clusterInfo.cluster,
+        name: saName,
+        namespace: this.options.namespace,
+        identityType: IdentityType.IRSA
+      });
+      serviceAccount.role.addManagedPolicy(unionPolicy);
+      serviceAccount.node.addDependency(chart);
     });
-    fluentbitServiceAccount.role.addManagedPolicy(unionPolicy);
-    fluentbitServiceAccount.node.addDependency(chart);
-    
+  
     return Promise.resolve(chart);
   }
 
@@ -117,7 +116,7 @@ export class UnionDataplaneAddOn extends HelmAddOn {
 * @param clusterName Name of the EKS cluster
 * @param region Region of the stack
 */
-async function populateValues(options: UnionDataplaneAddOnProps, clusterInfo: ClusterInfo, region: string, bucket: IBucket): Promise<Values> {
+async function populateValues(options: UnionDataplaneAddOnProps, clusterInfo: ClusterInfo, region: string, bucket: IBucket, roleArn: string): Promise<Values> {
   const [clientId, clientSecret] = await Promise.all([
     getSecretValue(options.clientIdSecretName, region),
     getSecretValue(options.clientSecretSecretName, region)
@@ -147,8 +146,9 @@ async function populateValues(options: UnionDataplaneAddOnProps, clusterInfo: Cl
     },
     prometheus: {
       namespaceOverride: options.namespace!
-
-    }
+    },
+    userRoleAnnotationKey: "eks.amazonaws.com/role-arn",
+    userRoleAnnotationValue: roleArn,
   };
 }
 
