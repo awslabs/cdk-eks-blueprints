@@ -129,7 +129,6 @@ export default class BlueprintConstruct {
         ],
       }),
       new addons.AwsLoadBalancerControllerAddOn(),
-      new addons.AwsNetworkFlowMonitorAddOn(),
       new addons.CertManagerAddOn(),
       new addons.AdotCollectorAddOn({
         namespace: "adot",
@@ -193,6 +192,7 @@ export default class BlueprintConstruct {
         storageClass: "gp3",
       }),
       new addons.EksPodIdentityAgentAddOn(),
+      new addons.AwsNetworkFlowMonitorAddOn(),
       new addons.EmrEksAddOn(),
       new addons.ExternalsSecretsAddOn(),
       new addons.FluxCDAddOn(),
