@@ -262,4 +262,4 @@ bp.AutomodeBuilder.builder(options3)
   .addOns(...addons)
   .addALBIngressClass()
   .addEBSStorageClass()
-  .build(app, 'eks-auto-mode-blueprint');
+  .build(app, 'eks-auto-mode-inf-blueprint');
