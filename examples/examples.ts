@@ -165,3 +165,101 @@ function buildArgoBootstrap() {
         }
     });
 }
+
+const options: Partial<bp.AutomodeClusterProviderProps> = {
+  version: KubernetesVersion.of("1.33"),
+  nodePools: ["system", "general-purpose"],
+};
+
+bp.AutomodeBuilder.builder(options)
+  .account(process.env.CDK_DEFAULT_ACCOUNT)
+  .region(process.env.CDK_DEFAULT_REGION)
+  .addOns(new bp.addons.ArgoCDAddOn())
+  .addALBIngressClass()
+  .addEBSStorageClass()
+  .build(app, 'eks-auto-mode-blueprint');
+
+
+const armNodePool: bp.NodePoolV1Spec = {
+  labels: { type: "endes-knowledge-assistant" },
+  requirements: [
+    { key: "eks.amazonaws.com/instance-category", operator: "In", values: ["c", "m", "r"] },
+    { key: "eks.amazonaws.com/instance-cpu", operator: "In", values: ["2", "4", "8", "16"] },
+    { key: "kubernetes.io/arch", operator: "In", values: ["arm64"] },
+    { key: "karpenter.sh/capacity-type", operator: "In", values: ["on-demand"] },
+  ],
+  expireAfter: "24h",
+  disruption: { consolidationPolicy: "WhenEmpty", consolidateAfter: "1m" }
+};
+
+const options2: Partial<bp.AutomodeClusterProviderProps> = {
+  version: KubernetesVersion.of("1.33"),
+  nodePools: ["system"],
+  extraNodePools: {
+    ["arm-pool"]: armNodePool
+  }
+};
+
+bp.AutomodeBuilder.builder(options2)
+  .account(process.env.CDK_DEFAULT_ACCOUNT)
+  .region(process.env.CDK_DEFAULT_REGION)
+  .addOns(new bp.addons.ArgoCDAddOn())
+  .addALBIngressClass()
+  .addEBSStorageClass()
+  .build(app, 'eks-auto-mode-arm-blueprint');
+
+const inf1NodePoolSpec: bp.NodePoolV1Spec = {
+  taints: [
+    {
+      key: "aws.amazon.com/neuron",
+      value: "Exists",
+      effect: "NoSchedule"
+    },
+  ],
+  startupTaints: [
+    {
+      key: "node.kubernetes.io/not-ready",
+      effect: "NoSchedule"
+    }
+  ],
+  requirements: [
+    { key: "karpenter.sh/capacity-type", operator: "In", values: ["on-demand"] },
+    {
+      key: "node.kubernetes.io/instance-type", operator: "In", values: [
+        "inf1.xlarge",    // 1 Inferentia Chip, 4 vCPUs, 8 GB
+        "inf1.2xlarge",   // 1 Inferentia Chip, 8 vCPUs, 16 GB
+      ],
+    }
+  ],
+  expireAfter: "24h",
+  disruption: {
+    consolidationPolicy: "WhenEmpty",
+    consolidateAfter: "30s"
+  },
+  limits: {
+    cpu: 320,
+    memory: "1280Gi",
+    "aws.amazon.com/neuron": 8
+  },
+  weight: 100
+};
+
+const options3: Partial<bp.AutomodeClusterProviderProps> = {
+  version: KubernetesVersion.of("1.33"),
+  extraNodePools: {
+    ['inferentia']: inf1NodePoolSpec
+  }  
+};
+
+const addons = [
+  new bp.ArgoCDAddOn()
+];
+
+
+bp.AutomodeBuilder.builder(options3)
+  .account(process.env.CDK_DEFAULT_ACCOUNT)
+  .region(process.env.CDK_DEFAULT_REGION)
+  .addOns(...addons)
+  .addALBIngressClass()
+  .addEBSStorageClass()
+  .build(app, 'eks-auto-mode-blueprint');
