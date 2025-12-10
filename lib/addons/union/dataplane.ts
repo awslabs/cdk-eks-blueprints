@@ -48,7 +48,7 @@ export interface UnionDataplaneAddOnProps extends HelmAddOnUserProps {
   readonly createNamespace?: boolean;
 }
 
-const defaultProps: HelmAddOnProps & Partial<UnionDataplaneAddOnProps>= {
+const defaultProps: HelmAddOnProps & Partial<UnionDataplaneAddOnProps> = {
   name: "unionai-dataplane",
   chart: "dataplane",
   release: "blueprints-addon-union-dataplane",
@@ -75,7 +75,7 @@ export class UnionDataplaneAddOn extends HelmAddOn {
 
     const unionPolicyDocument = iam.PolicyDocument.fromJson(UnionIAMPolicy(bucket.bucketName));
 
-    const unionPolicy = new iam.ManagedPolicy(clusterInfo.cluster, "UnionDataplanePolicy", {document: unionPolicyDocument});
+    const unionPolicy = new iam.ManagedPolicy(clusterInfo.cluster, "UnionDataplanePolicy", { document: unionPolicyDocument });
 
     const conditions = new CfnJson(clusterInfo.cluster, 'ConditionJson', {
       value: {
@@ -93,18 +93,18 @@ export class UnionDataplaneAddOn extends HelmAddOn {
     values = merge(values, this.options.values ?? {})
     const chart = this.addHelmChart(clusterInfo, values, this.options.createNamespace);
 
-    const serviceAccountNames = ["operator-system","proxy-system", "fluentbit-system", "flytepropeller-system"];
-    serviceAccountNames.forEach(saName => {
-      const serviceAccount = new ReplaceServiceAccount(clusterInfo.cluster, saName, {
-        cluster: clusterInfo.cluster,
-        name: saName,
-        namespace: this.options.namespace,
-        identityType: IdentityType.IRSA
-      });
-      serviceAccount.role.addManagedPolicy(unionPolicy);
-      serviceAccount.node.addDependency(chart);
-    });
-  
+    //const serviceAccountNames = ["operator-system", "proxy-system", "fluentbit-system", "flytepropeller-system"];
+    //serviceAccountNames.forEach(saName => {
+    //  const serviceAccount = new ReplaceServiceAccount(clusterInfo.cluster, saName, {
+    //    cluster: clusterInfo.cluster,
+    //    name: saName,
+    //    namespace: this.options.namespace,
+    //    identityType: IdentityType.IRSA
+    //  });
+    //  serviceAccount.role.addManagedPolicy(unionPolicy);
+    //  serviceAccount.node.addDependency(chart);
+    //});
+
     return Promise.resolve(chart);
   }
 
@@ -147,8 +147,18 @@ async function populateValues(options: UnionDataplaneAddOnProps, clusterInfo: Cl
     prometheus: {
       namespaceOverride: options.namespace!
     },
+    additionalServiceAccountAnnotations: {
+      "eks.amazonaws.com/role-arn": roleArn
+    },
     userRoleAnnotationKey: "eks.amazonaws.com/role-arn",
     userRoleAnnotationValue: roleArn,
+    fluentbit: {
+      serviceAccount: {
+        annotations: {
+          "eks.amazonaws.com/role-arn": roleArn
+        }
+      }
+    }
   };
 }
 
