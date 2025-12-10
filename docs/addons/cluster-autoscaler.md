@@ -2,15 +2,15 @@
 
 The Cluster Autoscaler add-on adds support for [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) to an EKS cluster. Cluster Autoscaler is a tool that automatically adjusts the number of nodes in your cluster when:
 
-- pods fail due to insufficient resources, or 
+- pods fail due to insufficient resources, or
 - pods are rescheduled onto other nodes due to being in nodes that are underutilized for an extended period of time.
 
 ## Usage
 
 ```typescript
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import * as blueprints from '@aws-quickstart/eks-blueprints';
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import * as blueprints from "@aws-quickstart/eks-blueprints";
 
 const app = new cdk.App();
 
@@ -19,18 +19,18 @@ const addOn = new blueprints.addons.ClusterAutoScalerAddOn();
 const blueprint = blueprints.EksBlueprint.builder()
   .version("auto")
   .addOns(addOn)
-  .build(app, 'my-stack-name');
+  .build(app, "my-stack-name");
 ```
 
 ## Functionality
 
-1. Configure proper IAM permissions (such as modify autoscaling groups, terminate instances, etc.) as a Policy. 
+1. Configure proper IAM permissions (such as modify autoscaling groups, terminate instances, etc.) as a Policy.
 2. Configures IAM Role for Service Account (IRSA) with the generated policy.
 3. Resolves proper CA image to pull based on the Kubernetes version.
 4. Applies proper tags for discoverability to the EC2 instances.
 5. Supports [standard helm configuration options](./index.md#standard-helm-add-on-configuration-options).
 
-The add-on automatically sets the following Helm Chart [values](https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler#values), and it is **highly recommended** not to pass these values in (as it will result in a failed deployment):
+The add-on automatically sets the following Helm Chart [values](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/charts/cluster-autoscaler/values.yaml), and it is **highly recommended** not to pass these values in (as it will result in a failed deployment):
 
 - `cloudProvider`
 - `autoDiscovery.clusterName`
@@ -63,7 +63,7 @@ The first step is to create a sample application via deployment and request 20m 
 
 ```bash
 kubectl create deployment php-apache --image=us.gcr.io/k8s-artifacts-prod/hpa-example
-kubectl set resources deploy php-apache --requests=cpu=20m 
+kubectl set resources deploy php-apache --requests=cpu=20m
 kubectl expose deployment php-apache --port 80
 ```
 
@@ -81,6 +81,7 @@ php-apache-55c4584468-vsbl7   1/1     Running   0          63s
 ### Create HPA resource
 
 Now we can create Horizontal Pod Autoscaler resource with 50% CPU target utilization, and the minimum number of pods at 1 and max at 20:
+
 ```bash
 kubectl autoscale deployment php-apache \
     --cpu-percent=50 \
