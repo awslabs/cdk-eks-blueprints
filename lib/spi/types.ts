@@ -147,6 +147,25 @@ export class ResourceContext {
     public get<T extends IConstruct = IConstruct>(name: string): T | undefined {
         return <T>this.resources.get(name);
     }
+
+    /**
+     * Adds a namespace resource provider.
+     * @param namespace the namespace name
+     * @param provider Implementation of the resource provider interface
+     * @returns the provided resource
+     */
+    public addNamespace<T extends IConstruct>(namespace: string, provider: ResourceProvider<T>): T {
+        return this.add(`namespace-${namespace}`, provider);
+    }
+
+    /**
+     * Gets a namespace resource by name.
+     * @param namespace the namespace name
+     * @returns the namespace resource or undefined if not found
+     */
+    public getNamespace<T extends IConstruct = IConstruct>(namespace: string): T | undefined {
+        return this.get<T>(`namespace-${namespace}`);
+    }
 }
 
 export enum GlobalResources {
