@@ -89,7 +89,7 @@ The framework currently supports the following add-ons.
 | [`AWS Batch for EKS`](./aws-batch-on-eks.md)                              | Enables EKS cluster to be used with AWS Batch on EKS                                                                    | ✅ | ✅ |
 | [`AWS CloudWatch Insights`](./aws-cloudwatch-insights.md) | Provisions CloudWatch Insights to be used with the EKS cluster. | ✅ | ✅ |  
 | [`AWS for Fluent Bit`](./aws-gateway-api-controller.md)                           | Provisions Fluent Bit into your cluster for log aggregation and consumption.   
-| [`AWS Gateway API Controller Add-on`](./aws-for-fluent-bit.md)                           | Installs the [AWS Gateway API Controller](https://www.gateway-api-controller.eks.aws.dev/latest) in your cluster to enable Amazon VPC Lattice service networking capabilities.                                                                      | ✅ | ✅
+| [`AWS Gateway API Controller Add-on`](./aws-gateway-api-controller.md)                           | Installs the [AWS Gateway API Controller](https://www.gateway-api-controller.eks.aws.dev/latest/) in your cluster to enable Amazon VPC Lattice service networking capabilities.                                                                      | ✅ | ✅
 | [`AWS Load Balancer Controller`](./aws-load-balancer-controller.md)       | Provisions the AWS Load Balancer Controller into your cluster.                                                                        | ✅ | ✅ |
 | [`AWS ALB Default Ingress Class`](./aws-alb-default-ingress-class.md)       | Adds a default ALB ingress class to your EKS Auto Mode cluster.                                                                        | ✅ | ✅ |
 | [`AWS Node Termination Handler`](./aws-node-termination-handler.md)       | Provisions Node Termination Handler into your cluster.                                                                        | ✅ |
@@ -135,7 +135,7 @@ The framework currently supports the following add-ons.
 | [`KubeStateMetricsAddOn`](./kube-state-metrics.md)                  | Adds [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) into the EKS cluster.                                          | ✅ | ✅ |
 | [`KubesharkAddOn`](./kubeshark.md)       | [Deep visibility and monitoring of all API traffic](https://github.com/kubeshark/kubeshark)                  | ✅ | ✅ |
 | [`MetricsServerAddOn`](./metrics-server.md)                               | Adds metrics server (pre-req for HPA and other monitoring tools).                                                                      | ✅ | ✅ |
-| [`NewRelicAddOn`](./newrelic.md)                                       | Adds [New Relic](https://newrelic.com/) and [Pixie](https://pixielabs.ai/) observability for Amazon EKS.                               | ✅ | 
+| [`NewRelicAddOn`](./newrelic.md)                                       | Adds [New Relic](https://newrelic.com/) and Pixie observability for Amazon EKS.                               | ✅ | 
 | [`NginxAddOn`](./nginx.md)                                             | Adds NGINX ingress controller  | ✅ | ✅ |                                                                                                        |
 | [`NeuronDevicePluginAddOn`](./neuron-device-plugin-addon.md)                                             | Adds Neuron Device Plugin Addon  | ✅ |  |
 | [`NeuronMonitorAddOn`](./neuron-monitor-addon.md)                                             | Adds Neuron Monitor Addon  | ✅ |  | 

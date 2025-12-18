@@ -1,5 +1,5 @@
 import { ManagedPolicy, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Construct } from 'constructs';
+import { Construct, IConstruct } from 'constructs';
 import { merge } from "ts-deepmerge";
 import { ClusterInfo, Values } from "../../spi";
 import "reflect-metadata";
@@ -72,18 +72,26 @@ export class AckAddOn extends HelmAddOn {
 
   deploy(clusterInfo: ClusterInfo): Promise<Construct> {
     const cluster = clusterInfo.cluster;
+    const context = clusterInfo.getResourceContext();
+    const nsname = this.options.namespace!;
 
     const sa = cluster.addServiceAccount(`${this.options.chart}-sa`, {
-      namespace: this.options.namespace,
+      namespace: nsname,
       name: this.options.saName,
     });
 
     let values: Values = populateValues(this.options,cluster.stack.region);
     values = merge(values, this.props.values ?? {});
 
+    let namespace : IConstruct | undefined;
+
     if(this.options.createNamespace == true){
-      // Let CDK Create the Namespace
-      const namespace = createNamespace(this.options.namespace! , cluster);
+      context.addNamespace(nsname, { provide: () => createNamespace(nsname , cluster)});
+    }
+
+    namespace = clusterInfo.getResourceContext().getNamespace(nsname);
+
+    if (namespace) {
       sa.node.addDependency(namespace);
     }
 
