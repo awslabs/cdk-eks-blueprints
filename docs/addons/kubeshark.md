@@ -1,27 +1,32 @@
 # Kubeshark AddOn
 
-[kubeshark](https://github.com/kubeshark/kubeshark)  is an API Traffic Analyzer for Kubernetes providing real-time, protocol-level visibility into Kubernetes’ internal network, capturing and monitoring all traffic and payloads going in, out and across containers, pods, nodes and clusters.
+[kubeshark](https://github.com/kubeshark/kubeshark) is an API Traffic Analyzer for Kubernetes providing real-time, protocol-level visibility into Kubernetes’ internal network, capturing and monitoring all traffic and payloads going in, out and across containers, pods, nodes and clusters.
 
 Kubeshark provide Real-time monitoring for all traffic going in, out and across containers, pods, namespaces, nodes and clusters, which allow you to pinpoint and resolve issues efficiently, ensuring stable network performance and enhancing application success in Kubernetes environments and identifying complex networking issue.
 
 ## Usage
+
 1. import kubeshark
+
 ```
 npm i kubeshark
 ```
+
 2. import it in your `blueprint.ts`
+
 ```
 import { KubesharkAddOn } from 'kubeshark';
 ```
 
 3. include the addon
+
 ```
     new KubesharkAddOn({})  // Provide an empty object if no specific properties are needed
 ```
 
-
 ### Full example **`index.ts`**
-```typescript
+
+````typescript
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 import { KubesharkAddOn } from 'kubeshark';
@@ -50,8 +55,10 @@ const stack = blueprints.EksBlueprint.builder()
     .addOns(...addOns)
     .useDefaultSecretEncryption(true) // set to false to turn secret encryption off (non-production/demo cases)
     .build(app, 'eks-blueprint');```
-```
+````
+
 ## validate the deployment
+
 Once deployed, you can see kubeshark pod in the `kube-system` namespace.
 
 ```sh
@@ -72,7 +79,7 @@ blueprints-addon-kubeshark                               1/1     1            1 
 Apply the kubernetes dashboard manifest.
 
 ```sh
-$ kubectl -n kube-system port-forward svc/kubeshark-front 3000:80
+kubectl -n kube-system port-forward svc/kubeshark-front 3000:80
 ```
 
 Open the [dashboard](http://localhost:3000)
@@ -80,10 +87,10 @@ Open the [dashboard](http://localhost:3000)
 Then you should be able to see view like this
 ![dashboard](https://raw.githubusercontent.com/kubeshark/assets/master/png/kubeshark-ui.png)
 
-
 ## Example
 
 1.) deploy nginx pod using the below command.
+
 ```
 kubectl apply -f - <<EOF
 apiVersion: v1
@@ -97,25 +104,25 @@ spec:
 EOF
 ```
 
-
 2.) Try to access "aws.com" to generate traffic flow using the below command.
+
 ```
 kubectl exec nginx curl https://aws.com
 ```
 
-
 3.) Access kubeshark using the below command.
+
 ```
 kubectl -n kube-system port-forward svc/kubeshark-front 3000:80
 ```
 
-
 4.) Run Kubeshark query to identify the traffic flow.
+
 ```
 (src.pod.metadata.name == "nginx" or dst.pod.metadata name == "nginx") and request.questions[0].name == "aws.com" or (src.name == "nginx" and src.namespace == "default" and dst.name == "kube-dns" and dst.namespace == "kube-system")
 ```
 
-As shown below, the Kubeshark query used to identify the traffic flowing from the pod "nginx" in the "default" namespace to "aws.com" and "coredns". The query is writen by [Kubeshark Filter Language (KFL)](https://docs.kubeshark.co/en/filtering#kfl-syntax-reference) is the language implemented inside kubeshark/worker that enables the user to filter the traffic efficiently and precisely.
+As shown below, the Kubeshark query used to identify the traffic flowing from the pod "nginx" in the "default" namespace to "aws.com" and "coredns". The query is writen by [Kubeshark Filter Language (KFL)](https://docs.kubehq.com/en/filtering#kfl-syntax-reference) is the language implemented inside kubeshark/worker that enables the user to filter the traffic efficiently and precisely.
 
 ![query](https://github.com/zghanem0/kubeshark/blob/main/api.png?raw=true)
 
