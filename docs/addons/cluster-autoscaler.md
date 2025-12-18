@@ -30,7 +30,7 @@ const blueprint = blueprints.EksBlueprint.builder()
 4. Applies proper tags for discoverability to the EC2 instances.
 5. Supports [standard helm configuration options](./index.md#standard-helm-add-on-configuration-options).
 
-The add-on automatically sets the following Helm Chart [values](https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler#values), and it is **highly recommended** not to pass these values in (as it will result in a failed deployment):
+The add-on automatically sets the following Helm Chart values, and it is **highly recommended** not to pass these values in (as it will result in a failed deployment):
 
 - `cloudProvider`
 - `autoDiscovery.clusterName`
