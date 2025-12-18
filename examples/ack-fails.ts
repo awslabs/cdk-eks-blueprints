@@ -45,10 +45,12 @@ addOns.push(
   })
 );
 
-
 const stack = blueprints.EksBlueprint.builder()
     .account(account)
     .region(region)
     .addOns(...addOns)
     .version("auto")
     .build(app, 'ack-fails-debug-stack');
+
+void stack; // Keep for debugging
+

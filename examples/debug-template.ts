@@ -18,3 +18,5 @@ const stack = blueprints.EksBlueprint.builder()
     .addOns(...addOns)
     .version("auto")
     .build(app, 'debug-stack');
+
+void stack; // Keep for debugging
