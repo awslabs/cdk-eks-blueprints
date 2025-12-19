@@ -1,10 +1,10 @@
-import { Capability, CapabilityProps, CapabilityType } from ".";
+import { Capability, CapabilityProps, CapabilityType } from "./capability";
 
 export type KroCapabilityProps = Omit<CapabilityProps, "namespace" | "type" | "identityCenterArn">;
 
 
 export class KroCapability extends Capability {
-  static readonly DEFAULT_POLICY_NAME = undefined;
+  readonly DEFAULT_POLICY_NAME = undefined;
   static readonly defaultProps: KroCapabilityProps = {
     useDefaultPolicy: true,
     capabilityName: "blueprints-kro-cap"

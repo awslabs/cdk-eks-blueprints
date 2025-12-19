@@ -1,4 +1,4 @@
-import { Capability, CapabilityProps, CapabilityType } from ".";
+import { Capability, CapabilityProps, CapabilityType } from "./capability";
 
 export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type" | "identityCenterArn"> {
 
@@ -7,7 +7,7 @@ export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type" | "ide
 }
 
 export class ArgoCapability extends Capability {
-  static readonly DEFAULT_POLICY_NAME = "AWSSecretsManagerClientReadOnlyAccess";
+  readonly DEFAULT_POLICY_NAME = "AWSSecretsManagerClientReadOnlyAccess";
 
   static readonly defaultProps: Partial<ArgoCapabilityProps>= {
     useDefaultPolicy: true,
