@@ -192,6 +192,7 @@ export default class BlueprintConstruct {
         storageClass: "gp3",
       }),
       new addons.EksPodIdentityAgentAddOn(),
+      new addons.AwsNetworkFlowMonitorAddOn(),
       new addons.EmrEksAddOn(),
       new addons.ExternalsSecretsAddOn(),
       new addons.FluxCDAddOn(),
