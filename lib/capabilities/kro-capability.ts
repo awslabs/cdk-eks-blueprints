@@ -8,7 +8,7 @@ export class KroCapability extends Capability {
   static readonly defaultProps: KroCapabilityProps = {
     useDefaultPolicy: true,
     capabilityName: "blueprints-kro-cap"
-  }
+  };
 
   constructor(readonly options: KroCapabilityProps){
     super({...KroCapability.defaultProps, ...options, type: CapabilityType.KRO});

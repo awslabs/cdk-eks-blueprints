@@ -1,4 +1,4 @@
-import { CapabilityProps, CapabilityType, Capability } from "."
+import { CapabilityProps, CapabilityType, Capability } from ".";
 
 export type AckCapabilityProps = Omit<CapabilityProps, "namespace" | "type" | "identityCenterArn">;
 

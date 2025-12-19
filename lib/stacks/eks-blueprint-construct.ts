@@ -300,7 +300,7 @@ export class EksBlueprintConstruct extends Construct {
             
             if (blueprintProps.capabilities != null) {
                 for (let capability of blueprintProps.capabilities) {
-                    capability.create(this.clusterInfo)
+                    capability.create(this.clusterInfo);
                 }
             }
 

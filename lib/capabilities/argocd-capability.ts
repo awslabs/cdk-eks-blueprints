@@ -1,4 +1,4 @@
-import { Capability, CapabilityProps, CapabilityType } from "."
+import { Capability, CapabilityProps, CapabilityType } from ".";
 
 export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type" | "identityCenterArn"> {
 
