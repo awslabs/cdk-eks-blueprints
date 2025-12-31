@@ -1,4 +1,4 @@
-import { CfnAddon, FargateCluster, ServiceAccount } from "aws-cdk-lib/aws-eks";
+import { CfnAddon, CfnPodIdentityAssociation, FargateCluster, ServiceAccount } from "aws-cdk-lib/aws-eks";
 import { ClusterAddOn } from "../..";
 import { AutoModeAddon, ClusterInfo, Values } from "../../spi";
 import { Construct, IConstruct } from "constructs";
@@ -65,6 +65,7 @@ export class CoreAddOn implements ClusterAddOn, AutoModeAddon{
     async deploy(clusterInfo: ClusterInfo): Promise<Construct> {
 
         let serviceAccountRoleArn: string | undefined = undefined;
+        let podIdentity: CfnPodIdentityAssociation | undefined = undefined;
         let serviceAccount: ServiceAccount | undefined = undefined;
         let saNamespace: string | undefined = undefined;
 
@@ -83,6 +84,7 @@ export class CoreAddOn implements ClusterAddOn, AutoModeAddon{
             if(ns) {
                 serviceAccount.node.addDependency(ns);
             }
+            podIdentity = serviceAccount.node.tryFindChild('Association') as CfnPodIdentityAssociation;
         }
 
         let version: string = this.coreAddOnProps.version;
@@ -96,8 +98,8 @@ export class CoreAddOn implements ClusterAddOn, AutoModeAddon{
             addonVersion: version,
             configurationValues: JSON.stringify(this.coreAddOnProps.configurationValues),
             clusterName: clusterInfo.cluster.clusterName,
-            serviceAccountRoleArn: serviceAccountRoleArn,
-            resolveConflicts: "OVERWRITE"
+            resolveConflicts: "OVERWRITE",
+            ...(podIdentity? { podIdentityAssociations: [{roleArn: podIdentity.roleArn, serviceAccount: podIdentity.serviceAccount}] } : { serviceAccountRoleArn: serviceAccountRoleArn })
         };
 
         const cfnAddon = new CfnAddon(clusterInfo.cluster.stack, this.coreAddOnProps.addOnName + "-addOn", addOnProps);
