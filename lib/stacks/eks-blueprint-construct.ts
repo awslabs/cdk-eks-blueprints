@@ -275,6 +275,13 @@ export class EksBlueprintConstruct extends Construct {
             ArgoGitOpsFactory.enableGitOpsAppOfApps();
         }
 
+        if (blueprintProps.capabilities != null) { // Add capabilities to cluster first
+            for (let capability of blueprintProps.capabilities) {
+                const capabilityConstruct = capability.create(this.clusterInfo);
+                this.clusterInfo.addCapability(capability.type.toString().toLowerCase(), capabilityConstruct);
+            }
+        }
+
         const postDeploymentSteps = Array<spi.ClusterPostDeploy>();
 
         for (let addOn of (blueprintProps.addOns ?? [])) { // must iterate in the strict order
@@ -298,11 +305,6 @@ export class EksBlueprintConstruct extends Construct {
                 this.clusterInfo.addProvisionedAddOn(addOnKeys[index], construct);
             });
             
-            if (blueprintProps.capabilities != null) {
-                for (let capability of blueprintProps.capabilities) {
-                    capability.create(this.clusterInfo);
-                }
-            }
 
             if (blueprintProps.teams != null) {
                 for (let team of blueprintProps.teams) {
