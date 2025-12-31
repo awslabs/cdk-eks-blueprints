@@ -44,11 +44,11 @@ const blueprint = blueprints.EksBlueprint.builder()
 To validate that the Network Flow Monitor add-on is installed properly, ensure that the pods are running in the cluster
 
 ```bash
-kubectl get pods -n kube-system | grep 'eks-pod-identity-agent'
+kubectl get pods -n amazon-network-flow-monitor
 
 # Output
-eks-pod-identity-agent-gmqp7                                          1/1     Running   1 (24h ago)   24h
-eks-pod-identity-agent-prnsh                                          1/1     Running   1 (24h ago)   24h
+NAME                                   READY   STATUS    RESTARTS   AGE
+aws-network-flow-monitor-agent-p2rd7   1/1     Running   0          2m22s
 
 ```
 
@@ -57,12 +57,12 @@ Additionally, the `aws cli` can be used to determine which version of the add-on
 # Assuming cluster-name is my-cluster, below command shows the version of coredns installed. Check if it is same as the version installed via EKS add-on
 aws eks describe-addon \
     --cluster-name my-cluster \
-    --addon-name eks-pod-identity-agent \
+    --addon-name aws-network-flow-monitoring-agent \
     --query "addon.addonVersion" \
     --output text
 
 # Output
-v1.0.0-eksbuild.1
+v1.1.2-eksbuild.1
 ```
 
 
