@@ -2,7 +2,7 @@ import { ClusterInfo, Values } from "../../spi";
 import { CoreAddOn, CoreAddOnProps } from "../core-addon";
 import * as utils from "../../utils";
 import { IdentityType, KubernetesVersion, ServiceAccount } from "aws-cdk-lib/aws-eks";
-import * as iam from "aws-cdk-lib/aws-iam"
+import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { EksPodIdentityAgentAddOn } from "../eks-pod-identity-agent";
 
@@ -45,9 +45,9 @@ export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
   readonly awsNetworkFlowMonitorAddOnProps: AwsNetworkFlowMonitorAddOnProps;
 
   constructor(props?: AwsNetworkFlowMonitorAddOnProps) {
-    super({...defaultProps, ...props})
+    super({...defaultProps, ...props});
     this.awsNetworkFlowMonitorAddOnProps = {...defaultProps, ...props};
-    (this.coreAddOnProps.configurationValues as any) = populateNFMAddonConfigurationValues()
+    (this.coreAddOnProps.configurationValues as any) = populateNFMAddonConfigurationValues();
   }
 
   @utils.dependable(EksPodIdentityAgentAddOn.name)
@@ -70,13 +70,13 @@ export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
     });
 
     policies.forEach(p => sa.role.addManagedPolicy(p));
-    return sa
+    return sa;
   }
 
   /**
    * Override method to return required managed policies for the service account.
    */
-  provideManagedPolicies(clusterInfo: ClusterInfo) : iam.IManagedPolicy[] | undefined {
+  provideManagedPolicies(_clusterInfo: ClusterInfo) : iam.IManagedPolicy[] | undefined {
     return [iam.ManagedPolicy.fromAwsManagedPolicyName("CloudWatchNetworkFlowMonitorAgentPublishPolicy")];
   }
 
@@ -90,8 +90,8 @@ function populateNFMAddonConfigurationValues(props?: AwsNetworkFlowMonitorAddOnP
       OPEN_METRICS_PORT: props?.openMetricsPort,
       OPEN_METRICS_ADDRESS: props?.openMetricsAddress
     }
-  }
+  };
 
-  return values
+  return values;
 }
 
