@@ -9,19 +9,20 @@ import { Construct } from 'constructs';
  * @param clusterInfo 
  * @returns sa
  */
-export function createServiceAccount(cluster: ICluster, name: string, namespace: string, policyDocument: iam.PolicyDocument): ServiceAccount {
+export function createServiceAccount(cluster: ICluster, name: string, namespace: string, policyDocument: iam.PolicyDocument, type?: eks.IdentityType): ServiceAccount {
     const policy = new iam.ManagedPolicy(cluster, `${name}-managed-policy`, {
         document: policyDocument
     });
 
-    return createServiceAccountWithPolicy(cluster, name, namespace, policy);
+    return createServiceAccountWithPolicy(cluster, name, namespace, type, policy);
 
 }
 
-export function createServiceAccountWithPolicy(cluster: ICluster, name: string, namespace: string, ...policies: iam.IManagedPolicy[]): ServiceAccount {
+export function createServiceAccountWithPolicy(cluster: ICluster, name: string, namespace: string, type?: eks.IdentityType, ...policies: iam.IManagedPolicy[]): ServiceAccount {
     const sa = cluster.addServiceAccount(`${name}-sa`, {
         name: name,
-        namespace: namespace
+        namespace: namespace,
+        identityType: type
     });
 
     policies.forEach(policy => sa.role.addManagedPolicy(policy));

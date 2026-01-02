@@ -1,9 +1,9 @@
-import { CfnAddon, CfnPodIdentityAssociation, FargateCluster, ServiceAccount } from "aws-cdk-lib/aws-eks";
+import { AddonProps, CfnAddon, CfnPodIdentityAssociation, FargateCluster, ServiceAccount } from "aws-cdk-lib/aws-eks";
 import { ClusterAddOn } from "../..";
 import { AutoModeAddon, ClusterInfo, Values } from "../../spi";
 import { Construct, IConstruct } from "constructs";
 import { IManagedPolicy, ManagedPolicy, PolicyDocument } from "aws-cdk-lib/aws-iam";
-import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
+import { KubernetesVersion, IdentityType } from "aws-cdk-lib/aws-eks";
 import { createServiceAccountWithPolicy, deployBeforeCapacity, logger, userLog,  } from "../../utils";
 import * as sdk from "@aws-sdk/client-eks";
 import { RemovalPolicy } from "aws-cdk-lib";
@@ -27,6 +27,12 @@ export class CoreAddOnProps {
      * Service Account Name to be used with AddOn.
      */
     readonly saName: string;
+
+    /**
+     * Type of service account, IRSA or POD_IDENTITY.
+     */
+    readonly saType?: IdentityType;
+
     /**
      * Namespace to create the ServiceAccount.
      */
@@ -79,7 +85,7 @@ export class CoreAddOn implements ClusterAddOn, AutoModeAddon{
         // Create a service account if user provides namespace, PolicyDocument
         const policies = this.provideManagedPolicies(clusterInfo);
         if (policies) {
-            serviceAccount = this.createServiceAccount(clusterInfo, saNamespace, policies);
+            serviceAccount = this.createServiceAccount(clusterInfo, saNamespace, policies, this.coreAddOnProps.saType);
             serviceAccountRoleArn = serviceAccount.role.roleArn;
             if(ns) {
                 serviceAccount.node.addDependency(ns);
@@ -93,13 +99,13 @@ export class CoreAddOn implements ClusterAddOn, AutoModeAddon{
             version = await this.provideVersion(clusterInfo.version, clusterInfo.cluster.stack.region);
         }
 
-        let addOnProps = {
+        let addOnProps: any = {
             addonName: this.coreAddOnProps.addOnName,
             addonVersion: version,
             configurationValues: JSON.stringify(this.coreAddOnProps.configurationValues),
             clusterName: clusterInfo.cluster.clusterName,
             resolveConflicts: "OVERWRITE",
-            ...(podIdentity? { podIdentityAssociations: [{roleArn: podIdentity.roleArn, serviceAccount: podIdentity.serviceAccount}] } : { serviceAccountRoleArn: serviceAccountRoleArn })
+            ...(serviceAccount && !podIdentity? { serviceAccountRoleArn: serviceAccountRoleArn } : {}) // Can pass podIdentityAssociations to create a PIA attached directly to addon, does not work with cdk createServiceAccount Pod Identity functionality.
         };
 
         const cfnAddon = new CfnAddon(clusterInfo.cluster.stack, this.coreAddOnProps.addOnName + "-addOn", addOnProps);
@@ -144,9 +150,9 @@ export class CoreAddOn implements ClusterAddOn, AutoModeAddon{
      * @param policies 
      * @returns 
      */
-    createServiceAccount(clusterInfo: ClusterInfo, saNamespace: string, policies: IManagedPolicy[]): ServiceAccount {
+    createServiceAccount(clusterInfo: ClusterInfo, saNamespace: string, policies: IManagedPolicy[], type?: IdentityType): ServiceAccount {
         return createServiceAccountWithPolicy(clusterInfo.cluster, this.coreAddOnProps.saName,
-            saNamespace, ...policies);
+            saNamespace, type, ...policies);
     }
 
     /**

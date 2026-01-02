@@ -3,7 +3,7 @@ import { CoreAddOn, CoreAddOnProps } from "../core-addon";
 import * as utils from "../../utils";
 import { IdentityType, KubernetesVersion, ServiceAccount } from "aws-cdk-lib/aws-eks";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { Construct } from "constructs";
+import { Construct, IConstruct } from "constructs";
 import { EksPodIdentityAgentAddOn } from "../eks-pod-identity-agent";
 
 export interface AwsNetworkFlowMonitorAddOnProps {
@@ -34,7 +34,9 @@ const defaultProps: CoreAddOnProps = {
   addOnName: "aws-network-flow-monitoring-agent",
   version: "auto",
   versionMap: versionMap,
+  namespace: "amazon-network-flow-monitor",
   saName: "aws-network-flow-monitor-agent-service-account",
+  saType: IdentityType.POD_IDENTITY
 };
 
 /**
@@ -56,22 +58,8 @@ export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
     return super.deploy(clusterInfo);
   }
 
-  /**
-   * Overrides the core addon method in order to replace the SA if exists (which is the case for aws-node).
-   * @param clusterInfo 
-   * @param saNamespace 
-   * @param policies 
-   * @returns 
-   */
-  createServiceAccount(clusterInfo: ClusterInfo, saNamespace: string, policies: iam.IManagedPolicy[]): ServiceAccount {
-    const sa = clusterInfo.cluster.addServiceAccount(`${this.coreAddOnProps.addOnName}-sa`, {
-      name: this.coreAddOnProps.saName,
-      namespace: saNamespace,
-      identityType: IdentityType.POD_IDENTITY
-    });
-
-    policies.forEach(p => sa.role.addManagedPolicy(p));
-    return sa;
+  createNamespace(clusterInfo: ClusterInfo, namespaceName: string): IConstruct | undefined {
+    return utils.createNamespace(namespaceName, clusterInfo.cluster)
   }
 
   /**
