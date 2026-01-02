@@ -1,7 +1,6 @@
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
 import { cloneDeepWith } from 'lodash';
 import * as nutil from 'node:util/types';
-import { ManagedPolicyReference } from "aws-cdk-lib/aws-iam";
 
 export const setPath = (obj : any, path: string, val: any) => { 
     const keys = path.split('.');
