@@ -16,6 +16,7 @@ export interface AwsNetworkFlowMonitorAddOnProps {
 
 /* VersioMap showing the default version for supported Kubernetes versions */
 const versionMap: Map<KubernetesVersion, string> = new Map([
+  [KubernetesVersion.V1_34, "v1.1.2-eksbuild.1"],
   [KubernetesVersion.V1_33, "v1.1.0-eksbuild.1"],
   [KubernetesVersion.V1_32, "v1.1.0-eksbuild.1"],
   [KubernetesVersion.V1_31, "v1.1.0-eksbuild.1"],
@@ -45,8 +46,8 @@ export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
   readonly awsNetworkFlowMonitorAddOnProps: AwsNetworkFlowMonitorAddOnProps;
 
   constructor(props?: AwsNetworkFlowMonitorAddOnProps) {
-    super({...defaultProps, ...props});
-    this.awsNetworkFlowMonitorAddOnProps = {...defaultProps, ...props};
+    super({ ...defaultProps, ...props });
+    this.awsNetworkFlowMonitorAddOnProps = { ...defaultProps, ...props };
     (this.coreAddOnProps.configurationValues as any) = populateNFMAddonConfigurationValues();
   }
 
@@ -76,7 +77,7 @@ export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
   /**
    * Override method to return required managed policies for the service account.
    */
-  provideManagedPolicies(_clusterInfo: ClusterInfo) : iam.IManagedPolicy[] | undefined {
+  provideManagedPolicies(_clusterInfo: ClusterInfo): iam.IManagedPolicy[] | undefined {
     return [iam.ManagedPolicy.fromAwsManagedPolicyName("CloudWatchNetworkFlowMonitorAgentPublishPolicy")];
   }
 
