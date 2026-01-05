@@ -1,6 +1,4 @@
 import { AutomodeClusterProvider, AutomodeClusterProviderProps } from "../cluster-providers";
-import * as eks from "aws-cdk-lib/aws-eks";
-import { merge } from "ts-deepmerge";
 import { BlueprintBuilder } from "../stacks";
 import * as addons from '../addons';
 
@@ -12,7 +10,7 @@ export class AutomodeBuilder extends BlueprintBuilder {
 
   public static builder(options?: Partial<AutomodeClusterProviderProps>): AutomodeBuilder {
     const builder = new AutomodeBuilder();
-    const mergedOptions = {...defaultOptions, ...options}
+    const mergedOptions = {...defaultOptions, ...options};
 
     builder
       .clusterProvider(new AutomodeClusterProvider(mergedOptions))
