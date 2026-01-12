@@ -50,7 +50,7 @@ export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
   constructor(props?: AwsNetworkFlowMonitorAddOnProps) {
     super({ ...defaultProps, ...props });
     this.awsNetworkFlowMonitorAddOnProps = { ...defaultProps, ...props };
-    (this.coreAddOnProps.configurationValues as any) = populateNFMAddonConfigurationValues();
+    (this.coreAddOnProps.configurationValues as any) = populateNFMAddonConfigurationValues(props);
   }
 
   @utils.dependable(EksPodIdentityAgentAddOn.name)

@@ -28,6 +28,7 @@ const defaultProps = {
 /**
  * Implementation of Amazon EKS Pod Identity Agent add-on.
  */
+@utils.supportsALL
 export class EksPodIdentityAgentAddOn extends CoreAddOn {
 
     @utils.conflictsWithAutoMode(utils.AutoModeConflictType.VERSION_MISMATCH, 'v1.3.4-eksbuild.1')
