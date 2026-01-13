@@ -51,7 +51,7 @@ class NodeRoleAccessEntryAddOn implements blueprints.ClusterAddOn {
     const role = clusterInfo.getResourceContext().get("node-role") as Role;
 
 
-    const accessEntry = new cdk.aws_eks.CfnAccessEntry(clusterInfo.cluster, "NodeRoleAccessEntry", {
+    const accessEntry = new cdk.aws_eks.CfnAccessEntry(clusterInfo.cluster.stack, "NodeRoleAccessEntry", {
       clusterName: clusterInfo.cluster.clusterName,
       principalArn: role.roleArn,
       type: "EC2",
@@ -63,12 +63,17 @@ class NodeRoleAccessEntryAddOn implements blueprints.ClusterAddOn {
       }]
     });
 
+    // Depends on the node role
     accessEntry.node.addDependency(role)
-    accessEntry.node.addDependency(clusterInfo.cluster)
+    // Depends on only the cluster, not other constructs added to the cluster - must be added explicitly since we are using a L1 AccessEntry construct
+    accessEntry.node.addDependency(clusterInfo.cluster.node.defaultChild as cdk.aws_eks.CfnCluster)
 
     return Promise.resolve(accessEntry);
   }
 }
+
+// The node role access entry needs to be created first, so the nodeclass can create nodes in the cluster before deploying other addons
+Reflect.defineMetadata("ordered", true, NodeRoleAccessEntryAddOn)
 
 const nodeRoleProvider = new CustomRoleProvider();
 
@@ -142,8 +147,8 @@ const nodeClass: blueprints.AutoModeNodeClassSpec = {
 
 // Example customer issue reproduction:
 const addOns: Array<blueprints.ClusterAddOn> = [
-  new blueprints.addons.ArgoCDAddOn,
-  new NodeRoleAccessEntryAddOn()
+  new NodeRoleAccessEntryAddOn(),
+  new blueprints.addons.ArgoCDAddOn
 ];
 
 const stack = blueprints.AutomodeBuilder.builder({
