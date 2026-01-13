@@ -3,12 +3,13 @@ import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { Construct } from 'constructs';
 
 // Custom VPC provider that tags secondary subnets
 class TaggedVpcProvider extends blueprints.VpcProvider {
   provide(context: blueprints.ResourceContext): ec2.IVpc {
     const vpc = super.provide(context);
-    
+
     // Tag secondary subnets after creation
     if (this.secondaryCidr) {
       for (let i = 0; i < 3; i++) {
@@ -18,7 +19,7 @@ class TaggedVpcProvider extends blueprints.VpcProvider {
         }
       }
     }
-    
+
     return vpc;
   }
 }
@@ -28,7 +29,7 @@ const app = new cdk.App();
 const account = process.env.CDK_DEFAULT_ACCOUNT!;
 const region = process.env.CDK_DEFAULT_REGION!;
 
-// Create a resource provider for the node role with explicit name and access entry
+// Create a resource provider for the node role
 class CustomRoleProvider implements blueprints.ResourceProvider<Role> {
   provide(context: blueprints.ResourceContext): Role {
     const role = new Role(context.scope, "node-role", {
@@ -40,10 +41,18 @@ class CustomRoleProvider implements blueprints.ResourceProvider<Role> {
       ]
     });
 
+    return role;
+  }
+}
 
-    // Create EKS Access Entry for the node role
-    new cdk.aws_eks.CfnAccessEntry(context.scope, "NodeRoleAccessEntry", {
-      clusterName: "auto-advanced-networking-debug-stack",
+// Addon to create access entry for the custom node role
+class NodeRoleAccessEntryAddOn implements blueprints.ClusterAddOn {
+  deploy(clusterInfo: blueprints.ClusterInfo): Promise<Construct> {
+    const role = clusterInfo.getResourceContext().get("node-role") as Role;
+
+
+    const accessEntry = new cdk.aws_eks.CfnAccessEntry(clusterInfo.cluster, "NodeRoleAccessEntry", {
+      clusterName: clusterInfo.cluster.clusterName,
       principalArn: role.roleArn,
       type: "EC2",
       accessPolicies: [{
@@ -54,7 +63,9 @@ class CustomRoleProvider implements blueprints.ResourceProvider<Role> {
       }]
     });
 
-    return role;
+    accessEntry.node.addDependency(role)
+
+    return Promise.resolve(accessEntry);
   }
 }
 
@@ -94,7 +105,7 @@ const nodePool: blueprints.AutoModeNodePoolSpec = {
 
 // Node class for advanced networking
 const nodeClass: blueprints.AutoModeNodeClassSpec = {
-  role: "auto-advanced-networking-node-role",  
+  role: "auto-advanced-networking-node-role",
   subnetSelectorTerms: [
     {
       tags: {
@@ -130,7 +141,8 @@ const nodeClass: blueprints.AutoModeNodeClassSpec = {
 
 // Example customer issue reproduction:
 const addOns: Array<blueprints.ClusterAddOn> = [
-  new blueprints.addons.ArgoCDAddOn
+  new blueprints.addons.ArgoCDAddOn,
+  new NodeRoleAccessEntryAddOn()
 ];
 
 const stack = blueprints.AutomodeBuilder.builder({
