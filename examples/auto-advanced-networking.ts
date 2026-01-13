@@ -64,6 +64,7 @@ class NodeRoleAccessEntryAddOn implements blueprints.ClusterAddOn {
     });
 
     accessEntry.node.addDependency(role)
+    accessEntry.node.addDependency(clusterInfo.cluster)
 
     return Promise.resolve(accessEntry);
   }
