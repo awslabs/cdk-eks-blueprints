@@ -316,22 +316,37 @@ spec:
               source_labels: [__meta_kubernetes_pod_node_name]
             
     processors:
+      metricstransform:
+        transforms:
+          - include: ".*"
+            match_type: regexp
+            action: update
+            operations:
+              - action: add_label
+                new_label: cluster
+                new_value: "{{clusterName}}"
+              - action: add_label
+                new_label: __replica__
+                new_value: ${env:POD_NAME}
       batch/metrics:
         timeout: 60s   
 
     exporters:
-      awsprometheusremotewrite:
+      prometheusremotewrite:
         endpoint: "{{remoteWriteEndpoint}}"
-        aws_auth:
-          region: "{{awsRegion}}"
-          service: "aps"
-
+        auth:
+          authenticator: sigv4auth
+    extensions:
+      sigv4auth:
+        region: "{{awsRegion}}"
+        service: aps
     service:
+      extensions: [sigv4auth]
       pipelines:
         metrics:
           receivers: [prometheus]
-          processors: [batch/metrics]
-          exporters: [awsprometheusremotewrite]
+          processors: [metricstransform, batch/metrics]
+          exporters: [prometheusremotewrite]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

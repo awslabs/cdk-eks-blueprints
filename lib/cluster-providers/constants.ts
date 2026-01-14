@@ -1,5 +1,5 @@
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as eks from "aws-cdk-lib/aws-eks"
+import * as eks from "aws-cdk-lib/aws-eks";
 
 /**
  * Default instance type for managed node group provisioning
@@ -9,7 +9,7 @@ export const DEFAULT_INSTANCE_TYPE = ec2.InstanceType.of(ec2.InstanceClass.M5, e
 /**
  * Default AMI for Managed Node Group Provisioning
  */
-export const DEFAULT_AMI = eks.NodegroupAmiType.AL2023_X86_64_STANDARD
+export const DEFAULT_AMI = eks.NodegroupAmiType.AL2023_X86_64_STANDARD;
 
 /**
  * Default min size of MNG
