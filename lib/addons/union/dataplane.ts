@@ -52,7 +52,7 @@ const defaultProps: HelmAddOnProps & Partial<UnionDataplaneAddOnProps> = {
   name: "unionai-dataplane",
   chart: "dataplane",
   release: "blueprints-addon-union-dataplane",
-  version: "2025.11.3",
+  version: "2026.1.5",
   repository: "https://unionai.github.io/helm-charts",
   namespace: "unionai",
   createNamespace: true,
@@ -125,22 +125,28 @@ async function populateValues(options: UnionDataplaneAddOnProps, clusterInfo: Cl
 
 
   return {
-    host: options.host,
-    clusterName: options.clusterName,
-    orgName: options.orgName,
+    global: {
+      UNION_CONTROL_PLANE_HOST: options.host,
+      CLUSTER_NAME: options.clusterName,
+      ORG_NAME: options.orgName,
+      CLIENT_ID: clientId,
+      METADATA_BUCKET: bucket.bucketName,
+      FAST_REGISTRATION_BUCKET: bucket.bucketName,
+      AWS_REGION: region,
+      BACKEND_IAM_ROLE_ARN: roleArn,
+      WORKER_IAM_ROLE_ARN: roleArn
+    },
     provider: "aws",
     storage: {
       provider: "aws",
       authType: "iam",
-      bucketName: bucket.bucketName,
-      fastRegistrationBucketName: bucket.bucketName,
-      region,
+      region: '{{ .Values.global.AWS_REGION }}',
       enableMultiContainer: true
     },
     secrets: {
       admin: {
         create: true,
-        clientId,
+        clientId: '{{ .Values.global.CLIENT_ID }}',
         clientSecret
       }
     },
@@ -148,10 +154,10 @@ async function populateValues(options: UnionDataplaneAddOnProps, clusterInfo: Cl
       namespaceOverride: options.namespace!
     },
     additionalServiceAccountAnnotations: {
-      "eks.amazonaws.com/role-arn": roleArn
+      "eks.amazonaws.com/role-arn": "{{ tpl .Values.global.BACKEND_IAM_ROLE_ARN . }}"
     },
     userRoleAnnotationKey: "eks.amazonaws.com/role-arn",
-    userRoleAnnotationValue: roleArn,
+    userRoleAnnotationValue: "{{ tpl .Values.global.WORKER_IAM_ROLE_ARN . }}",
     fluentbit: {
       serviceAccount: {
         annotations: {

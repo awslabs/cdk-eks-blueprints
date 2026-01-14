@@ -6,7 +6,7 @@ const defaultProps: HelmAddOnProps = {
   name: "unionai-dataplane-crds",
   chart: "dataplane-crds",
   release: "blueprints-addon-union-dataplane-crds",
-  version: "2025.6.3",
+  version: "2026.1.1",
   repository: "https://unionai.github.io/helm-charts",
   namespace: "default",
   values: {}
