@@ -29,7 +29,9 @@ With cURL:
 curl -sL https://raw.githubusercontent.com/unionai/uctl/main/install.sh | bash
 ```
 
-### 1. Setup Union Credentials
+### 2. Setup Union Credentials
+
+Both the control plane URL and cluster name will be provided by Union.  Union will also provide authentication information for your account to access the hosted control plane.
 
 ```bash
 export UNION_CONTROL_PLANE_URL=<YOUR_UNION_CONTROL_PLANE_URL>
@@ -41,7 +43,7 @@ uctl selfserve provision-dataplane-resources --clusterName $UNION_CLUSTER_NAME -
 
 This command will output the ID, name, and secret used by Union services to communicate with the control plane.
 
-### 2. Create Union Secrets in AWS Secrets Manager
+### 3. Create Union Secrets in AWS Secrets Manager
 
 ```bash
 export UNION_CLIENT_ID_SECRET_NAME=union-client-id
@@ -56,7 +58,7 @@ aws secretsmanager create-secret --name $UNION_SECRET_SECRET_NAME --secret-strin
 ```
 
 
-### 3. Create Union Blueprint
+### 4. Create Union Blueprint
 
 ```typescript
 #!/usr/bin/env node
@@ -85,11 +87,11 @@ const unionBlueprint = blueprints.AutomodeBuilder.builder({})
 ).build(app, "union-blueprint", props)
 ```
 
-### 4. Deploy the Blueprint
+### 5. Deploy the Blueprint
 
 For a quick tutorial on EKS Blueprints, visit the [Getting Started guide](https://awslabs.github.io/cdk-eks-blueprints/getting-started/).
 
-### 5. Validation
+### 6. Validation
 
 Run the command:
 ```bash
