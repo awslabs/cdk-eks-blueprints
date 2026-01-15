@@ -54,7 +54,7 @@ aws secretsmanager create-secret --name $UNION_CLIENT_ID_SECRET_NAME --secret-st
 export UNION_SECRET_SECRET_NAME=union-client-secret
 export UNION_SECRET_SECRET_VALUE=<CLUSTERAUTHCLIENTSECRET_FROM_SELFSERVE_COMMAND>
 
-aws secretsmanager create-secret --name $UNION_SECRET_SECRET_NAME --secret-string $UNION_SECRET_SECRET_NAME
+aws secretsmanager create-secret --name $UNION_SECRET_SECRET_NAME --secret-string $UNION_SECRET_SECRET_VALUE
 ```
 
 
