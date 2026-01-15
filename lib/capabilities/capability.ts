@@ -1,4 +1,4 @@
-import { CfnCapability, CfnCapabilityProps } from "aws-cdk-lib/aws-eks";
+import { CfnCapability, CfnCapabilityProps, CfnCluster } from "aws-cdk-lib/aws-eks";
 import { ClusterInfo, ClusterCapability, CapabilityType } from "../spi";
 import { CfnTag } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
@@ -80,7 +80,9 @@ export class Capability implements ClusterCapability {
       }),
       tags: this.props.tags
     };
-    return new CfnCapability(clusterInfo.cluster.stack, capabilityProps.capabilityName + "-capability", capabilityProps);
+    const capability = new CfnCapability(clusterInfo.cluster.stack, capabilityProps.capabilityName + "-capability", capabilityProps);
+    capability.node.addDependency(clusterInfo.cluster.stack.node.defaultChild as CfnCluster)
+    return capability
   }
 
   /**
