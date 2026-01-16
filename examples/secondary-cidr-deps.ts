@@ -2,7 +2,6 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
-import { PrivateSubnet } from 'aws-cdk-lib/aws-ec2';
 
 const app = new cdk.App();
 
@@ -16,7 +15,7 @@ const vpcProvider = new blueprints.VpcProvider(undefined, {
 });
 // Example customer issue reproduction:
 const addOns: Array<blueprints.ClusterAddOn> = [
-  // Add customer's addons here
+  new blueprints.ArgoCDAddOn
 ];
 
 const stack = blueprints.EksBlueprint.builder()
