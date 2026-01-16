@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { IVpc } from 'aws-cdk-lib/aws-ec2';
+import { ISubnet, IVpc } from 'aws-cdk-lib/aws-ec2';
 import { ClusterLoggingTypes as ControlPlaneLogType, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Construct } from 'constructs';
 import { MngClusterProvider } from '../cluster-providers/mng-cluster-provider';
@@ -13,6 +13,7 @@ import {CreateKmsKeyProvider} from "../resource-providers/kms-key";
 import { ArgoGitOpsFactory } from "../addons/argocd/argo-gitops-factory";
 
 import * as eks from "aws-cdk-lib/aws-eks";
+import { forEach } from 'lodash';
 /* Default K8s version of EKS Blueprints */
 export const DEFAULT_VERSION = KubernetesVersion.V1_33;
 
@@ -232,9 +233,17 @@ export class EksBlueprintConstruct extends Construct {
         const resourceContext = this.provideNamedResources(blueprintProps, scope);
 
         let vpcResource: IVpc | undefined = resourceContext.get(spi.GlobalResources.Vpc);
-
+        let secondarySubnets: ISubnet[] = []; 
+          
         if (!vpcResource) {
             vpcResource = resourceContext.add(spi.GlobalResources.Vpc, new VpcProvider());
+        } else {
+            const secondaryCidrs = (blueprintProps.resourceProviders?.get(spi.GlobalResources.Vpc) as VpcProvider).secondarySubnetCidrs
+            if (secondaryCidrs?.length) {
+              for (let index = 0; index < secondaryCidrs.length; index++) {
+                secondarySubnets.push(resourceContext.get("secondary-cidr-subnet-" + index)!)
+              }
+            }
         }
 
         let version = blueprintProps.version;
@@ -258,6 +267,8 @@ export class EksBlueprintConstruct extends Construct {
         this.clusterInfo = clusterProvider.createCluster(scope, vpcResource!, kmsKeyResource, version, blueprintProps.enableControlPlaneLogTypes, blueprintProps.ipFamily);
         this.clusterInfo.setResourceContext(resourceContext);
 
+        secondarySubnets.forEach(element => this.clusterInfo.cluster.node.addDependency(element))
+        
         if (blueprintProps.enableGitOpsMode == spi.GitOpsMode.APPLICATION) {
             ArgoGitOpsFactory.enableGitOps();
         } else if (blueprintProps.enableGitOpsMode == spi.GitOpsMode.APP_OF_APPS) {
