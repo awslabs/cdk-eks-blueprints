@@ -72,7 +72,6 @@ export * from './xray-adot-addon';
 export * from './aws-gateway-api-controller';
 export * from './gateway-api-crds';
 export * from './usage-tracking';
-export * from './union';
 
 export class Constants {
   public static readonly BLUEPRINTS_ADDON = "blueprints-addon";
