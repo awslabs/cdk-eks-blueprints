@@ -57,13 +57,19 @@ export UNION_SECRET_SECRET_VALUE=<CLUSTERAUTHCLIENTSECRET_FROM_SELFSERVE_COMMAND
 aws secretsmanager create-secret --name $UNION_SECRET_SECRET_NAME --secret-string $UNION_SECRET_SECRET_VALUE
 ```
 
+### 4. Install Union Add-on
 
-### 4. Create Union Blueprint
+```bash
+npm i @unionai/union-eks-blueprints-addon
+```
+
+### 5. Create Union Blueprint
 
 ```typescript
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import * as blueprints from "../lib"
+import * as blueprints from "@aws-quickstart/eks-blueprints"
+import * as union from "@unionai/union-eks-blueprints-addon"
 
 const app = new cdk.App();
 
@@ -72,26 +78,27 @@ const region = process.env.CDK_DEFAULT_REGION;
 let props = { env: { account, region } };
 
 const unionBlueprint = blueprints.AutomodeBuilder.builder({})
-.resourceProvider('union-bucket', new blueprints.CreateS3BucketProvider({'my-union-bucket-123', 'union-bucket'})) // If you have an already existing bucket see @ImportS3BucketProvider
+
+.resourceProvider('union-bucket', new blueprints.CreateS3BucketProvider({name: 'my-union-bucket-123', id: 'union-bucket'})) // If you have an already existing bucket see @ImportS3BucketProvider
 .addOns(
   new blueprints.addons.MetricsServerAddOn(),
-  new blueprints.addons.UnionDataplaneCRDsAddOn,
-  new blueprints.addons.UnionDataplaneAddOn({
+  new union.UnionDataplaneCRDsAddOn,
+  new union.UnionDataplaneAddOn({
     s3BucketProviderName: 'union-bucket',
-    clusterName: process.env.UNION_CLUSTER_NAME,
-    clientIdSecretName: process.env.UNION_CLIENT_ID_SECRET_NAME,
-    clientSecretSecretName: process.env.UNION_SECRET_SECRET_NAME,
-    host: process.env.UNION_CONTROL_PLANE_URL,
+    clusterName: process.env.UNION_CLUSTER_NAME!,
+    clientIdSecretName: process.env.UNION_CLIENT_ID_SECRET_NAME!,
+    clientSecretSecretName: process.env.UNION_SECRET_SECRET_NAME!,
+    host: process.env.UNION_CONTROL_PLANE_URL!,
     orgName: "<YOUR_ORG_NAME>"
   })
 ).build(app, "union-blueprint", props)
 ```
 
-### 5. Deploy the Blueprint
+### 6. Deploy the Blueprint
 
 For a quick tutorial on EKS Blueprints, visit the [Getting Started guide](https://awslabs.github.io/cdk-eks-blueprints/getting-started/).
 
-### 6. Validation
+### 7. Validation
 
 Run the command:
 ```bash
@@ -128,7 +135,7 @@ Output should be:
 1 rows
 ```
 
-### 6. Register and run example workflows
+### 8. Register and run example workflows
 
 ```bash
 uctl register examples --project=union-health-monitoring --domain=development
