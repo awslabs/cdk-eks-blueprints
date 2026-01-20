@@ -11,12 +11,10 @@ Here's an improved version of the public documentation abstract with enhanced re
 Add-ons in EKS Blueprints rely on CDK/CloudFormation constructs for provisioning. By default, these constructs don't guarantee a specific order unless explicitly defined using the [CDK dependency mechanism](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib-readme.html#dependencies).
 
 **Default Behavior**
-
 - Add-ons without explicit dependencies are provisioned concurrently in an arbitrary order.
 - The order in which you add add-ons to the blueprint may not matter if there are no explicit dependencies between them.
 
 Lack of explicit dependencies can lead to:
-
 - Race conditions
 - Non-deterministic behavior
 - Difficult-to-troubleshoot problems
@@ -31,10 +29,10 @@ These dependencies are implemented using the `@dependable` decorator applied to 
 
 ```typescript
 export class AmpAddOn implements ClusterAddOn {
-  @dependable(AdotCollectorAddOn.name)
-  deploy(clusterInfo: ClusterInfo): Promise<Construct> {
-    // Implementation
-  }
+    @dependable(AdotCollectorAddOn.name)
+    deploy(clusterInfo: ClusterInfo): Promise<Construct> {
+        // Implementation
+    }
 }
 ```
 
@@ -195,7 +193,7 @@ Many add-ons leverage helm to provision and maintain deployments. All provided a
 
     /**
      * When global helm version validation is enabled with HelmAddOn.validateHelmVersions = true
-     * allows to skip validation for a particular helm add-on.
+     * allows to skip validation for a particular helm add-on. 
      */
     skipVersionValidation?: boolean,
 
@@ -211,43 +209,44 @@ Version field can be modified from the default chart version, e.g. if the add-on
 
 # Helm Version Validation
 
-All add-ons that derive from `HelmAddOn` support optional version validation against the latest published version in the target helm repository.
+All add-ons that derive from `HelmAddOn` support optional version validation against the latest published version in the target helm repository. 
 
-Helm version validation can result either in a warning on console during `list`, `synth` and `deploy` operations or an exception if the target helm repository contains higher version than the one leveraged in the add-on.
+Helm version validation can result either in a warning on console during `list`, `synth` and `deploy` operations or an exception if the target helm repository contains higher version than the one leveraged in the add-on. 
 
 Example output:
 
 ```
-INFO  Chart argo-cd-4.9.12 is at the latest version.
-INFO  Chart external-dns-6.6.0 is at the latest version.
-WARN Upgrade is needed for chart gatekeeper-3.8.1: latest version is 3.9.0-beta.2.
-INFO  Chart appmesh-controller-1.5.0 is at the latest version.
-INFO  Chart tigera-operator-v3.23.2 is at the latest version.
-WARN Upgrade is needed for chart adot-exporter-for-eks-on-ec2-0.1.0: latest version is 0.6.0.
-INFO  Chart aws-load-balancer-controller-1.4.2 is at the latest version.
-INFO  Chart nginx-ingress-0.14.0 is at the latest version.
-INFO  Chart velero-2.30.1 is at the latest version.
-INFO  Chart falco-1.19.4 is at the latest version.
-WARN Upgrade is needed for chart karpenter-0.13.1: latest version is 0.13.2.
-INFO  Chart kubevious-1.0.10 is at the latest version.
-INFO  Chart aws-efs-csi-driver-2.2.7 is at the latest version.
-INFO  Chart keda-2.7.2 is at the latest version.
-INFO  Chart secrets-store-csi-driver-1.2.1 is at the latest version.
+INFO  Chart argo-cd-4.9.12 is at the latest version. 
+INFO  Chart external-dns-6.6.0 is at the latest version. 
+WARN Upgrade is needed for chart gatekeeper-3.8.1: latest version is 3.9.0-beta.2. 
+INFO  Chart appmesh-controller-1.5.0 is at the latest version. 
+INFO  Chart tigera-operator-v3.23.2 is at the latest version. 
+WARN Upgrade is needed for chart adot-exporter-for-eks-on-ec2-0.1.0: latest version is 0.6.0. 
+INFO  Chart aws-load-balancer-controller-1.4.2 is at the latest version. 
+INFO  Chart nginx-ingress-0.14.0 is at the latest version. 
+INFO  Chart velero-2.30.1 is at the latest version. 
+INFO  Chart falco-1.19.4 is at the latest version. 
+WARN Upgrade is needed for chart karpenter-0.13.1: latest version is 0.13.2. 
+INFO  Chart kubevious-1.0.10 is at the latest version. 
+INFO  Chart aws-efs-csi-driver-2.2.7 is at the latest version. 
+INFO  Chart keda-2.7.2 is at the latest version. 
+INFO  Chart secrets-store-csi-driver-1.2.1 is at the latest version. 
 ```
 
 - **Enable/Disable Helm version validation globally**
 
 ```typescript
-import { HelmAddOn } from "@aws-quickstart/eks-blueprints";
+import { HelmAddOn } from '@aws-quickstart/eks-blueprints';
 
 HelmAddOn.validateHelmVersions = true; // by default will print out warnings
 HelmAddOn.failOnVersionValidation = true; // enable synth to throw exceptions on validation check failures
+
 ```
 
 - **Enable/Disable Helm version validation per add-on**
 
 ```typescript
 new blueprints.addons.MetricsServerAddOn({
-  skipVersionValidation: true,
-});
+    skipVersionValidation: true
+})
 ```
