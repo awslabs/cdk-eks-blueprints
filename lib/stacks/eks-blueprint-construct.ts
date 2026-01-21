@@ -238,10 +238,11 @@ export class EksBlueprintConstruct extends Construct {
         if (!vpcResource) {
             vpcResource = resourceContext.add(spi.GlobalResources.Vpc, new VpcProvider());
         } else {
-            const secondaryCidrs = (blueprintProps.resourceProviders?.get(spi.GlobalResources.Vpc) as VpcProvider).secondarySubnetCidrs
+            const vpcProvider = blueprintProps.resourceProviders?.get(spi.GlobalResources.Vpc) as VpcProvider;
+            const secondaryCidrs = vpcProvider?.secondarySubnetCidrs;
             if (secondaryCidrs?.length) {
               for (let index = 0; index < secondaryCidrs.length; index++) {
-                secondarySubnets.push(resourceContext.get("secondary-cidr-subnet-" + index)!)
+                secondarySubnets.push(resourceContext.get("secondary-cidr-subnet-" + index)!);
               }
             }
         }
@@ -267,7 +268,11 @@ export class EksBlueprintConstruct extends Construct {
         this.clusterInfo = clusterProvider.createCluster(scope, vpcResource!, kmsKeyResource, version, blueprintProps.enableControlPlaneLogTypes, blueprintProps.ipFamily);
         this.clusterInfo.setResourceContext(resourceContext);
 
-        secondarySubnets.forEach(element => this.clusterInfo.cluster.node.addDependency(element))
+        secondarySubnets.forEach(element => {
+            if (element) {
+                this.clusterInfo.cluster.node.addDependency(element);
+            }
+        });
         
         if (blueprintProps.enableGitOpsMode == spi.GitOpsMode.APPLICATION) {
             ArgoGitOpsFactory.enableGitOps();
