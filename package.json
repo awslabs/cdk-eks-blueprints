@@ -53,7 +53,7 @@
     "constructs": "^10.3.0",
     "dot-object": "^2.1.4",
     "js-yaml": "4.1.1",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "reflect-metadata": "^0.2.1",
     "semver": "^7.7.2",
     "simple-base": "^1.0.0",
