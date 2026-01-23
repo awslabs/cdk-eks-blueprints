@@ -202,6 +202,7 @@ function isAutoModeAddon(addOn: string) : boolean {
   const automodeAddons = [
     "EbsCsiDriverAddOn",
     "AwsLoadBalancerControllerAddOn",
+    "EksPodIdentityAgentAddOn",
     "VpcCniAddOn",
     "CoreDnsAddOn",
     "KubeProxyAddOn",

@@ -19,8 +19,13 @@ export const setPath = (obj : any, path: string, val: any) => {
  */
 export function cloneDeep<T>(source: T, resolveFn?: (arg: any) => any ): T {
     return cloneDeepWith(source, (value) => {
-        if(value && (value instanceof KubernetesVersion || nutil.isProxy(value))) {
-            return resolveFn ? resolveFn(value) : value;
+        if (
+          value &&
+          (value instanceof KubernetesVersion ||
+            (typeof value === "object" && "managedPolicyArn" in value) || // checks for ManagedPolicyReference
+            nutil.isProxy(value))
+        ) {
+          return resolveFn ? resolveFn(value) : value;
         }
         return undefined;
     });
