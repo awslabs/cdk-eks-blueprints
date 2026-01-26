@@ -1,18 +1,19 @@
 # Union.ai Dataplane -- Amazon EKS Blueprints Addon
 
-Union.ai empowers AI development teams to rapidly ship high-quality code to production by offering optimized performance, unparalleled resource efficiency, and a delightful workflow authoring experience. With Union.ai your team can:
+Union.ai empowers AI development teams to rapidly ship high-quality code to production by offering optimized performance, resource efficiency, and workflow authoring experience. With Union.ai your team can:
 
 - Run complex AI workloads with performance, scale, and efficiency.
-- Achieve millisecond-level execution times with reusable containers.
 - Scale out to multiple regions, clusters, and clouds as needed for resource availability, scale, or compliance.
 
-Union.ai’s modular architecture allows for great flexibility and control. The customer can decide how many clusters to have, their shape, and who has access to what. All communication is encrypted.
+Union.ai’s modular architecture allows for flexibility and control. The customer can decide how many clusters to have, their shape, and who has access to what. All communication is encrypted.
 
 <p align="center">
   <a href="https://www.union.ai">
     <img alt="Union Self-managed Architecture" src="https://www.union.ai/docs/v1/selfmanaged/_static/images/deployment/architecture.svg" width="600" />
   </a>
 </p>
+
+For more information, see [Union.ai](https://www.union.ai/).
 
 ## Deployment Process
 
@@ -46,15 +47,12 @@ This command will output the ID, name, and secret used by Union services to comm
 ### 3. Create Union Secrets in AWS Secrets Manager
 
 ```bash
-export UNION_CLIENT_ID_SECRET_NAME=union-client-id
+export UNION_SECRET_NAME=union-secret
 export UNION_CLIENT_ID_SECRET_VALUE=<CLUSTERAUTHCLIENTID_FROM_SELFSERVE_COMMAND>
-
-aws secretsmanager create-secret --name $UNION_CLIENT_ID_SECRET_NAME --secret-string $UNION_CLIENT_ID_SECRET_VALUE
-
-export UNION_SECRET_SECRET_NAME=union-client-secret
 export UNION_SECRET_SECRET_VALUE=<CLUSTERAUTHCLIENTSECRET_FROM_SELFSERVE_COMMAND>
 
-aws secretsmanager create-secret --name $UNION_SECRET_SECRET_NAME --secret-string $UNION_SECRET_SECRET_VALUE
+aws secretsmanager create-secret --name $UNION_SECRET_NAME \
+  --secret-string "{\"clientId\":\"$UNION_CLIENT_ID_SECRET_VALUE\",\"clientSecret\":\"$UNION_SECRET_SECRET_VALUE\"}"
 ```
 
 ### 4. Install Union Add-on
@@ -86,8 +84,7 @@ const unionBlueprint = blueprints.AutomodeBuilder.builder({})
   new union.UnionDataplaneAddOn({
     s3BucketProviderName: 'union-bucket',
     clusterName: process.env.UNION_CLUSTER_NAME!,
-    clientIdSecretName: process.env.UNION_CLIENT_ID_SECRET_NAME!,
-    clientSecretSecretName: process.env.UNION_SECRET_SECRET_NAME!,
+    unionSecretName: process.env.UNION_SECRET_NAME!,
     host: process.env.UNION_CONTROL_PLANE_URL!,
     orgName: "<YOUR_ORG_NAME>"
   })
