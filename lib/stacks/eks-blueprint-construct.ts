@@ -232,19 +232,10 @@ export class EksBlueprintConstruct extends Construct {
 
         const resourceContext = this.provideNamedResources(blueprintProps, scope);
 
-        let vpcResource: IVpc | undefined = resourceContext.get(spi.GlobalResources.Vpc);
-        let secondarySubnets: ISubnet[] = []; 
+        let vpcResource: spi.MultiConstruct<IVpc, ISubnet> | undefined = resourceContext.get(spi.GlobalResources.Vpc);
           
         if (!vpcResource) {
             vpcResource = resourceContext.add(spi.GlobalResources.Vpc, new VpcProvider());
-        } else {
-            const vpcProvider = blueprintProps.resourceProviders?.get(spi.GlobalResources.Vpc) as VpcProvider;
-            const secondaryCidrs = vpcProvider?.secondarySubnetCidrs;
-            if (secondaryCidrs?.length) {
-              for (let index = 0; index < secondaryCidrs.length; index++) {
-                secondarySubnets.push(resourceContext.get("secondary-cidr-subnet-" + index)!);
-              }
-            }
         }
 
         let version = blueprintProps.version;
@@ -265,15 +256,9 @@ export class EksBlueprintConstruct extends Construct {
             version
         });
 
-        this.clusterInfo = clusterProvider.createCluster(scope, vpcResource!, kmsKeyResource, version, blueprintProps.enableControlPlaneLogTypes, blueprintProps.ipFamily);
+        this.clusterInfo = clusterProvider.createCluster(scope, vpcResource.primaryResource, kmsKeyResource, version, blueprintProps.enableControlPlaneLogTypes, blueprintProps.ipFamily, vpcResource.subResources);
         this.clusterInfo.setResourceContext(resourceContext);
 
-        secondarySubnets.forEach(element => {
-            if (element) {
-                this.clusterInfo.cluster.node.addDependency(element);
-            }
-        });
-        
         if (blueprintProps.enableGitOpsMode == spi.GitOpsMode.APPLICATION) {
             ArgoGitOpsFactory.enableGitOps();
         } else if (blueprintProps.enableGitOpsMode == spi.GitOpsMode.APP_OF_APPS) {

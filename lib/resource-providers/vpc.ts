@@ -1,7 +1,7 @@
 import { Tags } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { ISubnet, PrivateSubnet } from 'aws-cdk-lib/aws-ec2';
-import { ResourceContext, ResourceProvider } from "../spi";
+import { MultiConstruct, ResourceContext, ResourceProvider } from "../spi";
 import * as eks from "aws-cdk-lib/aws-eks";
 import {Ipv6VpcProvider} from "./ipv6-vpc";
 
@@ -17,7 +17,7 @@ interface VpcProps {
 /**
  * VPC resource provider 
  */
-export class VpcProvider implements ResourceProvider<ec2.IVpc> {
+export class VpcProvider implements ResourceProvider<MultiConstruct<ec2.IVpc, ec2.ISubnet>> {
     readonly vpcId?: string;
     readonly primaryCidr?: string;
     readonly secondaryCidr?: string;
@@ -30,13 +30,13 @@ export class VpcProvider implements ResourceProvider<ec2.IVpc> {
         this.secondarySubnetCidrs = vpcProps?.secondarySubnetCidrs;
     }
 
-    provide(context: ResourceContext): ec2.IVpc {
+    provide(context: ResourceContext): MultiConstruct<ec2.IVpc, ec2.ISubnet> {
         const id = context.scope.node.id;
         const ipFamily = context.blueprintProps.ipFamily;
 
         if (ipFamily == eks.IpFamily.IP_V6) {
             const ipv6VpcProvider:Ipv6VpcProvider = new Ipv6VpcProvider(this.vpcId);
-            return ipv6VpcProvider.provide(context);
+            return new MultiConstruct(ipv6VpcProvider.provide(context));
         }
 
         let vpc = getVPCFromId(context, id, this.vpcId);
@@ -56,12 +56,12 @@ export class VpcProvider implements ResourceProvider<ec2.IVpc> {
             }
         }
 
-        
+        let secondarySubnets: ISubnet[] = []
         if (this.secondaryCidr) {
-            this.createSecondarySubnets(context, id, vpc);
+            secondarySubnets = this.createSecondarySubnets(context, id, vpc);
         }
     
-        return vpc;
+        return new MultiConstruct(vpc, secondarySubnets);
     }
 
     protected createSecondarySubnets(context: ResourceContext, id: string, vpc: ec2.IVpc) {
@@ -90,6 +90,7 @@ export class VpcProvider implements ResourceProvider<ec2.IVpc> {
                 Tags.of(secondarySubnet).add("Name", `blueprint-construct-dev-PrivateSubnet-${secondarySubnet}`, { applyToLaunchedInstances: true });
             }
         }
+      return secondarySubnets
     }
 }
 
