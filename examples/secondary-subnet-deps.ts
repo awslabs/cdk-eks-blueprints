@@ -24,6 +24,6 @@ const stack = blueprints.EksBlueprint.builder()
   .resourceProvider(blueprints.GlobalResources.Vpc, vpcProvider)
   .addOns(...addOns)
   .version("auto")
-  .build(app, 'debug-stack');
+  .build(app, 'secondary-subnets-debug-stack');
 
 void stack; // Keep for debugging
