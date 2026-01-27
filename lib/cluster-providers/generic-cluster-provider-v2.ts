@@ -230,7 +230,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         cluster.node.addDependency(vpc);
         if(secondarySubnets) {
             secondarySubnets.forEach(subnet =>{
-                cluster.node.addDependency(subnet)
+                cluster.node.addDependency(subnet);
             });
         }
 

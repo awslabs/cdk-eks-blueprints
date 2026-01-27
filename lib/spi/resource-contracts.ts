@@ -17,7 +17,7 @@ export class MultiConstruct<T extends IConstruct, R extends IConstruct> implemen
   }
   stack: Stack;
   env: ResourceEnvironment;
-  applyRemovalPolicy(policy: RemovalPolicy): void {
+  applyRemovalPolicy(_policy: RemovalPolicy): void {
       throw new Error('Method not implemented.');
   }
   node: Node;

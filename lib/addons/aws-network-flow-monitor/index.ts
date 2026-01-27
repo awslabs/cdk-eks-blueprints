@@ -1,7 +1,7 @@
 import { ClusterInfo, Values } from "../../spi";
 import { CoreAddOn, CoreAddOnProps } from "../core-addon";
 import * as utils from "../../utils";
-import { IdentityType, KubernetesVersion, ServiceAccount } from "aws-cdk-lib/aws-eks";
+import { IdentityType, KubernetesVersion } from "aws-cdk-lib/aws-eks";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct, IConstruct } from "constructs";
 import { EksPodIdentityAgentAddOn } from "../eks-pod-identity-agent";

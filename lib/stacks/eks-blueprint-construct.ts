@@ -13,7 +13,7 @@ import {CreateKmsKeyProvider} from "../resource-providers/kms-key";
 import { ArgoGitOpsFactory } from "../addons/argocd/argo-gitops-factory";
 
 import * as eks from "aws-cdk-lib/aws-eks";
-import { forEach } from 'lodash';
+
 /* Default K8s version of EKS Blueprints */
 export const DEFAULT_VERSION = KubernetesVersion.V1_33;
 
