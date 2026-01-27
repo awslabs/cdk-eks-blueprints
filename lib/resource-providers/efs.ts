@@ -2,7 +2,7 @@ import { CfnOutput } from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as efs from "aws-cdk-lib/aws-efs";
 import * as kms from "aws-cdk-lib/aws-kms";
-import { GlobalResources, ResourceContext, ResourceProvider } from "../spi";
+import { GlobalResources, MultiConstruct, ResourceContext, ResourceProvider } from "../spi";
 
 export interface CreateEfsFileSystemProps {
   readonly name?: string;
@@ -36,7 +36,7 @@ export class CreateEfsFileSystemProvider
       this.options.name ?? "default"
     }-EfsSecurityGroup`;
     let efsFileSystem: efs.IFileSystem | undefined;
-    const vpc = context.get(GlobalResources.Vpc) as ec2.IVpc;
+    const vpc = (context.get(GlobalResources.Vpc) as MultiConstruct<ec2.IVpc, ec2.ISubnet>).primaryResource ;
     if (vpc === undefined) {
       throw new Error("VPC not found in context");
     }

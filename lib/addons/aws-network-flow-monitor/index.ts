@@ -59,7 +59,7 @@ export class AwsNetworkFlowMonitorAddOn extends CoreAddOn {
   }
 
   createNamespace(clusterInfo: ClusterInfo, namespaceName: string): IConstruct | undefined {
-    return utils.createNamespace(namespaceName, clusterInfo.cluster)
+    return utils.createNamespace(namespaceName, clusterInfo.cluster);
   }
 
   /**

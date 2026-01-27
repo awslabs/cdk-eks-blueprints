@@ -183,7 +183,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
     /**
      * @override
      */
-    createCluster(scope: Construct, vpc: ec2.IVpc, secretsEncryptionKey?: IKey, kubernetesVersion?: eks.KubernetesVersion, clusterLogging?: eks.ClusterLoggingTypes[], ipFamily?: eks.IpFamily): ClusterInfo {
+    createCluster(scope: Construct, vpc: ec2.IVpc, secretsEncryptionKey?: IKey, kubernetesVersion?: eks.KubernetesVersion, clusterLogging?: eks.ClusterLoggingTypes[], ipFamily?: eks.IpFamily, secondarySubnets?: ec2.ISubnet[]): ClusterInfo {
         const id = scope.node.id;
 
         // Props for the cluster.
@@ -228,6 +228,11 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         // Create an EKS Cluster
         const cluster = this.internalCreateCluster(scope, id, clusterOptions);
         cluster.node.addDependency(vpc);
+        if(secondarySubnets) {
+            secondarySubnets.forEach(subnet =>{
+                cluster.node.addDependency(subnet)
+            });
+        }
 
         const nodeGroups: (eks.Nodegroup | eksv1.Nodegroup)[] = [];
 
