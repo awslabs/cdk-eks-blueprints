@@ -2,7 +2,7 @@ import { CfnOutput } from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as efs from "aws-cdk-lib/aws-efs";
 import * as kms from "aws-cdk-lib/aws-kms";
-import { GlobalResources, MultiConstruct, ResourceContext, ResourceProvider } from "../spi";
+import { GlobalResources, ResourceContext, ResourceProvider } from "../spi";
 
 export interface CreateEfsFileSystemProps {
   readonly name?: string;

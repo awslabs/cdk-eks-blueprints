@@ -40,10 +40,10 @@ export class MultiConstruct<T extends IResource, R extends IConstruct> implement
         return primaryValue;
       }
 
-    })
+    });
   }
 
   applyRemovalPolicy(policy: RemovalPolicy): void {
-    this.primaryResource.applyRemovalPolicy(policy)
+    this.primaryResource.applyRemovalPolicy(policy);
   }
 }
