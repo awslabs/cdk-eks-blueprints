@@ -13,6 +13,12 @@ const vpcProvider = new blueprints.VpcProvider(undefined, {
   secondaryCidr: "100.64.0.0/16",
   secondarySubnetCidrs: ["100.64.0.0/24", "100.64.1.0/24", "100.64.2.0/24"] // Pod subnets in secondary CIDR
 });
+const efsProvider = new blueprints.CreateEfsFileSystemProvider({
+  name: "secondary-subnets-debug-efs",
+  efsProps: {
+    removalPolicy: cdk.RemovalPolicy.DESTROY
+  }
+});
 // Example customer issue reproduction:
 const addOns: Array<blueprints.ClusterAddOn> = [
   new blueprints.ArgoCDAddOn
@@ -22,6 +28,7 @@ const stack = blueprints.EksBlueprint.builder()
   .account(account)
   .region(region)
   .resourceProvider(blueprints.GlobalResources.Vpc, vpcProvider)
+  .resourceProvider("test-efs-system", efsProvider)
   .addOns(...addOns)
   .version("auto")
   .build(app, 'secondary-subnets-debug-stack');

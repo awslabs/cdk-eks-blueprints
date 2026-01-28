@@ -36,7 +36,7 @@ export class CreateEfsFileSystemProvider
       this.options.name ?? "default"
     }-EfsSecurityGroup`;
     let efsFileSystem: efs.IFileSystem | undefined;
-    const vpc = (context.get(GlobalResources.Vpc) as MultiConstruct<ec2.IVpc, ec2.ISubnet>).primaryResource ;
+    const vpc = context.get(GlobalResources.Vpc) as ec2.IVpc;
     if (vpc === undefined) {
       throw new Error("VPC not found in context");
     }
