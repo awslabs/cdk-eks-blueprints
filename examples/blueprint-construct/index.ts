@@ -159,10 +159,10 @@ export default class BlueprintConstruct {
         serviceName: blueprints.AckServiceName.S3,
       }),
 
-      //new addons.AmpAddOn({
-      //  ampPrometheusEndpoint: this.ampWorkspace.attrPrometheusEndpoint,
-      //  namespace: "adot",
-      //}), bug with port 8888
+      new addons.AmpAddOn({
+        ampPrometheusEndpoint: this.ampWorkspace.attrPrometheusEndpoint,
+        namespace: "adot",
+      }),
       //new addons.ApacheAirflowAddOn({
       //  enableLogging: true,
       //  s3Bucket: "apache-airflow-s3-bucket-provider",
@@ -192,6 +192,7 @@ export default class BlueprintConstruct {
         storageClass: "gp3",
       }),
       new addons.EksPodIdentityAgentAddOn(),
+      new addons.AwsNetworkFlowMonitorAddOn(),
       new addons.EmrEksAddOn(),
       new addons.ExternalsSecretsAddOn(),
       new addons.FluxCDAddOn(),
