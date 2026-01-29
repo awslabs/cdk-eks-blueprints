@@ -28,7 +28,7 @@ export class AckCapability extends Capability {
    * 
    * @param options - Configuration options for the ACK capability
    */
-  constructor(readonly options: AckCapabilityProps) {
+  constructor(readonly options?: AckCapabilityProps) {
     super({...AckCapability.defaultProps, ...options, type: CapabilityType.ACK});
   }
 }

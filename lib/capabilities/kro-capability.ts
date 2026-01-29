@@ -27,7 +27,7 @@ export class KroCapability extends Capability {
    * 
    * @param options - Configuration options for the KRO capability
    */
-  constructor(readonly options: KroCapabilityProps){
+  constructor(readonly options?: KroCapabilityProps){
     super({...KroCapability.defaultProps, ...options, type: CapabilityType.KRO});
   }
 }

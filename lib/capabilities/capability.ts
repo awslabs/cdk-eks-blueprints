@@ -1,4 +1,4 @@
-import { CfnCapability, CfnCapabilityProps, CfnCluster } from "aws-cdk-lib/aws-eks";
+import { CfnCapability, CfnCapabilityProps } from "aws-cdk-lib/aws-eks";
 import { ClusterInfo, ClusterCapability, CapabilityType } from "../spi";
 import { CfnTag } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
@@ -15,7 +15,7 @@ export interface CapabilityProps {
   /** Existing IAM role ARN to use. If not provided, a new role will be created */
   roleArn?: string;
   /** Whether to use the default AWS managed policy for this capability type */
-  useDefaultPolicy: boolean;
+  useDefaultPolicy?: boolean;
   /** Name of custom managed policy to attach (used when useDefaultPolicy is false) */
   policyName?: string;
   /** Custom inline policy document (used when useDefaultPolicy is false) */
@@ -63,10 +63,10 @@ export class Capability implements ClusterCapability {
   create(clusterInfo: ClusterInfo): CfnCapability {
 
     const capabilityProps: CfnCapabilityProps = {
-      capabilityName: this.props.capabilityName || this.props.type.toString().toLowerCase(),
+      capabilityName: this.props.capabilityName || CapabilityType[this.props.type].toLowerCase(),
       clusterName: clusterInfo.cluster.clusterName,
       roleArn: this.props.roleArn || this.setupRole(clusterInfo, this.props.type, this.props.useDefaultPolicy, this.props.policyName, this.props.policyDocument),
-      type: this.props.type.toString(),
+      type: CapabilityType[this.props.type],
       deletePropagationPolicy: "RETAIN",
       ...(this.props.type === CapabilityType.ARGOCD && {
         configuration: {
@@ -96,7 +96,7 @@ export class Capability implements ClusterCapability {
    * @param policyDocument Optional inline policy document
    * @returns ARN of the created or configured IAM role
    */
-  setupRole(clusterInfo: ClusterInfo, capabilityType: CapabilityType, useDefaultPolicy: boolean, policyName?: string, policyDocument?: iam.PolicyDocument): string {
+  setupRole(clusterInfo: ClusterInfo, capabilityType: CapabilityType, useDefaultPolicy?: boolean, policyName?: string, policyDocument?: iam.PolicyDocument): string {
     const role = new iam.Role(clusterInfo.cluster.stack, capabilityType.toString() + "-role", {
       assumedBy: new iam.ServicePrincipal("capabilities.eks.amazonaws.com").withSessionTags(),
     });

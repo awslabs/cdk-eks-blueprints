@@ -127,7 +127,7 @@ export class BlueprintConstructBuilder {
     };
 
     constructor() {
-        this.props = { addOns: new Array<spi.ClusterAddOn>(), teams: new Array<spi.Team>(), resourceProviders: new Map() };
+        this.props = { addOns: new Array<spi.ClusterAddOn>(), teams: new Array<spi.Team>(), capabilities: new Array<spi.ClusterCapability>(), resourceProviders: new Map() };
         this.env = {
             account: process.env.CDK_DEFAULT_ACCOUNT,
             region: process.env.CDK_DEFAULT_REGION
