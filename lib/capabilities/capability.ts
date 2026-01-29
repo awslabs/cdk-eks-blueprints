@@ -81,7 +81,7 @@ export class Capability implements ClusterCapability {
       tags: this.props.tags
     };
     const capability = new CfnCapability(clusterInfo.cluster.stack, capabilityProps.capabilityName + "-capability", capabilityProps);
-    capability.node.addDependency(clusterInfo.cluster.stack.node.defaultChild as CfnCluster)
+    capability.node.addDependency(clusterInfo.cluster)
     return capability
   }
 

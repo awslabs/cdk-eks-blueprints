@@ -7,11 +7,12 @@ import * as dot from 'dot-object';
 import { merge } from "ts-deepmerge";
 import { SecretProviderClass } from '..';
 import * as spi from "../../spi";
-import { createNamespace, getSecretValue, supportsALL, validateConstraints } from '../../utils';
+import { conflictsWithCapabilities, createNamespace, getSecretValue, supportsALL, validateConstraints } from '../../utils';
 import { HelmAddOn, HelmAddOnUserProps } from '../helm-addon';
 import { ArgoApplication } from './application';
 import { createSecretRef } from './manifest-utils';
 import { GitRepositoryReference } from "../../spi";
+import * as capabilities from "../../capabilities";
 
 
 /**
@@ -119,6 +120,7 @@ export class ArgoCDAddOn implements spi.ClusterAddOn, spi.ClusterPostDeploy {
     /**
      * Implementation of the add-on contract deploy method.
     */
+    @conflictsWithCapabilities(capabilities.ArgoCapability.name)
     async deploy(clusterInfo: spi.ClusterInfo): Promise<Construct> {
         const namespace = createNamespace(this.options.namespace!, clusterInfo.cluster, true);
 

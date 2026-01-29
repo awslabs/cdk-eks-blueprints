@@ -19,7 +19,7 @@ export class KroCapability extends Capability {
   /** Default configuration for KRO capabilities */
   static readonly defaultProps: KroCapabilityProps = {
     useDefaultPolicy: true,
-    capabilityName: "blueprints-kro-cap"
+    capabilityName: "blueprints-kro-capability"
   };
 
   /**

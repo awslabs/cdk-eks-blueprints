@@ -31,7 +31,7 @@ export class ArgoCapability extends Capability {
   /** Default configuration for ArgoCD capabilities */
   static readonly defaultProps: Partial<ArgoCapabilityProps>= {
     useDefaultPolicy: true,
-    capabilityName: "blueprints-argocd-cap",
+    capabilityName: "blueprints-argocd-capability",
     namespace: "argocd"
   };
 
