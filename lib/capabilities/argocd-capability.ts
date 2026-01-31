@@ -1,14 +1,31 @@
 import { Capability, CapabilityProps } from "./capability";
-import { CapabilityType } from "../spi";
+import { ArgoCDSsoRole, CapabilityType, ClusterInfo, SsoIdentityType } from "../spi";
+import { CfnCapability, CfnCapabilityProps } from "aws-cdk-lib/aws-eks";
+import { IVpcEndpoint } from "aws-cdk-lib/aws-ec2";
 
 /**
  * Properties for ArgoCD capability configuration.
  * Extends base capability properties with required Identity Center ARN.
  */
-export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type" | "identityCenterArn"> {
-  /** AWS Identity Center ARN for ArgoCD integration */
-  identityCenterArn: string;
+export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type" > {
+  /** AWS Identity Center Instance ARN for ArgoCD integration */
+  idcInstanceArn: string;
+
+  idcManagedApplicationArn?: string;
+
+  idcRegion?: string;
+
+  serverUrl?: string;
+
+  namespace?: string;
+
+  networkAccessVpcEndpoints?: IVpcEndpoint[];
+
+  roleMappings?: Partial<Record<ArgoCDSsoRole, {identityId: string, identityType: SsoIdentityType}[]>>;
+
 }
+
+
 
 /**
  * ArgoCD capability for EKS clusters.
@@ -35,6 +52,32 @@ export class ArgoCapability extends Capability {
     namespace: "argocd"
   };
 
+
+  create(clusterInfo: ClusterInfo): CfnCapability {
+    const capability = super.create(clusterInfo)
+    capability.configuration = {
+      argoCd: {
+        awsIdc: {
+          idcInstanceArn: this.options.idcInstanceArn,
+          idcManagedApplicationArn: this.options.idcManagedApplicationArn,
+          idcRegion: this.options.idcRegion
+        },
+        namespace: this.options.namespace,
+        networkAccess: {
+          vpceIds: this.options.networkAccessVpcEndpoints?.map(endpoint => endpoint.vpcEndpointId)
+        },
+        rbacRoleMappings: Object.entries(this.options.roleMappings ?? {}).map(([ssoRole, ssoIdentities])=> ({
+          role: ssoRole,
+          identities: ssoIdentities.map(entry => ({
+            id: entry.identityId,
+            type: entry.identityType
+          })),
+        })),
+        serverUrl: this.options.serverUrl
+      }
+    }
+    return capability
+  }
   /**
    * Creates a new ArgoCD capability instance.
    * 

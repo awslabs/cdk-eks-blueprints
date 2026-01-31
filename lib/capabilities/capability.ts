@@ -4,14 +4,14 @@ import { CfnTag } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 
 
+// REQUIRES API or API_AND_CONFIGMAP
+
 /**
  * Configuration properties for EKS capabilities
  */
 export interface CapabilityProps {
   /** Custom name for the capability. Defaults to capability type if not provided */
   capabilityName?: string;
-  /** Kubernetes namespace for the capability */
-  namespace?: string;
   /** Existing IAM role ARN to use. If not provided, a new role will be created */
   roleArn?: string;
   /** Whether to use the default AWS managed policy for this capability type */
@@ -24,8 +24,6 @@ export interface CapabilityProps {
   tags?: CfnTag[];
   /** The type of capability being created */
   type: CapabilityType;
-  /** AWS Identity Center ARN (required for ArgoCD capabilities) */
-  identityCenterArn?: string;
 }
 
 /**
@@ -63,21 +61,11 @@ export class Capability implements ClusterCapability {
   create(clusterInfo: ClusterInfo): CfnCapability {
 
     const capabilityProps: CfnCapabilityProps = {
-      capabilityName: this.props.capabilityName || CapabilityType[this.props.type].toLowerCase(),
+      capabilityName: this.props.capabilityName || this.props.type,
       clusterName: clusterInfo.cluster.clusterName,
       roleArn: this.props.roleArn || this.setupRole(clusterInfo, this.props.type, this.props.useDefaultPolicy, this.props.policyName, this.props.policyDocument),
-      type: CapabilityType[this.props.type],
+      type: this.props.type.toUpperCase(),
       deletePropagationPolicy: "RETAIN",
-      ...(this.props.type === CapabilityType.ARGOCD && {
-        configuration: {
-          argoCd: {
-            awsIdc: {
-              idcInstanceArn: this.props.identityCenterArn!
-            },
-            namespace: this.props.namespace
-          }
-        }
-      }),
       tags: this.props.tags
     };
     const capability = new CfnCapability(clusterInfo.cluster.stack, capabilityProps.capabilityName + "-capability", capabilityProps);

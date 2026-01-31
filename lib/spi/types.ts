@@ -14,9 +14,20 @@ import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
  * Supported EKS capability types
  */
 export enum CapabilityType {
-  ARGOCD,
-  ACK,
-  KRO
+  ARGOCD = "argocd",
+  ACK = "ack",
+  KRO = "kro"
+}
+
+export enum ArgoCDSsoRole {
+  ADMIN = "ADMIN",
+  EDITOR = "EDITOR",
+  VIEWER = "VIEWER"
+}
+
+export enum SsoIdentityType {
+  SSO_USER = "SSO_USER",
+  SSO_GROUP = "SSO_GROUP"
 }
 
 /**
