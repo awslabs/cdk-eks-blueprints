@@ -232,7 +232,7 @@ export class EksBlueprintConstruct extends Construct {
 
         const resourceContext = this.provideNamedResources(blueprintProps, scope);
 
-        let vpcResource: IVpc | undefined = resourceContext.get(spi.GlobalResources.Vpc);
+        let vpcResource: IVpc | undefined = resourceContext.get(spi.GlobalResources.Vpc) as IVpc;
           
         if (!vpcResource) {
             vpcResource = resourceContext.add(spi.GlobalResources.Vpc, new VpcProvider());
@@ -256,7 +256,7 @@ export class EksBlueprintConstruct extends Construct {
             version
         });
 
-        this.clusterInfo = clusterProvider.createCluster(scope, vpcResource, kmsKeyResource, version, blueprintProps.enableControlPlaneLogTypes, blueprintProps.ipFamily);
+        this.clusterInfo = clusterProvider.createCluster(scope, vpcResource!, kmsKeyResource, version, blueprintProps.enableControlPlaneLogTypes, blueprintProps.ipFamily);
         this.clusterInfo.setResourceContext(resourceContext);
 
         if (blueprintProps.enableGitOpsMode == spi.GitOpsMode.APPLICATION) {
