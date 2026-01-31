@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { IVpc } from 'aws-cdk-lib/aws-ec2';
+import { IVpc, ISubnet } from 'aws-cdk-lib/aws-ec2';
 import { ClusterLoggingTypes as ControlPlaneLogType, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Construct } from 'constructs';
 import { MngClusterProvider } from '../cluster-providers/mng-cluster-provider';
@@ -232,7 +232,7 @@ export class EksBlueprintConstruct extends Construct {
 
         const resourceContext = this.provideNamedResources(blueprintProps, scope);
 
-        let vpcResource: IVpc | undefined = resourceContext.get(spi.GlobalResources.Vpc) as IVpc;
+        let vpcResource: IVpc | spi.MultiConstruct<IVpc, ISubnet> | undefined = resourceContext.get(spi.GlobalResources.Vpc) as IVpc;
           
         if (!vpcResource) {
             vpcResource = resourceContext.add(spi.GlobalResources.Vpc, new VpcProvider());
@@ -256,7 +256,7 @@ export class EksBlueprintConstruct extends Construct {
             version
         });
 
-        this.clusterInfo = clusterProvider.createCluster(scope, vpcResource!, kmsKeyResource, version, blueprintProps.enableControlPlaneLogTypes, blueprintProps.ipFamily);
+        this.clusterInfo = clusterProvider.createCluster(scope, (vpcResource as IVpc)!, kmsKeyResource, version, blueprintProps.enableControlPlaneLogTypes, blueprintProps.ipFamily);
         this.clusterInfo.setResourceContext(resourceContext);
 
         if (blueprintProps.enableGitOpsMode == spi.GitOpsMode.APPLICATION) {
