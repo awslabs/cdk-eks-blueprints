@@ -250,58 +250,24 @@ test("Asg cluster provider correctly initializes self-managed node group", () =>
     expect(blueprint.getClusterInfo().autoscalingGroups!.length).toBe(1);
 });
 
-test("Kubectl layer is correctly injected for EKS version 1.30", () => {
-
-    const app = new cdk.App();
-
-    const stack = blueprints.EksBlueprint.builder()
-        .account('123456789').region('us-west-2')
-        .version(KubernetesVersion.V1_30).build(app, "stack-130");
-    
-    const template = Template.fromStack(stack);
-
-    template.hasResource("AWS::Lambda::LayerVersion", {
-        Properties: {
-          Description: Match.stringLikeRegexp("/opt/kubectl/kubectl 1.30"),
-        },
-      });
+test.each([
+  [KubernetesVersion.V1_28, "1.28"],
+  [KubernetesVersion.V1_29, "1.29"],
+  [KubernetesVersion.V1_30, "1.30"],
+  [KubernetesVersion.V1_31, "1.31"],
+  [KubernetesVersion.V1_32, "1.32"],
+  [KubernetesVersion.V1_33, "1.33"],
+  [KubernetesVersion.V1_34, "1.34"],
+])("Kubectl layer is correctly injected for EKS version %s", (version, versionStr) => {
+  const app = new cdk.App();
+  const stack = blueprints.EksBlueprint.builder()
+    .account('123456789').region('us-west-2')
+    .version(version).build(app, `stack-${versionStr.replace('.', '')}`);
+  const template = Template.fromStack(stack);
+  template.hasResource("AWS::Lambda::LayerVersion", {
+    Properties: { Description: Match.stringLikeRegexp(`/opt/kubectl/kubectl ${versionStr}`) },
+  });
 });
-
-
-test("Kubectl layer is correctly injected for EKS version 1.29", () => {
-
-    const app = new cdk.App();
-
-    const stack = blueprints.EksBlueprint.builder()
-      .account('123456789').region('us-west-2')
-      .version(KubernetesVersion.V1_29).build(app, "stack-129");
-
-    const template = Template.fromStack(stack);
-
-    template.hasResource("AWS::Lambda::LayerVersion", {
-        Properties: {
-            Description: Match.stringLikeRegexp("/opt/kubectl/kubectl 1.29"),
-        },
-    });
-});
-
-test("Kubectl layer is correctly injected for EKS version 1.28", () => {
-
-    const app = new cdk.App();
-
-    const stack = blueprints.EksBlueprint.builder()
-      .account('123456789').region('us-west-2')
-      .version(KubernetesVersion.V1_28).build(app, "stack-128");
-
-    const template = Template.fromStack(stack);
-
-    template.hasResource("AWS::Lambda::LayerVersion", {
-        Properties: {
-            Description: Match.stringLikeRegexp("/opt/kubectl/kubectl 1.28"),
-        },
-    });
-});
-
 
 test("Kubectl layer is correctly injected for EKS version 1.21 and below", () => {
     const app = new cdk.App();
