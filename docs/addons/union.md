@@ -144,3 +144,7 @@ uctl validate snacks --project=union-health-monitoring --domain=development
  ---------------------- ----------------------------------- ---------- -------------------------------- -------------- ----------- ---------------
 1 rows
 ```
+
+## Deploy from Pattern
+
+To deploy an already existing sample pattern for Union.ai, please see the Union.ai pattern in the [CDK EKS Blueprints Patterns Repository](https://aws-samples.github.io/cdk-eks-blueprints-patterns/patterns/union/).
