@@ -534,3 +534,88 @@ describe('Unit tests for Karpenter addon', () => {
         expect(karpenterNodeRolePolicy[0].Properties.Roles[0]).toEqual(nodeRole.KarpenterInstanceNodeRole.Value);
     });
 });
+
+describe('Unit tests for KarpenterV1AddOn CRD lifecycle management', () => {
+
+    test("CRD chart is deployed by default", () => {
+        const app = new cdk.App();
+
+        const stack = blueprints.EksBlueprint.builder()
+            .account('123456789').region('us-west-1')
+            .version(KubernetesVersion.V1_30)
+            .addOns(new blueprints.KarpenterV1AddOn())
+            .build(app, 'karpenter-v1-crd-default');
+
+        const template = Template.fromStack(stack);
+        const helmCharts = template.findResources("Custom::AWSCDK-EKS-HelmChart");
+
+        const charts = Object.values(helmCharts).map(r => {
+            const vals = r.Properties?.Chart;
+            return typeof vals === 'string' ? vals : JSON.parse(vals);
+        });
+
+        expect(charts).toContain('karpenter');
+        expect(charts).toContain('karpenter-crd');
+
+        // Verify the CRD chart uses the correct OCI repository
+        const crdChartResource = Object.values(helmCharts).find(r => {
+            const chart = r.Properties?.Chart;
+            return (typeof chart === 'string' ? chart : JSON.parse(chart)) === 'karpenter-crd';
+        });
+        expect(crdChartResource).toBeDefined();
+        const repo = crdChartResource!.Properties?.Repository;
+        const repoStr = typeof repo === 'string' ? repo : JSON.parse(repo);
+        expect(repoStr).toEqual('oci://public.ecr.aws/karpenter/karpenter-crd');
+    });
+
+    test("CRD chart is not deployed when installCRDs is false", () => {
+        const app = new cdk.App();
+
+        const stack = blueprints.EksBlueprint.builder()
+            .account('123456789').region('us-west-1')
+            .version(KubernetesVersion.V1_30)
+            .addOns(new blueprints.KarpenterV1AddOn({
+                installCRDs: false,
+            }))
+            .build(app, 'karpenter-v1-crd-disabled');
+
+        const template = Template.fromStack(stack);
+        const helmCharts = template.findResources("Custom::AWSCDK-EKS-HelmChart");
+
+        const charts = Object.values(helmCharts).map(r => {
+            const chart = r.Properties?.Chart;
+            return typeof chart === 'string' ? chart : JSON.parse(chart);
+        });
+
+        expect(charts).toContain('karpenter');
+        expect(charts).not.toContain('karpenter-crd');
+    });
+
+    test("CRD chart version syncs with main chart version", () => {
+        const app = new cdk.App();
+        const customVersion = '1.1.0';
+
+        const stack = blueprints.EksBlueprint.builder()
+            .account('123456789').region('us-west-1')
+            .version(KubernetesVersion.V1_30)
+            .addOns(new blueprints.KarpenterV1AddOn({
+                version: customVersion,
+            }))
+            .build(app, 'karpenter-v1-crd-version-sync');
+
+        const template = Template.fromStack(stack);
+        const helmCharts = template.findResources("Custom::AWSCDK-EKS-HelmChart");
+
+        // Find both charts and verify versions match
+        for (const resource of Object.values(helmCharts)) {
+            const chart = resource.Properties?.Chart;
+            const chartName = typeof chart === 'string' ? chart : JSON.parse(chart);
+
+            if (chartName === 'karpenter' || chartName === 'karpenter-crd') {
+                const version = resource.Properties?.Version;
+                const versionStr = typeof version === 'string' ? version : JSON.parse(version);
+                expect(versionStr).toEqual(customVersion);
+            }
+        }
+    });
+});

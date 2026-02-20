@@ -63,6 +63,16 @@ export interface KarpenterV1AddOnProps extends HelmAddOnUserProps {
      * @default false
      */
     podIdentity?: boolean;
+
+    /**
+     * Flag for deploying the karpenter-crd Helm chart to manage CRD lifecycle.
+     * When true, the official karpenter-crd chart (oci://public.ecr.aws/karpenter/karpenter-crd)
+     * is deployed before the main karpenter chart, ensuring CRDs are updated on
+     * every upgrade — not just on initial install.
+     *
+     * @default true
+     */
+    installCRDs?: boolean;
 }
 
 /**
@@ -203,11 +213,36 @@ export class KarpenterV1AddOn extends HelmAddOn {
         };
 
         values = merge(values, saValues);
-        // Install HelmChart using user defined value or default of 5 minutes.
+
+        // Timeout for helm chart installations
         const helmChartTimeout = this.options.helmChartTimeout || Duration.minutes(5);
+
+        // Deploy the karpenter-crd Helm chart for CRD lifecycle management
+        const installCRDs = this.options.installCRDs !== false; // default true
+
+        let crdChart: Construct | undefined;
+        if (installCRDs) {
+            const crdChartName = "karpenter-crd";
+            crdChart = cluster.addHelmChart(crdChartName, {
+                chart: crdChartName,
+                repository: "oci://public.ecr.aws/karpenter/karpenter-crd",
+                namespace: this.options.namespace!,
+                release: crdChartName,
+                version: this.options.version!,
+                wait: true,
+                timeout: helmChartTimeout,
+                createNamespace: false,
+            });
+            crdChart.node.addDependency(ns);
+        }
+
+        // Install main karpenter Helm chart
         const karpenterChart = this.addHelmChart(clusterInfo, values, false, true, helmChartTimeout);
 
         karpenterChart.node.addDependency(sa);
+        if (crdChart) {
+            karpenterChart.node.addDependency(crdChart);
+        }
 
         if (clusterInfo.nodeGroups) {
             clusterInfo.nodeGroups.forEach((n) => karpenterChart.node.addDependency(n));
