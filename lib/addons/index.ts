@@ -50,6 +50,7 @@ export * from './keda';
 export * from './knative-operator';
 export * from './keda';
 export * from './knative-operator';
+export * from './kro';
 export * from './kube-proxy';
 export * from './kube-state-metrics';
 export * from './kuberay';
