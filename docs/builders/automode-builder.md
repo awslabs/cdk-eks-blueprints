@@ -13,6 +13,8 @@ The `AutomodeBuilder` creates the following:
 
 - `version` : Kubernetes version to use for the cluster
 - `nodePools`: The Auto Mode node pools to provision for the cluster
+- `extraNodePools`: Additional custom node pools with advanced configuration
+- `extraNodeClasses`: Node class specifications for advanced networking features (pod subnets, pod security groups)
 
 ### Demonstration - Running EKS Auto Mode
 
@@ -50,6 +52,40 @@ export default class AutomodeConstruct {
   }
 }
 ```
+
+### Advanced Networking with Custom Node Classes
+
+For advanced networking scenarios, you can use `extraNodePools` and `extraNodeClasses` to configure pod subnets and pod security groups:
+
+```typescript
+const nodePool: blueprints.AutoModeNodePoolSpec = {
+  nodeClassName: "advanced-networking",
+  requirements: [
+    { key: "karpenter.sh/capacity-type", operator: "In", values: ["on-demand"] },
+    { key: "node.kubernetes.io/instance-type", operator: "In", values: ["m5.large"] }
+  ]
+};
+
+const nodeClass: blueprints.AutoModeNodeClassSpec = {
+  role: "my-custom-node-role",
+  subnetSelectorTerms: [{ tags: { "aws-cdk:subnet-type": "Private" } }],
+  securityGroupSelectorTerms: [{ tags: { "aws:eks:cluster-name": "my-cluster" } }],
+  podSubnetSelectorTerms: [{ tags: { "pod-subnet": "secondary" } }],
+  podSecurityGroupSelectorTerms: [{ tags: { "aws:eks:cluster-name": "my-cluster" } }]
+};
+
+AutomodeBuilder.builder({
+  version: eks.KubernetesVersion.of("1.34"),
+  nodePools: ["system"],
+  extraNodePools: { "advanced-pool": nodePool },
+  extraNodeClasses: { "advanced-networking": nodeClass }
+})
+  .account(account)
+  .region(region)
+  .build(scope, stackID);
+```
+
+For a complete example with VPC secondary CIDR configuration and custom node roles, see [auto-advanced-networking.ts](https://github.com/awslabs/cdk-eks-blueprints/blob/main/examples/auto-advanced-networking.ts).
 
 ## Using ALBDefaultIngressClassAddOn with Auto Mode
 
