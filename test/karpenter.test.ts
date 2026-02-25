@@ -618,4 +618,29 @@ describe('Unit tests for KarpenterV1AddOn CRD lifecycle management', () => {
             }
         }
     });
+
+    test("CRD chart uses custom crdRepository when provided", () => {
+        const app = new cdk.App();
+        const customRepo = 'oci://my-private-registry.example.com/karpenter/karpenter-crd';
+
+        const stack = blueprints.EksBlueprint.builder()
+            .account('123456789').region('us-west-1')
+            .version(KubernetesVersion.V1_30)
+            .addOns(new blueprints.KarpenterV1AddOn({
+                crdRepository: customRepo,
+            }))
+            .build(app, 'karpenter-v1-crd-custom-repo');
+
+        const template = Template.fromStack(stack);
+        const helmCharts = template.findResources("Custom::AWSCDK-EKS-HelmChart");
+
+        const crdChartResource = Object.values(helmCharts).find(r => {
+            const chart = r.Properties?.Chart;
+            return (typeof chart === 'string' ? chart : JSON.parse(chart)) === 'karpenter-crd';
+        });
+        expect(crdChartResource).toBeDefined();
+        const repo = crdChartResource!.Properties?.Repository;
+        const repoStr = typeof repo === 'string' ? repo : JSON.parse(repo);
+        expect(repoStr).toEqual(customRepo);
+    });
 });

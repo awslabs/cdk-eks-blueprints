@@ -66,13 +66,20 @@ export interface KarpenterV1AddOnProps extends HelmAddOnUserProps {
 
     /**
      * Flag for deploying the karpenter-crd Helm chart to manage CRD lifecycle.
-     * When true, the official karpenter-crd chart (oci://public.ecr.aws/karpenter/karpenter-crd)
-     * is deployed before the main karpenter chart, ensuring CRDs are updated on
-     * every upgrade — not just on initial install.
+     * When true, the official karpenter-crd chart is deployed before the main karpenter chart,
+     * ensuring CRDs are updated on every upgrade — not just on initial install.
      *
      * @default true
      */
     installCRDs?: boolean;
+
+    /**
+     * Repository URL for the karpenter-crd Helm chart.
+     * Override this when mirroring charts to a private registry.
+     *
+     * @default "oci://public.ecr.aws/karpenter/karpenter-crd"
+     */
+    crdRepository?: string;
 }
 
 /**
@@ -225,7 +232,7 @@ export class KarpenterV1AddOn extends HelmAddOn {
             const crdChartName = "karpenter-crd";
             crdChart = cluster.addHelmChart(crdChartName, {
                 chart: crdChartName,
-                repository: "oci://public.ecr.aws/karpenter/karpenter-crd",
+                repository: this.options.crdRepository ?? "oci://public.ecr.aws/karpenter/karpenter-crd",
                 namespace: this.options.namespace!,
                 release: crdChartName,
                 version: this.options.version!,
