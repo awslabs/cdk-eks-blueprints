@@ -3,7 +3,7 @@ import * as cdk from 'aws-cdk-lib';
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as eksv2 from '@aws-cdk/aws-eks-v2-alpha';
-import { Construct, IConstruct, Node } from 'constructs';
+import { Construct, IConstruct, IMixin, Node } from 'constructs';
 import { ResourceProvider } from '.';
 import { EksBlueprintProps } from '../stacks';
 import { logger } from "../utils/log-utils";
@@ -375,6 +375,9 @@ export class MultiConstruct<T extends cdk.IResource, R extends IConstruct> imple
 
     });
   }
+    with(...mixins: IMixin[]): IConstruct {
+        return this.primaryResource.with(...mixins);
+    }
 
   applyRemovalPolicy(policy: cdk.RemovalPolicy): void {
     this.primaryResource.applyRemovalPolicy(policy);
