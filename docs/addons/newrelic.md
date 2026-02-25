@@ -133,7 +133,7 @@ After installing the New Relic add-on, you can validate a successful installatio
 
 New Relic hosts and moderates an online forum where customers can interact with New Relic employees as well as other customers to get help and share best practices.
 
-https://discuss.newrelic.com/
+https://support.newrelic.com/
 
 ## Contributing
 We encourage your contributions to improve the New Relic Addon for EKS Blueprints! Keep in mind when you submit your pull request, you'll need to sign the CLA via the click-through using CLA-Assistant. You only have to sign the CLA one time per project.
