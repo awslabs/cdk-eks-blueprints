@@ -297,6 +297,22 @@ The addon introduces breaking changes for Blueprints npm version v0.14 and later
 - For NodePool and EC2NodeClass, the parameters will apply to either the v1alpha5 CRDs ( provisioner, AWSNodeTemplate, for Karpenter versions v0.31.x or earlier) or v1beta1 CRDs (NodePool, EC2NodeClass, for Karpenter versions v0.32.x and later). **If you provide non-matching parameters, i.e. providing `consolidation` instead of `disruption` for Karpenter version v0.33.1, you will see an error with stack failing to provision.** Please consult the [upgrade guide](https://karpenter.sh/docs/upgrading/upgrade-guide/) to see the changes for various versions.
 - To have the add-on install new CRDs after an initial install, set the `installCRDs` option to true.
 
+### CRD Lifecycle Management (KarpenterV1AddOn)
+
+Helm only processes CRDs in the `crds/` directory during `helm install`, never during `helm upgrade`. This means that when you upgrade Karpenter versions via CDK, the controller runs the new version but the CRDs remain stale — causing silent failures where new CRD features (e.g., `Gte`/`Lte` operators added in v1.9.0) are unavailable.
+
+To solve this, `KarpenterV1AddOn` deploys the official [`karpenter-crd`](https://gallery.ecr.aws/karpenter/karpenter-crd) Helm chart before the main Karpenter chart. This CRD chart places CRDs in `templates/` instead of `crds/`, ensuring they are updated on every `helm upgrade`.
+
+**This is enabled by default.** The CRD chart version is automatically kept in sync with the main Karpenter chart version.
+
+To opt out (not recommended):
+
+```typescript
+new blueprints.KarpenterV1AddOn({
+    installCRDs: false,
+});
+```
+
 If you are upgrading from earlier version of Blueprints and need to add the Karpenter addon, please ensure the following:
 
 1. You are using the minimum Karpenter version supported by the Kubernetes version of your blueprint cluster. Not doing so will cause incompatibility issues.
