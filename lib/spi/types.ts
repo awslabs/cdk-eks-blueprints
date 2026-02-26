@@ -4,11 +4,31 @@ import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as eksv2 from '@aws-cdk/aws-eks-v2-alpha';
 import { Construct, IConstruct } from 'constructs';
-import { ResourceProvider } from '.';
+import { ClusterCapability, ResourceProvider } from '.';
 import { EksBlueprintProps } from '../stacks';
 import { logger } from "../utils/log-utils";
 import * as constraints from '../utils/constraints-utils';
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
+
+/**
+ * Supported EKS capability types
+ */
+export enum CapabilityType {
+  ARGOCD = "argocd",
+  ACK = "ack",
+  KRO = "kro"
+}
+
+export enum ArgoCDSsoRole {
+  ADMIN = "ADMIN",
+  EDITOR = "EDITOR",
+  VIEWER = "VIEWER"
+}
+
+export enum SsoIdentityType {
+  SSO_USER = "SSO_USER",
+  SSO_GROUP = "SSO_GROUP"
+}
 
 /**
  * Data type defining helm repositories for GitOps bootstrapping.
@@ -186,6 +206,7 @@ export class ClusterInfo {
     private readonly provisionedAddOns: Map<string, Construct>;
     private readonly scheduledAddOns: Map<string, Promise<Construct>>;
     private readonly orderedAddOns: string[];
+    private readonly capabilities: Map<string, Construct>;
     private resourceContext: ResourceContext;
     private addonContext: Map<string, Values>;
 
@@ -199,6 +220,7 @@ export class ClusterInfo {
         this.provisionedAddOns = new Map<string, Construct>();
         this.scheduledAddOns = new Map<string, Promise<Construct>>();
         this.orderedAddOns = [];
+        this.capabilities = new Map<string, Construct>();
         this.addonContext = new Map<string, Values>();
     }
 
@@ -327,6 +349,32 @@ export class ClusterInfo {
     */
     public getAddOnContexts(): Map<string, Values> {
         return this.addonContext;
+    }
+
+    /**
+     * Add a capability to the cluster
+     * @param name capability name
+     * @param capability capability instance
+     */
+    public addCapability(name: string, capability: Construct) {
+        this.capabilities.set(name, capability);
+    }
+
+    /**
+     * Get a capability by name
+     * @param name capability name
+     * @returns capability instance or undefined
+     */
+    public getCapability(name: string): Construct| undefined {
+        return this.capabilities.get(name);
+    }
+
+    /**
+     * Get all capabilities
+     * @returns Map of all capabilities
+     */
+    public getAllCapabilities(): Map<string, Construct> {
+        return this.capabilities;
     }
 }
 
