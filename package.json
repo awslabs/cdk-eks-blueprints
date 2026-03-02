@@ -80,7 +80,7 @@
     "rimraf": "^5.0.0"
   },
   "peerDependencies": {
-    "aws-cdk": "2.1100.0",
-    "aws-cdk-lib": "2.233.0"
+    "aws-cdk": "2.1103.0",
+    "aws-cdk-lib": "2.236.0"
   }
 }

@@ -38,6 +38,12 @@ export class EksBlueprintProps {
     readonly addOns?: Array<spi.ClusterAddOn> = [];
 
     /**
+     * EKS Capabilities if any.
+     * https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html
+     */
+    readonly capabilities?: Array<spi.ClusterCapability> = [];
+
+    /**
      * Teams if any
      */
     readonly teams?: Array<spi.Team> = [];
@@ -121,7 +127,7 @@ export class BlueprintConstructBuilder {
     };
 
     constructor() {
-        this.props = { addOns: new Array<spi.ClusterAddOn>(), teams: new Array<spi.Team>(), resourceProviders: new Map() };
+        this.props = { addOns: new Array<spi.ClusterAddOn>(), teams: new Array<spi.Team>(), capabilities: new Array<spi.ClusterCapability>(), resourceProviders: new Map() };
         this.env = {
             account: process.env.CDK_DEFAULT_ACCOUNT,
             region: process.env.CDK_DEFAULT_REGION
@@ -177,6 +183,11 @@ export class BlueprintConstructBuilder {
 
     public addOns(...addOns: spi.ClusterAddOn[]): this {
         this.props = { ...this.props, ...{ addOns: this.props.addOns?.concat(addOns) } };
+        return this;
+    }
+
+    public capabilities(...capabilities: spi.ClusterCapability[]): this {
+        this.props = { ...this.props, ...{ capabilities: this.props.capabilities?.concat(capabilities) } };
         return this;
     }
 
@@ -264,6 +275,13 @@ export class EksBlueprintConstruct extends Construct {
             ArgoGitOpsFactory.enableGitOpsAppOfApps();
         }
 
+        if (blueprintProps.capabilities != null) { // Add capabilities to cluster first
+            for (let capability of blueprintProps.capabilities) {
+                const capabilityConstruct = capability.create(this.clusterInfo);
+                this.clusterInfo.addCapability(capability.type.toString().toLowerCase(), capabilityConstruct);
+            }
+        }
+
         const postDeploymentSteps = Array<spi.ClusterPostDeploy>();
 
         for (let addOn of (blueprintProps.addOns ?? [])) { // must iterate in the strict order
@@ -286,6 +304,7 @@ export class EksBlueprintConstruct extends Construct {
             constructs.forEach((construct, index) => {
                 this.clusterInfo.addProvisionedAddOn(addOnKeys[index], construct);
             });
+            
 
             if (blueprintProps.teams != null) {
                 for (let team of blueprintProps.teams) {
