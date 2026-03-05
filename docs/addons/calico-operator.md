@@ -1,6 +1,6 @@
 # Calico Operator Add-on
 
-[Project Calico](https://www.projectcalico.org/) is an open source networking and network security solution for containers, virtual machines, and native host-based workloads. To secure workloads in Kubernetes, Calico utilizes Network Policies. The `Calico Operator` add-on adds support for Calico to an EKS cluster by deploying [Tigera Operator](https://github.com/tigera/operator).
+[Project Calico](https://www.tigera.io/project-calico/) is an open source networking and network security solution for containers, virtual machines, and native host-based workloads. To secure workloads in Kubernetes, Calico utilizes Network Policies. The `Calico Operator` add-on adds support for Calico to an EKS cluster by deploying [Tigera Operator](https://github.com/tigera/operator).
 
 By default, the native [VPC-CNI plugin](https://docs.aws.amazon.com/eks/latest/userguide/pod-networking.html) for Kubernetes on EKS does not support Kubernetes Network Policies. Installing Calico (or alternate CNI provider) will enable customers to define and apply standard [Kubernetes Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to their EKS cluster. 
 
@@ -146,4 +146,4 @@ Calico also allows Custom Resource Definitions (CRD) which provides the ability 
 - Layer 7 rule support (i.e. Http Request types)
 - Endpoint support other than standard pods: OpenShift, VMs, interfaces, etc. 
 
-In order to use CRDs (in particular defined within the *projectcalico.org/v3* Calico API), you must install the Calico CLI ([calicoctl](https://docs.projectcalico.org/getting-started/clis/calicoctl/install)). You can find more information about Calico Network Policy and using `calicoctl` [here](https://docs.projectcalico.org/security/calico-network-policy). 
+In order to use CRDs (in particular defined within the *projectcalico.org/v3* Calico API), you must install the Calico CLI ([calicoctl](https://docs.tigera.io/calico/latest/operations/calicoctl/install)). You can find more information about Calico Network Policy and using `calicoctl` [here](https://docs.tigera.io/calico/latest/network-policy/). 

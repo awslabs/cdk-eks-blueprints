@@ -1,6 +1,6 @@
 # AWS Gateway API Controller Add-on
 
-This add-on installs the [AWS Gateway API Controller](https://www.gateway-api-controller.eks.aws.dev/latest) in your cluster to enable Amazon VPC Lattice service networking capabilities.
+This add-on installs the [AWS Gateway API Controller](https://www.gateway-api-controller.eks.aws.dev/latest/) in your cluster to enable Amazon VPC Lattice service networking capabilities.
 
 The AWS Gateway API Controller watches for Gateway API resources (Gateway, HTTPRoute, etc) and provisions corresponding Amazon VPC Lattice resources to enable service networking across multiple clusters and VPCs.
 

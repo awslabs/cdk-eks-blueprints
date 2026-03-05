@@ -329,7 +329,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
       const disruption = pool.disruption || null;
       const limits = pool.limits || null;
       const weight = pool.weight || null;
-      const poolManifest = {
+      const poolManifest : any = {
         apiVersion: "karpenter.sh/v1",
         kind: "NodePool",
         metadata: {name: name},
@@ -350,9 +350,14 @@ export class GenericClusterProviderV2 implements ClusterProvider {
           },
           disruption: disruption,
           limits: limits,
-          weight: weight,
+          weight: weight
         },
       };
+      
+      if (pool.replicas !== undefined) {
+        poolManifest.spec.replicas = pool.replicas;
+      }
+      
       return cluster.addManifest(name, poolManifest);
     }
 

@@ -57,7 +57,7 @@ const defaultProps: AwsGatewayApiControllerAddOnProps = {
     name: 'aws-gateway-api-controller',
     namespace: 'aws-application-networking-system',
     chart: 'aws-gateway-controller-chart',
-    version: 'v1.1.0',
+    version: 'v1.1.4',
     repository: 'oci://public.ecr.aws/aws-application-networking-k8s/aws-gateway-controller-chart',
     values: {},
     defaultServiceNetwork: '',

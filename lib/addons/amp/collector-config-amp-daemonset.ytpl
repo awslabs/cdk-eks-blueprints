@@ -314,24 +314,54 @@ spec:
             - action: keep
               regex: $K8S_NODE_NAME
               source_labels: [__meta_kubernetes_pod_node_name]
+
+            - job_name: 'eks-nfm-agent'
+              kubernetes_sd_configs:
+              - role: pod
+              metrics_path: /metrics
+              relabel_configs:
+              - source_labels:
+                - __meta_kubernetes_namespace
+                - __meta_kubernetes_pod_label_name
+                action: keep
+                regex: amazon-network-flow-monitor;aws-network-flow-monitor-agent
+              - target_label: __address__
+                replacement: $$1:9109
+                source_labels:
+                - __meta_kubernetes_pod_ip
             
     processors:
+      metricstransform:
+        transforms:
+          - include: ".*"
+            match_type: regexp
+            action: update
+            operations:
+              - action: add_label
+                new_label: cluster
+                new_value: "{{clusterName}}"
+              - action: add_label
+                new_label: __replica__
+                new_value: ${env:POD_NAME}
       batch/metrics:
         timeout: 60s   
 
     exporters:
-      awsprometheusremotewrite:
+      prometheusremotewrite:
         endpoint: "{{remoteWriteEndpoint}}"
-        aws_auth:
-          region: "{{awsRegion}}"
-          service: "aps"
-
+        auth:
+          authenticator: sigv4auth
+    extensions:
+      sigv4auth:
+        region: "{{awsRegion}}"
+        service: aps
     service:
+      extensions: [sigv4auth]
       pipelines:
         metrics:
           receivers: [prometheus]
-          processors: [batch/metrics]
-          exporters: [awsprometheusremotewrite]
+          processors: [metricstransform, batch/metrics]
+          exporters: [prometheusremotewrite]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

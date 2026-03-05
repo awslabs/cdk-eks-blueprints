@@ -10,6 +10,9 @@ import { KubernetesManifest, KubernetesPatch } from "aws-cdk-lib/aws-eks";
 
 /* VersioMap showing the default version for 4 supported Kubernetes versions */
 const versionMap: Map<KubernetesVersion, string> = new Map([
+  [KubernetesVersion.V1_34, "v1.48.0-eksbuild.2"],
+  [KubernetesVersion.V1_33, "v1.48.0-eksbuild.2"],
+  [KubernetesVersion.V1_32, "v1.48.0-eksbuild.2"],
   [KubernetesVersion.V1_31, "v1.42.0-eksbuild.1"],
   [KubernetesVersion.V1_30, "v1.36.0-eksbuild.1"],
   [KubernetesVersion.V1_29, "v1.36.0-eksbuild.1"],
@@ -31,6 +34,11 @@ export type EbsCsiDriverAddOnProps = Omit<CoreAddOnProps, "policyDocumentProvide
    */
   storageClass?: string;
   /**
+   * Determines whether the default storage class created by the addon should allow volume expansion or not.
+   * @default false
+   */
+  allowVolumeExpansion?: boolean;
+  /**
    * Version of the EBS CSI driver to be used
    */
   version?: string;
@@ -45,6 +53,7 @@ const defaultProps: CoreAddOnProps & EbsCsiDriverAddOnProps = {
   versionMap: versionMap,
   saName: "ebs-csi-controller-sa",
   storageClass: "gp3", // Set the default StorageClass to gp3
+  allowVolumeExpansion: false,
 };
 
 /**
@@ -127,6 +136,7 @@ export class EbsCsiDriverAddOn extends CoreAddOn {
               provisioner: "ebs.csi.aws.com",
               reclaimPolicy: "Delete",
               volumeBindingMode: "WaitForFirstConsumer",
+              allowVolumeExpansion: this.ebsProps.allowVolumeExpansion,
               parameters: {
                 type: "gp3",
                 fsType: "ext4",

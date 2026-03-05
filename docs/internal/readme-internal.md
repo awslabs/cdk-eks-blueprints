@@ -71,6 +71,26 @@ For external contributors:
    2. Test coverage
    3. Validation instructions
 
+## Customer Issue Debugging
+
+For quickly testing customer issue reproductions from GitHub:
+
+1. **Setup**: `npm run debug-run <issue-name>` - Creates `examples/<issue-name>.ts` from template
+2. **Edit**: Paste customer code into the created file, update account/region
+3. **Test**: `npm run debug-run <issue-name> synth` - Validate CDK synthesis
+4. **Deploy**: `npm run debug-run <issue-name> deploy debug-stack` - Deploy if needed
+5. **Cleanup**: Delete the file when done
+
+Example workflow:
+```bash
+npm run debug-run ack-fails          # Creates examples/ack-fails.ts
+# Edit examples/ack-fails.ts with customer code
+npm run debug-run ack-fails synth     # Test synthesis
+npm run debug-run ack-fails deploy debug-stack  # Deploy if needed
+```
+
+Optional: Add `alias debug='npm run debug-run'` to your shell config for shorter commands.
+
 ## Validations framework link to readme
 
 See [this document](./input-validations-framework-readme.md) for more details. 

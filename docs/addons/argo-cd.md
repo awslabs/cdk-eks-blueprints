@@ -230,7 +230,7 @@ awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}'  <path-to-your-cert>
 A convenience script to create the JSON structure for SSH private key can be found [here](https://github.com/aws-quickstart/cdk-eks-blueprints/blob/main/scripts/create-argocd-ssh-secret.sh). You will need to set the `PEM_FILE`(full path to the ssh private key file) and `URL_TEMPLATE` (part of the URL for credentials template) variables inside the script.
 
 3. (**important**) Replicate the secret to all the desired regions. 
-4. Please see [instructions for GitHub](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh) oou n details on setting up SSH access.
+4. Please see [instructions for GitHub](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh) on details on setting up SSH access.
 
 
 **Username Password and Token Authentication** 

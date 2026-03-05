@@ -9,7 +9,7 @@ metadata:
   namespace: "{{namespace}}"
 spec:
   mode: "{{deploymentMode}}"
-  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.41.1
+  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.45.1
   resources:
     limits:
       cpu: "{{cpuLimit}}"
@@ -1894,13 +1894,27 @@ spec:
             - job_name: 'node-exporter'
               kubernetes_sd_configs:
                 - role: endpoints
+            - job_name: 'eks-nfm-agent'
+              kubernetes_sd_configs:
+              - role: pod
+              metrics_path: /metrics
+              relabel_configs:
+              - source_labels:
+                - __meta_kubernetes_namespace
+                - __meta_kubernetes_pod_label_name
+                action: keep
+                regex: amazon-network-flow-monitor;aws-network-flow-monitor-agent
+              - target_label: __address__
+                replacement: $$1:9109
+                source_labels:
+                - __meta_kubernetes_pod_ip
     exporters:
       prometheusremotewrite:
         endpoint: "{{remoteWriteEndpoint}}"
         auth:
           authenticator: sigv4auth
-      logging:
-        loglevel: info
+      debug:
+        verbosity: normal
     extensions:
       sigv4auth:
         region: "{{awsRegion}}"
@@ -1915,7 +1929,7 @@ spec:
       pipelines:
         metrics:
           receivers: [prometheus]
-          exporters: [logging, prometheusremotewrite]
+          exporters: [debug, prometheusremotewrite]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

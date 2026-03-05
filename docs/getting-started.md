@@ -21,13 +21,13 @@ To use the `eks-blueprints` module, you must have [Node.js](https://nodejs.org/e
     sudo apt install nodejs
     ```
 
-Create a directory that represents you project (e.g. `my-blueprints`) and then create a new `typescript` CDK project in that directory.
+Create a directory that represents your project (e.g. `my-blueprints`) and then create a new `typescript` CDK project in that directory.
 
 ```bash
 npm install -g n # may require sudo
 n stable # may require sudo 
-npm install -g aws-cdk@2.1012.0 # may require sudo (Ubuntu) depending on configuration
-cdk --version # must produce 2.1007.4
+npm install -g aws-cdk@2.1029.2 # may require sudo (Ubuntu) depending on configuration
+cdk --version # must produce 2.1029.2
 mkdir my-blueprints
 cd my-blueprints
 cdk init app --language typescript
@@ -53,11 +53,11 @@ npm ERR! node_modules/aws-cdk-lib
 npm ERR!   aws-cdk-lib@"2.133.0" from the root project
 npm ERR! 
 npm ERR! Could not resolve dependency:
-npm ERR! peer bundled aws-cdk-lib@"2.133.0" from @aws-quickstart/eks-blueprints@1.14.0
+npm ERR! peer bundled aws-cdk-lib@"2.133.0" from @aws-quickstart/eks-blueprints@1.17.3
 npm ERR! node_modules/@aws-quickstart/eks-blueprint
 ```
 
-This message means that the version of CDK that the customer is using is different from the version of CDK used in EKS Blueprints. Locate the line `peer bundled` and check the expected version of the CDK. Make sure that in your `package.json` the version is set to the expected. In this example, `package.json` contained `"aws-cdk-lib": "2.133.0"`, while the expected version was `2.192.0`.
+This message means that the version of CDK that the customer is using is different from the version of CDK used in EKS Blueprints. Locate the line `peer bundled` and check the expected version of the CDK. Make sure that in your `package.json` the version is set to the expected. In this example, `package.json` contained `"aws-cdk-lib": "2.133.0"`, while the expected version is `2.215.0`.
 
 **Note**: after the initial installation, upgrading the version of CDK to an incompatible higher/lower version will produce a warning, but will succeed. For community support (submitting GitHub issues) please make sure you have a matching version configured.
 
@@ -66,7 +66,7 @@ Example warning:
 ```
 npm WARN 
 npm WARN Could not resolve dependency:
-npm WARN peer bundled aws-cdk-lib@"2.133.0" from @aws-quickstart/eks-blueprints@1.14.0
+npm WARN peer bundled aws-cdk-lib@"2.133.0" from @aws-quickstart/eks-blueprints@1.17.3
 ```
 
 ## Deploy EKS Clusters

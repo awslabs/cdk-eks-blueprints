@@ -252,7 +252,10 @@ export const KarpenterControllerPolicyBeta = (cluster: Cluster, partition: strin
                 "Sid": "AllowInstanceProfileReadActions",
                 "Effect": "Allow",
                 "Resource": "*",
-                "Action": "iam:GetInstanceProfile"
+                "Action": [
+                    "iam:GetInstanceProfile", 
+                    "iam:ListInstanceProfiles"
+                ]
             },
             {
                 "Sid": "AllowAPIServerEndpointDiscovery",

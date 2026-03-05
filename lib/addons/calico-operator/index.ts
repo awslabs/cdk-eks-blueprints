@@ -16,7 +16,7 @@ export interface CalicoOperatorAddOnProps extends HelmAddOnUserProps {
 
     /**
      * Helm chart version to use to install.
-     * @default 3.27.2
+     * @default 3.30.3
      */
     version?: string;
 
@@ -32,10 +32,10 @@ export interface CalicoOperatorAddOnProps extends HelmAddOnUserProps {
 const defaultProps = {
     name: 'calico-operator',
     namespace: 'calico-operator',
-    version: 'v3.29.3', // v3.27.2' latest is causing issues on cdk destroy
+    version: 'v3.30.3', // v3.27.2' latest is causing issues on cdk destroy
     chart: "tigera-operator",
     release: "bp-addon-calico-operator",
-    repository: "https://projectcalico.docs.tigera.io/charts"
+    repository: "https://docs.tigera.io/calico/charts"
 };
 
 @supportsALL

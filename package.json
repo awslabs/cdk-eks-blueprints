@@ -1,6 +1,6 @@
 {
   "name": "@aws-quickstart/eks-blueprints",
-  "version": "1.17.2",
+  "version": "1.17.4",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,6 +15,8 @@
     "test": "jest --verbose false --detectOpenHandles",
     "cdk": "cdk",
     "examples": "cdk --app \"npx ts-node examples/examples.ts\"",
+    "debug": "cdk --app \"npx ts-node examples/$DEBUG_FILE\"",
+    "debug-run": "./debug.sh",
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "devDependencies": {
@@ -40,6 +42,8 @@
     "@aws-cdk/lambda-layer-kubectl-v30": "^2.0.0",
     "@aws-cdk/lambda-layer-kubectl-v31": "^2.0.0",
     "@aws-cdk/lambda-layer-kubectl-v32": "^2.0.0",
+    "@aws-cdk/lambda-layer-kubectl-v33": "^2.0.0",
+    "@aws-cdk/lambda-layer-kubectl-v34": "^2.0.0",
     "@aws-sdk/client-eks": "^3.844.0",
     "@aws-sdk/client-secrets-manager": "^3.844.0",
     "@types/assert": "^1.5.10",
@@ -49,15 +53,15 @@
     "bcrypt": "^5.1.1",
     "constructs": "^10.3.0",
     "dot-object": "^2.1.4",
-    "js-yaml": "4.1.0",
-    "lodash": "4.17.21",
+    "js-yaml": "4.1.1",
+    "lodash": "4.17.23",
     "reflect-metadata": "^0.2.1",
     "semver": "^7.7.2",
     "simple-base": "^1.0.0",
     "sync-request": "6.1.0",
     "ts-deepmerge": "^7.0.0",
     "ts-md5": "^1.3.1",
-    "tslog": "^4.9.2",
+    "tslog": "4.9.3",
     "uuid": "^11.1.0",
     "yaml": "^2.8.0",
     "zod": "^3.22.4"
@@ -76,7 +80,7 @@
     "rimraf": "^5.0.0"
   },
   "peerDependencies": {
-    "aws-cdk": "2.1020.2",
-    "aws-cdk-lib": "2.204.0"
+    "aws-cdk": "2.1100.0",
+    "aws-cdk-lib": "2.233.0"
   }
 }
