@@ -122,6 +122,7 @@ export type Ec2NodeClassV1Spec = Omit<Ec2NodeClassSpec, "amiSelector | subnetSel
  * Utility type for Karpenter NodePool Specs
  */
 export type NodePoolSpec = {
+
   /**
    * Labels applied to all nodes
    */
@@ -223,6 +224,12 @@ export type NodePoolSpec = {
  * Utility type for Karpenter NodePool Specs for v1
  */
 export type NodePoolV1Spec = {
+  /**
+   * Optional: Number of nodes to maintain for static capacity
+   * When set, NodePool operates in static mode maintaining fixed node count
+   */
+  replicas?: number;
+
   /**
    * Labels applied to all nodes
    */

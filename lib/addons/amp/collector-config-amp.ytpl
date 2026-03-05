@@ -1894,6 +1894,20 @@ spec:
             - job_name: 'node-exporter'
               kubernetes_sd_configs:
                 - role: endpoints
+            - job_name: 'eks-nfm-agent'
+              kubernetes_sd_configs:
+              - role: pod
+              metrics_path: /metrics
+              relabel_configs:
+              - source_labels:
+                - __meta_kubernetes_namespace
+                - __meta_kubernetes_pod_label_name
+                action: keep
+                regex: amazon-network-flow-monitor;aws-network-flow-monitor-agent
+              - target_label: __address__
+                replacement: $$1:9109
+                source_labels:
+                - __meta_kubernetes_pod_ip
     exporters:
       prometheusremotewrite:
         endpoint: "{{remoteWriteEndpoint}}"

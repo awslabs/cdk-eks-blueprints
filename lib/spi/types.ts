@@ -3,7 +3,7 @@ import * as cdk from 'aws-cdk-lib';
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as eksv2 from '@aws-cdk/aws-eks-v2-alpha';
-import { Construct, IConstruct } from 'constructs';
+import { Construct, IConstruct, IMixin, Node } from 'constructs';
 import { ResourceProvider } from '.';
 import { EksBlueprintProps } from '../stacks';
 import { logger } from "../utils/log-utils";
@@ -166,6 +166,10 @@ export class ResourceContext {
     public getNamespace<T extends IConstruct = IConstruct>(namespace: string): T | undefined {
         return this.get<T>(`namespace-${namespace}`);
     }
+
+    public getResources() {
+        return this.resources;
+    }
 }
 
 export enum GlobalResources {
@@ -216,6 +220,14 @@ export class ClusterInfo {
      */
     public setResourceContext(resourceContext: ResourceContext) {
         this.resourceContext = resourceContext;
+        for(const [,resource] of resourceContext.getResources().entries()){
+            if(resource instanceof MultiConstruct && resource.subResources) {
+                resource.subResources.forEach(subResource => {
+                    this.cluster.node.addDependency(subResource);
+                });
+            }
+        }
+        
     }
 
     /**
@@ -328,6 +340,48 @@ export class ClusterInfo {
     public getAddOnContexts(): Map<string, Values> {
         return this.addonContext;
     }
+}
+
+/**
+ * Class for returning multiple objects from a Resource provider
+ * example: VPC as primaryResource and Secondary Subnets as subResources
+ */
+export class MultiConstruct<T extends cdk.IResource, R extends IConstruct> implements cdk.IResource {
+  readonly stack: cdk.Stack;
+  readonly env: cdk.ResourceEnvironment;
+  readonly node: Node;
+  primaryResource: T;
+  subResources?: R[];
+
+  constructor(primaryResource: T, subResources?: R[]) {
+    this.primaryResource = primaryResource;
+    this.subResources = subResources;
+    this.stack = primaryResource.stack;
+    this.env = primaryResource.env;
+    this.node = primaryResource.node;
+    return new Proxy(this, {
+      get(target, prop, receiver) {
+        if (prop in target) {
+          return Reflect.get(target, prop, receiver);
+        }
+
+        const primaryValue = Reflect.get(target.primaryResource, prop);
+
+        if (typeof primaryValue == 'function') {
+          return primaryValue.bind(target.primaryResource);
+        }
+        return primaryValue;
+      }
+
+    });
+  }
+    with(...mixins: IMixin[]): IConstruct {
+        return this.primaryResource.with(...mixins);
+    }
+
+  applyRemovalPolicy(policy: cdk.RemovalPolicy): void {
+    this.primaryResource.applyRemovalPolicy(policy);
+  }
 }
 
 /**

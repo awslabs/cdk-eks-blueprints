@@ -5,7 +5,9 @@ import { CoreAddOn, CoreAddOnProps } from "../core-addon";
 import { CfnAddon, FargateCluster } from "aws-cdk-lib/aws-eks";
 import { RemovalPolicy } from "aws-cdk-lib";
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
+
 const versionMap: Map<KubernetesVersion, string> = new Map([
+    [KubernetesVersion.V1_34, "v1.13.2-eksbuild.1"],
     [KubernetesVersion.V1_33, "v1.12.1-eksbuild.2"],
     [KubernetesVersion.V1_32, "v1.11.4-eksbuild.2"],
     [KubernetesVersion.V1_31, "v1.11.3-eksbuild.1"],
