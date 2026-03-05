@@ -232,7 +232,7 @@ export class EksBlueprintConstruct extends Construct {
 
         const resourceContext = this.provideNamedResources(blueprintProps, scope);
 
-        let vpcResource: IVpc | spi.MultiConstruct<IVpc, ISubnet> | undefined = resourceContext.get(spi.GlobalResources.Vpc) as IVpc;
+        let vpcResource: IVpc | spi.MultiConstruct<IVpc, ISubnet> | undefined = resourceContext.get(spi.GlobalResources.Vpc);
           
         if (!vpcResource) {
             vpcResource = resourceContext.add(spi.GlobalResources.Vpc, new VpcProvider());
