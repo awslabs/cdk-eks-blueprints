@@ -2,24 +2,21 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import * as eks from 'aws-cdk-lib/aws-eks'
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 
 // Custom VPC provider that tags secondary subnets
 class TaggedVpcProvider extends blueprints.VpcProvider {
-  provide(context: blueprints.ResourceContext): ec2.IVpc {
+  provide(context: blueprints.ResourceContext): blueprints.MultiConstruct<ec2.IVpc, ec2.ISubnet> {
     const vpc = super.provide(context);
 
     // Tag secondary subnets after creation
-    if (this.secondaryCidr) {
-      for (let i = 0; i < 3; i++) {
-        const subnet = context.get(`secondary-cidr-subnet-${i}`);
-        if (subnet) {
+    if (vpc.subResources) {
+      vpc.subResources.forEach((subnet) => {
           cdk.Tags.of(subnet).add("pod-subnet", "secondary");
-        }
-      }
+      });
     }
-
     return vpc;
   }
 }
@@ -40,6 +37,7 @@ class CustomRoleProvider implements blueprints.ResourceProvider<Role> {
         ManagedPolicy.fromAwsManagedPolicyName("AmazonEC2ContainerRegistryPullOnly")
       ]
     });
+    role.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
 
     return role;
   }
@@ -49,7 +47,6 @@ class CustomRoleProvider implements blueprints.ResourceProvider<Role> {
 class NodeRoleAccessEntryAddOn implements blueprints.ClusterAddOn {
   deploy(clusterInfo: blueprints.ClusterInfo): Promise<Construct> {
     const role = clusterInfo.getResourceContext().get("node-role") as Role;
-
 
     const accessEntry = new cdk.aws_eks.CfnAccessEntry(clusterInfo.cluster.stack, "NodeRoleAccessEntry", {
       clusterName: clusterInfo.cluster.clusterName,
@@ -66,7 +63,8 @@ class NodeRoleAccessEntryAddOn implements blueprints.ClusterAddOn {
     // Depends on the node role
     accessEntry.node.addDependency(role);
     // Depends on only the cluster, not other constructs added to the cluster - must be added explicitly since we are using a L1 AccessEntry construct
-    accessEntry.node.addDependency(clusterInfo.cluster.node.defaultChild as cdk.aws_eks.CfnCluster);
+    accessEntry.node.addDependency(clusterInfo.cluster.node.defaultChild as eks.CfnCluster);
+    (clusterInfo.cluster.node.defaultChild as eks.CfnCluster).node.addDependency(role);
 
     return Promise.resolve(accessEntry);
   }
