@@ -64,16 +64,16 @@ class NodeRoleAccessEntryAddOn implements blueprints.ClusterAddOn {
     });
 
     // Depends on the node role
-    accessEntry.node.addDependency(role)
+    accessEntry.node.addDependency(role);
     // Depends on only the cluster, not other constructs added to the cluster - must be added explicitly since we are using a L1 AccessEntry construct
-    accessEntry.node.addDependency(clusterInfo.cluster.node.defaultChild as cdk.aws_eks.CfnCluster)
+    accessEntry.node.addDependency(clusterInfo.cluster.node.defaultChild as cdk.aws_eks.CfnCluster);
 
     return Promise.resolve(accessEntry);
   }
 }
 
 // The node role access entry needs to be created first, so the nodeclass can create nodes in the cluster before deploying other addons
-Reflect.defineMetadata("ordered", true, NodeRoleAccessEntryAddOn)
+Reflect.defineMetadata("ordered", true, NodeRoleAccessEntryAddOn);
 
 const nodeRoleProvider = new CustomRoleProvider();
 
