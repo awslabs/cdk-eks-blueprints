@@ -1,6 +1,6 @@
 # Getting Started 
 
-This getting started guide will walk you through setting up a new CDK project which leverages the `eks-blueprints` NPM module to deploy a simple Blueprints. 
+This getting started guide will walk you through setting up a new CDK project which leverages the `eks-blueprints` NPM module to deploy a simple Blueprints.
 
 ## Project Setup
 

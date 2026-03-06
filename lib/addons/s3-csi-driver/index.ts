@@ -37,7 +37,7 @@ const defaultProps: HelmAddOnUserProps & S3CSIDriverAddOnProps = {
   name: S3_CSI_DRIVER,
   namespace: "kube-system",
   release: S3_CSI_DRIVER_RELEASE,
-  version: "v1.14.1",
+  version: "2.4.0",
   repository: "https://awslabs.github.io/mountpoint-s3-csi-driver",
   createNamespace: false,
   bucketNames: [],
@@ -75,7 +75,7 @@ export class S3CSIDriverAddOn extends HelmAddOn {
         }
 
         // setup value for helm chart
-        const chartValues = populateValues(this.options);
+        const chartValues = populateValues(this.options, serviceAccount.serviceAccountName);
 
         const s3CsiDriverChart = this.addHelmChart(clusterInfo, chartValues, true, true);
         s3CsiDriverChart.node.addDependency(serviceAccount);
@@ -83,9 +83,13 @@ export class S3CSIDriverAddOn extends HelmAddOn {
     }
 }
 
-function populateValues(helmOptions: S3CSIDriverAddOnProps): any {
+function populateValues(helmOptions: S3CSIDriverAddOnProps, serviceAccountName: string): any {
     const values = helmOptions.values ?? {};
+    // Only configure the node service account (which needs S3 access)
     setPath(values, 'node.serviceAccount.create', false);
+    setPath(values, 'node.serviceAccount.name', serviceAccountName);
+    // Let Helm create the controller service account (no S3 access needed)
+    setPath(values, 'controller.serviceAccount.create', true);
     setPath(values, 'node.tolerateAllTaints', true);
     return values;
 }

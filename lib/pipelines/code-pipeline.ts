@@ -393,7 +393,7 @@ export class ApplicationStage extends cdk.Stage {
 class CodePipeline {
 
     public static build(scope: Construct, props: PipelineProps) : cdkpipelines.CodePipeline {
-        let codePipelineSource : cdkpipelines.CodePipelineSource | undefined = undefined;
+        let codePipelineSource : cdkpipelines.CodePipelineSource | undefined;
 
         switch (true) {
           case isCodeCommitRepo(props.repository):{

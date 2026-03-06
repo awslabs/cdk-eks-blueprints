@@ -1,7 +1,17 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
+import { Construct } from 'constructs';
+import { ILayerVersion } from 'aws-cdk-lib/aws-lambda';
+import { KubectlV34Layer } from '@aws-cdk/lambda-layer-kubectl-v34';
+import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 
+
+class CustomAutomodeClusterProvider extends blueprints.AutomodeClusterProvider {
+    protected getKubectlLayer(scope: Construct, _version: KubernetesVersion): ILayerVersion | undefined {
+        return new KubectlV34Layer(scope, "kubectllayer34");
+    }
+}
 
 const app = new cdk.App();
 
@@ -14,7 +24,7 @@ const addOns: Array<blueprints.ClusterAddOn> = [
     new blueprints.addons.KubeProxyAddOn(),
 ];
 
-const clusterProvider = new blueprints.AutomodeClusterProvider({
+const clusterProvider = new CustomAutomodeClusterProvider({
   nodePools: ["system", "general-purpose"],
   extraNodePools: {
     inf2: {

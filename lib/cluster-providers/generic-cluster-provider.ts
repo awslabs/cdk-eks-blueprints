@@ -1,8 +1,3 @@
-
-import { KubectlV25Layer } from "@aws-cdk/lambda-layer-kubectl-v25";
-import { KubectlV26Layer } from "@aws-cdk/lambda-layer-kubectl-v26";
-import { KubectlV27Layer } from "@aws-cdk/lambda-layer-kubectl-v27";
-import { KubectlV28Layer } from "@aws-cdk/lambda-layer-kubectl-v28";
 import { KubectlV29Layer } from "@aws-cdk/lambda-layer-kubectl-v29";
 import { KubectlV30Layer } from "@aws-cdk/lambda-layer-kubectl-v30";
 import { KubectlV31Layer } from "@aws-cdk/lambda-layer-kubectl-v31";
@@ -37,14 +32,6 @@ export function clusterBuilder() {
  */
 export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVersion): ILayerVersion | undefined {
     switch(version.version) {
-        case "1.25":
-            return new KubectlV25Layer(scope, "kubectllayer25");
-        case "1.26":
-            return new KubectlV26Layer(scope, "kubectllayer26");
-        case "1.27":
-            return new KubectlV27Layer(scope, "kubectllayer27");
-        case "1.28":
-            return new KubectlV28Layer(scope, "kubectllayer28");
         case "1.29":
             return new KubectlV29Layer(scope, "kubectllayer29");
         case "1.30":
@@ -62,8 +49,8 @@ export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVers
 
     const minor = version.version.split('.')[1];
 
-    if(minor && parseInt(minor, 10) > 31) {
-        return new KubectlV30Layer(scope, "kubectllayer31"); // for all versions above 1.30 use 1.30 kubectl (unless explicitly supported in CDK)
+    if(minor && parseInt(minor, 10) > 34) {
+        return new KubectlV34Layer(scope, "kubectllayer34"); // for all versions above 1.34 use 1.34 kubectl (unless explicitly supported in CDK)
     }
     return undefined;
 }

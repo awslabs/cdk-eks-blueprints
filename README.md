@@ -212,6 +212,17 @@ To post feedback, submit feature ideas, or report bugs, use the **Issues** secti
 
 To submit code for this Quick Start, see the [AWS Quick Start Contributor's Kit](https://aws-quickstart.github.io/).
 
+## Support and Responsibility
+
+**Important**: EKS Blueprints contains only the code developed by the EKS Blueprints team. **Dependencies such as kubectl lambda layers, CDK libraries, and third-party components are owned and maintained by their respective teams.** 
+
+For issues related to:
+- **kubectl layers and CDK dependencies**: Contact the [AWS CDK team](https://github.com/aws/aws-cdk)
+- **Third-party add-ons**: Contact the respective maintainers
+- **EKS Blueprints framework**: Use this repository's [Issues section](https://github.com/awslabs/cdk-eks-blueprints/issues)
+
+Customers have full control over dependency versions and can override them as needed for security compliance or specific requirements.
+
 ## License
 
 This library is licensed under the Apache 2.0 License.

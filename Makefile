@@ -4,7 +4,7 @@
 TSC := node node_modules/.bin/tsc
 ESLINT := node node_modules/.bin/eslint
 CDK := npx cdk
-COPY := node node_modules/.bin/copyfiles
+CPY := npx cpy-cli
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
 # Dependecies
@@ -25,7 +25,7 @@ compile:
 	@$(MAKE) -f $(THIS_FILE) copyfiles
 
 copyfiles:
-	$(COPY) "lib/**/*.yaml" "lib/**/*.ytpl" "dist/" -u 1 -V -E
+	$(CPY) 'lib/**/*.{yaml,ytpl}' dist --parents
 
 list:
 	$(DEPS)

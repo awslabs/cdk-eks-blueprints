@@ -2,7 +2,7 @@ import * as assert from "assert";
 import * as cdk from 'aws-cdk-lib';
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 import * as eks from 'aws-cdk-lib/aws-eks';
-import * as eksv2 from '@aws-cdk/aws-eks-v2-alpha';
+import * as eksv2 from 'aws-cdk-lib/aws-eks-v2';
 import { Construct, IConstruct, IMixin, Node } from 'constructs';
 import { ResourceProvider } from '.';
 import { EksBlueprintProps } from '../stacks';
