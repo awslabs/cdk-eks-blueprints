@@ -77,6 +77,38 @@ class OtherVpcResourceProvider implements ResourceProvider<IVpc> {
 
 ```
 
+The framework also enables exposing multiple resource types through the `MultiConstruct` class.
+
+Base spec:
+```typescript
+export class MultiConstruct<T extends cdk.IResource, R extends IConstruct> implements cdk.IResource {
+  primaryResource: T;
+  subResources?: R[];
+
+  constructor(primaryResource: T, subResources?: R[]) {
+  ...
+  }
+}
+```
+
+Example implementation:
+```typescript
+export class VpcProvider implements ResourceProvider<MultiConstruct<ec2.IVpc, ec2.ISubnet>> {
+  ...
+  provide(context: ResourceContext): MultiConstruct<ec2.IVpc, ec2.ISubnet> {
+    let vpc = getVPCFromId(context, id, this.vpcId);
+    ...
+    let secondarySubnets: ISubnet[] = [];
+    if (this.secondaryCidr) {
+      secondarySubnets = this.createSecondarySubnets(context, id, vpc);
+    }
+    return new MultiConstruct(vpc, secondarySubnets);
+  }
+}
+```
+
+Note: All sub resources will automatically be considered cluster dependencies, and the primary resource is passed through as a `Proxy`.
+
 Access to registered resources from other resource providers and/or add-ons and teams:
 
 ```typescript
