@@ -62,8 +62,8 @@ export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVers
 
     const minor = version.version.split('.')[1];
 
-    if(minor && parseInt(minor, 10) > 31) {
-        return new KubectlV30Layer(scope, "kubectllayer31"); // for all versions above 1.30 use 1.30 kubectl (unless explicitly supported in CDK)
+    if(minor && parseInt(minor, 10) > 34) {
+        return new KubectlV34Layer(scope, "kubectllayer34"); // for all versions above 1.34 use 1.34 kubectl (unless explicitly supported in CDK)
     }
     return undefined;
 }

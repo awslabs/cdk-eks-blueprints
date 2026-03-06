@@ -1,7 +1,7 @@
 import { Tags } from "aws-cdk-lib";
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as eks from "@aws-cdk/aws-eks-v2-alpha";
+import * as eks from "aws-cdk-lib/aws-eks-v2";
 import * as eksv1 from 'aws-cdk-lib/aws-eks';
 import { AccountRootPrincipal, ManagedPolicy, Role } from "aws-cdk-lib/aws-iam";
 import { IKey } from "aws-cdk-lib/aws-kms";
@@ -228,7 +228,6 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         // Create an EKS Cluster
         const cluster = this.internalCreateCluster(scope, id, clusterOptions);
         cluster.node.addDependency(vpc);
-
         const nodeGroups: (eks.Nodegroup | eksv1.Nodegroup)[] = [];
 
         this.props.managedNodeGroups?.forEach(n => {

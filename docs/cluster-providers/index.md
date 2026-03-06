@@ -19,3 +19,27 @@ By default, the framework will leverage the `MngClusterProvider` which creates a
 If you would like to add more node groups to a single cluster, you can leverage `GenericClusterProvider`, which allows multiple managed node groups or autoscaling (self-managed) node groups along with Fargate profiles.
 
 The version property that sets the Kubernetes Version for the Control Plane is required to be set either in the Cluster Provider, or in the Blueprint Properties.  In either spot, it can be set to a `KubernetesVersion` or `"auto"`.  If set to auto, the cluster version will be set to the latest Kubernetes Version. Auto versioning is not recommended in production clusters, as clusters will be updated as new Kubernetes versions release.
+
+## Customizing kubectl Layers
+
+All cluster providers support customization of the kubectl layer used for cluster operations. This is particularly useful for security compliance or when specific kubectl versions are required.
+
+To override the kubectl layer, extend any cluster provider and implement the `getKubectlLayer` method:
+
+```typescript
+import { KubectlV34Layer } from '@aws-cdk/lambda-layer-kubectl-v34';
+import { ILayerVersion } from 'aws-cdk-lib/aws-lambda';
+import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import * as blueprints from '@aws-quickstart/eks-blueprints';
+
+class CustomClusterProvider extends blueprints.AutomodeClusterProvider {
+    protected getKubectlLayer(scope: Construct, version: KubernetesVersion): ILayerVersion {
+        return new KubectlV34Layer(scope, "custom-kubectl-layer");
+    }
+}
+```
+
+This pattern works with all cluster provider types and enables:
+- **Security compliance**: Use specific kubectl versions that meet security requirements
+- **Version control**: Pin to tested kubectl versions for stability
+- **Rapid patching**: Quickly adopt new kubectl layers when security patches are available
