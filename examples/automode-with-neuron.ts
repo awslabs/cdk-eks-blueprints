@@ -8,7 +8,7 @@ import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 
 
 class CustomAutomodeClusterProvider extends blueprints.AutomodeClusterProvider {
-    protected getKubectlLayer(scope: Construct, version: KubernetesVersion): ILayerVersion | undefined {
+    protected getKubectlLayer(scope: Construct, _version: KubernetesVersion): ILayerVersion | undefined {
         return new KubectlV34Layer(scope, "kubectllayer34");
     }
 }

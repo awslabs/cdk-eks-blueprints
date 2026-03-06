@@ -20,6 +20,7 @@
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/dot-object": "^2.1.6",
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",

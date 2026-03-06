@@ -64,6 +64,7 @@ module.exports = [
       'no-prototype-builtins': 'off',
       'no-misleading-character-class': 'off',
       'no-useless-escape': 'off',
+      'no-useless-assignment': 'warn',
       'no-empty': 'off',
       'no-redeclare': 'off',
       'no-fallthrough': 'off',

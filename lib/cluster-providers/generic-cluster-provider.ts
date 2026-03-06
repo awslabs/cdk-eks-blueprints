@@ -37,14 +37,6 @@ export function clusterBuilder() {
  */
 export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVersion): ILayerVersion | undefined {
     switch(version.version) {
-        case "1.25":
-            return new KubectlV25Layer(scope, "kubectllayer25");
-        case "1.26":
-            return new KubectlV26Layer(scope, "kubectllayer26");
-        case "1.27":
-            return new KubectlV27Layer(scope, "kubectllayer27");
-        case "1.28":
-            return new KubectlV28Layer(scope, "kubectllayer28");
         case "1.29":
             return new KubectlV29Layer(scope, "kubectllayer29");
         case "1.30":
