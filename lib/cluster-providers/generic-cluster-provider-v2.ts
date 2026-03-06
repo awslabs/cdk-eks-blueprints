@@ -1,4 +1,4 @@
-import { Tags } from "aws-cdk-lib";
+import { Arn, ArnFormat, Tags } from "aws-cdk-lib";
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as eks from "@aws-cdk/aws-eks-v2-alpha";
@@ -372,11 +372,29 @@ export class GenericClusterProviderV2 implements ClusterProvider {
     }
     
     addNodeClass(cluster: eks.Cluster, name: string, nodeClass: AutoModeNodeClassSpec) {
+      const defaultRole = Arn.split(((cluster.node.defaultChild as eksv1.CfnCluster).computeConfig as eksv1.CfnCluster.ComputeConfigProperty).nodeRoleArn!, ArnFormat.SLASH_RESOURCE_NAME).resourceName;
+      const role = nodeClass.role ?? (nodeClass.instanceProfile ? null : defaultRole);
       const classManifest = {
         apiVersion: "eks.amazonaws.com/v1",
         kind: "NodeClass",
         metadata: {name: name},
-        spec: nodeClass
+        spec: {
+          role: role,
+          instanceProfile: nodeClass.instanceProfile ?? null,
+          subnetSelectorTerms: nodeClass.subnetSelectorTerms,
+          securityGroupSelectorTerms: nodeClass.securityGroupSelectorTerms,
+          podSubnetSelectorTerms: nodeClass.podSubnetSelectorTerms,
+          podSecurityGroupSelectorTerms: nodeClass.podSecurityGroupSelectorTerms,
+          capacityReservationSelectorTerms: nodeClass.capacityReservationSelectorTerms,
+          snatPolicy: nodeClass.snatPolicy,
+          networkPolicy: nodeClass.networkPolicy,
+          networkPolicyEventLogs: nodeClass.networkPolicyEventLogs,
+          ephemeralStorage: nodeClass.ephemeralStorage,
+          advancedNetworking: nodeClass.advancedNetworking,
+          advancedSecurity: nodeClass.advancedSecurity,
+          certificateBundles: nodeClass.certificateBundles,
+          tags: nodeClass.tags,
+        },
       };
 
       return cluster.addManifest(name, classManifest);
