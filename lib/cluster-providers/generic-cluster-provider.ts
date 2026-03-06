@@ -1,8 +1,3 @@
-
-import { KubectlV25Layer } from "@aws-cdk/lambda-layer-kubectl-v25";
-import { KubectlV26Layer } from "@aws-cdk/lambda-layer-kubectl-v26";
-import { KubectlV27Layer } from "@aws-cdk/lambda-layer-kubectl-v27";
-import { KubectlV28Layer } from "@aws-cdk/lambda-layer-kubectl-v28";
 import { KubectlV29Layer } from "@aws-cdk/lambda-layer-kubectl-v29";
 import { KubectlV30Layer } from "@aws-cdk/lambda-layer-kubectl-v30";
 import { KubectlV31Layer } from "@aws-cdk/lambda-layer-kubectl-v31";
