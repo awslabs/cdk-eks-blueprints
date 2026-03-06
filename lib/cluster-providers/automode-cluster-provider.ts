@@ -21,6 +21,9 @@ export interface AutomodeClusterProviderProps extends Partial<eks.ClusterCommonO
     [key: string]: AutoModeNodePoolSpec;
   };
 
+  /**
+  * If using custom node classes, you must specify a non default node role.  Otherwise delete will fail (https://github.com/aws/aws-cdk/issues/35475)
+  */
   extraNodeClasses?: {
     [key: string]: AutoModeNodeClassSpec;
   };

@@ -67,7 +67,7 @@ const nodePool: blueprints.AutoModeNodePoolSpec = {
 };
 
 const nodeClass: blueprints.AutoModeNodeClassSpec = {
-  role: "my-custom-node-role",
+  role: blueprints.getNamedResource("my-custom-node-role"),
   subnetSelectorTerms: [{ tags: { "aws-cdk:subnet-type": "Private" } }],
   securityGroupSelectorTerms: [{ tags: { "aws:eks:cluster-name": "my-cluster" } }],
   podSubnetSelectorTerms: [{ tags: { "pod-subnet": "secondary" } }],

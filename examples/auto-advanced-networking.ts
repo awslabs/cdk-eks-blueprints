@@ -2,6 +2,7 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 // Custom VPC provider that tags secondary subnets
 class TaggedVpcProvider extends blueprints.VpcProvider {
@@ -57,6 +58,7 @@ const nodePool: blueprints.AutoModeNodePoolSpec = {
 
 // Node class for advanced networking
 const nodeClass: blueprints.AutoModeNodeClassSpec = {
+  role: blueprints.getNamedResource<iam.IRole>("custom-node-role"),
   subnetSelectorTerms: [
     {
       tags: {
@@ -97,6 +99,7 @@ const addOns: Array<blueprints.ClusterAddOn> = [
 
 const stack = blueprints.AutomodeBuilder.builder({
   nodePools: ['system'],
+  nodeRole: blueprints.getNamedResource<iam.IRole>("custom-node-role"),
   extraNodePools: {
     'networking-pool': nodePool
   },
@@ -109,6 +112,15 @@ const stack = blueprints.AutomodeBuilder.builder({
   .version("auto")
   .addOns(...addOns)
   .resourceProvider(blueprints.GlobalResources.Vpc, vpcProvider)
+  .resourceProvider("custom-node-role", 
+    new blueprints.CreateRoleProvider("custom-node-role", 
+      new iam.ServicePrincipal('ec2.amazonaws.com'), 
+      [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodeMinimalPolicy'), 
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryPullOnly')
+      ],
+    )
+  )
   .build(app, 'auto-advanced-networking-debug-stack');
 
 void stack; // Keep for debugging

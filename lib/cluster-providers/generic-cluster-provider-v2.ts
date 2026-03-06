@@ -373,7 +373,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
     
     addNodeClass(cluster: eks.Cluster, name: string, nodeClass: AutoModeNodeClassSpec) {
       const defaultRole = Arn.split(((cluster.node.defaultChild as eksv1.CfnCluster).computeConfig as eksv1.CfnCluster.ComputeConfigProperty).nodeRoleArn!, ArnFormat.SLASH_RESOURCE_NAME).resourceName;
-      const role = nodeClass.role ?? (nodeClass.instanceProfile ? null : defaultRole);
+      const role = nodeClass.role?.roleName ?? (nodeClass.instanceProfile ? null : defaultRole);
       const classManifest = {
         apiVersion: "eks.amazonaws.com/v1",
         kind: "NodeClass",
@@ -397,7 +397,11 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         },
       };
 
-      return cluster.addManifest(name, classManifest);
+      const manifest = cluster.addManifest(name, classManifest);
+      if (nodeClass.role) {
+        manifest.node.addDependency(nodeClass.role);
+      }
+      return manifest;
     }
 
     /**

@@ -2,6 +2,7 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as eks from "aws-cdk-lib/aws-eks";
 import { AutoScalingGroupCapacityOptions } from "aws-cdk-lib/aws-eks";
 import { NodePoolV1Spec } from "../addons";
+import { IRole } from "aws-cdk-lib/aws-iam";
 
 /**
  * Configuration options for the custom AMI.
@@ -162,7 +163,7 @@ export type AutoModeNodeClassSpec = {
    * Name of IAM role for EC2 instances if you don't want to use the auto generated Auto Mode role
    * Mutually exclusive with instanceProfile
    */
-  role?: string;
+  role?: IRole;
 
   /*
    * Name of pre-provisioned IAM instance profile to use instead of IAM role
