@@ -9,7 +9,7 @@ const app = new cdk.App();
 const account = process.env.CDK_DEFAULT_ACCOUNT;
 const region = process.env.CDK_DEFAULT_REGION;
 
-const ampProvider = new blueprints.CreateAmpProvider("amp-ws", "nfm-test-amp-ws")
+const ampProvider = new blueprints.CreateAmpProvider("amp-ws", "nfm-test-amp-ws");
 
 // Example customer issue reproduction:
 const addOns: Array<blueprints.ClusterAddOn> = [

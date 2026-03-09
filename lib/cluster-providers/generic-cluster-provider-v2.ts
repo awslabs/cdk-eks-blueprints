@@ -1,7 +1,7 @@
-import { Tags } from "aws-cdk-lib";
+import { Arn, ArnFormat, Tags } from "aws-cdk-lib";
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as eks from "@aws-cdk/aws-eks-v2-alpha";
+import * as eks from "aws-cdk-lib/aws-eks-v2";
 import * as eksv1 from 'aws-cdk-lib/aws-eks';
 import { AccountRootPrincipal, ManagedPolicy, Role } from "aws-cdk-lib/aws-iam";
 import { IKey } from "aws-cdk-lib/aws-kms";
@@ -10,10 +10,9 @@ import { Construct } from "constructs";
 import { ClusterInfo, ClusterProvider } from "../spi";
 import * as utils from "../utils";
 import * as constants from './constants';
-import { AutoscalingNodeGroup, ManagedNodeGroup } from "./types";
+import { AutoModeNodeClassSpec, AutoModeNodePoolSpec, AutoscalingNodeGroup, ManagedNodeGroup } from "./types";
 import assert = require('assert');
 import { selectKubectlLayer, AutoscalingNodeGroupConstraints, FargateProfileConstraints, ManagedNodeGroupConstraints} from "./generic-cluster-provider";
-import { NodePoolV1Spec } from "../addons/karpenter/types";
 import * as semver from "semver";
 
 export function clusterBuilderv2() {
@@ -26,8 +25,15 @@ export interface ComputeConfig extends eks.ComputeConfig {
    * Extra node pools to be added to the Auto Mode Cluster
    */
   extraNodePools?: {
-    [key: string]: NodePoolV1Spec;
+    [key: string]: AutoModeNodePoolSpec;
   };
+
+  /**
+   * Extra node classes to be added to the Auto Mode Cluster
+   */
+  extraNodeClasses?: {
+    [key: string]: AutoModeNodeClassSpec;
+  }
 
 }
 
@@ -228,7 +234,6 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         // Create an EKS Cluster
         const cluster = this.internalCreateCluster(scope, id, clusterOptions);
         cluster.node.addDependency(vpc);
-
         const nodeGroups: (eks.Nodegroup | eksv1.Nodegroup)[] = [];
 
         this.props.managedNodeGroups?.forEach(n => {
@@ -254,6 +259,10 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         const nodePools = Object.entries(this.props.compute?.extraNodePools ?? {});
         const nodePoolConstructs: eks.KubernetesManifest[] = [];
         nodePools.forEach(([key, options]) => nodePoolConstructs.push(this.addNodePool(cluster as eks.Cluster, key, options)));
+
+        const nodeClasses = Object.entries(this.props.compute?.extraNodeClasses ?? {});
+        const nodeClassConstructs: eks.KubernetesManifest[] = [];
+        nodeClasses.forEach(([key, options]) => nodeClassConstructs.push(this.addNodeClass(cluster as eks.Cluster, key, options)));
 
         return new ClusterInfo(cluster as eksv1.Cluster, version, nodeGroups as eksv1.Nodegroup[], autoscalingGroups, autoMode, fargateConstructs, cluster as eks.Cluster, nodeGroups as eks.Nodegroup[]);
     }
@@ -320,7 +329,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
     /**
      * Add a node pool to the cluster
      */
-    addNodePool(cluster: eks.Cluster, name: string, pool: NodePoolV1Spec) {
+    addNodePool(cluster: eks.Cluster, name: string, pool: AutoModeNodePoolSpec) {
       const labels =  pool.labels || {};
       const annotations = pool.annotations || {};
       const taints = pool.taints || [];
@@ -329,7 +338,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
       const disruption = pool.disruption || null;
       const limits = pool.limits || null;
       const weight = pool.weight || null;
-      const poolManifest = {
+      const poolManifest : any = {
         apiVersion: "karpenter.sh/v1",
         kind: "NodePool",
         metadata: {name: name},
@@ -338,7 +347,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
             metadata: {labels: labels, annotations: annotations},
             spec: {
               nodeClassRef: {
-                  name: "default",
+                  name: pool.nodeClassName || "default",
                   group: "eks.amazonaws.com",
                   kind: "NodeClass"
               },
@@ -350,10 +359,48 @@ export class GenericClusterProviderV2 implements ClusterProvider {
           },
           disruption: disruption,
           limits: limits,
-          weight: weight,
+          weight: weight
         },
       };
+      
+      if (pool.replicas !== undefined) {
+        poolManifest.spec.replicas = pool.replicas;
+      }
+      
       return cluster.addManifest(name, poolManifest);
+    }
+    
+    addNodeClass(cluster: eks.Cluster, name: string, nodeClass: AutoModeNodeClassSpec) {
+      const defaultRole = Arn.split(((cluster.node.defaultChild as eksv1.CfnCluster).computeConfig as eksv1.CfnCluster.ComputeConfigProperty).nodeRoleArn!, ArnFormat.SLASH_RESOURCE_NAME).resourceName;
+      const role = nodeClass.role?.roleName ?? (nodeClass.instanceProfile ? null : defaultRole);
+      const classManifest = {
+        apiVersion: "eks.amazonaws.com/v1",
+        kind: "NodeClass",
+        metadata: {name: name},
+        spec: {
+          role: role,
+          instanceProfile: nodeClass.instanceProfile ?? null,
+          subnetSelectorTerms: nodeClass.subnetSelectorTerms,
+          securityGroupSelectorTerms: nodeClass.securityGroupSelectorTerms,
+          podSubnetSelectorTerms: nodeClass.podSubnetSelectorTerms,
+          podSecurityGroupSelectorTerms: nodeClass.podSecurityGroupSelectorTerms,
+          capacityReservationSelectorTerms: nodeClass.capacityReservationSelectorTerms,
+          snatPolicy: nodeClass.snatPolicy,
+          networkPolicy: nodeClass.networkPolicy,
+          networkPolicyEventLogs: nodeClass.networkPolicyEventLogs,
+          ephemeralStorage: nodeClass.ephemeralStorage,
+          advancedNetworking: nodeClass.advancedNetworking,
+          advancedSecurity: nodeClass.advancedSecurity,
+          certificateBundles: nodeClass.certificateBundles,
+          tags: nodeClass.tags,
+        },
+      };
+
+      const manifest = cluster.addManifest(name, classManifest);
+      if (nodeClass.role) {
+        manifest.node.addDependency(nodeClass.role);
+      }
+      return manifest;
     }
 
     /**

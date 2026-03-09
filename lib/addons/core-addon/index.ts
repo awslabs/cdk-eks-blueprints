@@ -1,4 +1,4 @@
-import { AddonProps, CfnAddon, CfnPodIdentityAssociation, FargateCluster, ServiceAccount } from "aws-cdk-lib/aws-eks";
+import { CfnAddon, CfnPodIdentityAssociation, FargateCluster, ServiceAccount } from "aws-cdk-lib/aws-eks";
 import { ClusterAddOn } from "../..";
 import { AutoModeAddon, ClusterInfo, Values } from "../../spi";
 import { Construct, IConstruct } from "constructs";
@@ -73,7 +73,7 @@ export class CoreAddOn implements ClusterAddOn, AutoModeAddon{
         let serviceAccountRoleArn: string | undefined = undefined;
         let podIdentity: CfnPodIdentityAssociation | undefined = undefined;
         let serviceAccount: ServiceAccount | undefined = undefined;
-        let saNamespace: string | undefined = undefined;
+        let saNamespace: string | undefined;
 
         saNamespace = DEFAULT_NAMESPACE;
         if (this.coreAddOnProps?.namespace) {

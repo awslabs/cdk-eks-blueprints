@@ -1,6 +1,6 @@
 # Overview
 
-Welcome to the [`Amazon EKS Blueprints Quick Start`](https://github.com/aws-quickstart/cdk-eks-blueprints) documentation site.
+Welcome to the [`Amazon EKS Blueprints Quick Start`](https://github.com/awslabs/cdk-eks-blueprints) documentation site.
 
 This repository contains the source code for the [`eks-blueprints`](https://www.npmjs.com/package/@aws-quickstart/eks-blueprints) NPM module. It can be used by AWS customers, partners, and internal AWS teams to configure and manage complete EKS clusters that are fully bootstrapped with the operational software that is needed to deploy and operate workloads. 
 
@@ -23,6 +23,10 @@ Customers can use this Quick Start to easily architect and deploy a multi-tenant
 ## Examples
 
 To view a library of examples for how you can leverage the `eks-blueprints`, please see our [Blueprints Patterns Repository](https://github.com/aws-samples/cdk-eks-blueprints-patterns).
+
+## Support and Responsibility
+
+For information about support boundaries, dependency management, and where to direct issues, see [Support and Responsibility](https://github.com/awslabs/cdk-eks-blueprints#support-and-responsibility) in the main repository.
 
 ## Workshop
 

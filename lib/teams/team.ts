@@ -1,7 +1,7 @@
 import { CfnOutput } from 'aws-cdk-lib';
 import { Cluster, KubernetesManifest, ServiceAccount } from 'aws-cdk-lib/aws-eks';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as eksv2 from '@aws-cdk/aws-eks-v2-alpha';
+import * as eksv2 from 'aws-cdk-lib/aws-eks-v2';
 import { IRole } from "aws-cdk-lib/aws-iam";
 import { CsiSecretProps, SecretProviderClass } from '../addons/secrets-store/csi-driver-provider-aws-secrets';
 import { ClusterInfo, Team, Values } from '../spi';
