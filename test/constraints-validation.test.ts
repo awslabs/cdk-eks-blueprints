@@ -203,7 +203,7 @@ test("Given validation constraints are defined, when creating EKS Blueprints, Cl
             }
             else {
                 console.log(e);
-                throw new Error("An unexpected error was thrown in the test. Message: " + e);
+                throw new Error("An unexpected error was thrown in the test. Message: ", { cause: e });
             }
         }
     });

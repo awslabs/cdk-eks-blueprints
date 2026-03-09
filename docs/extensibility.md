@@ -26,7 +26,7 @@ export declare interface ClusterAddOn {
 
 **Note**: The add-on implementation can optionally supply the `id` attribute if the target add-on can be added to a blueprint more than once.
 
-Implementation of the add-on is expected to be an exported class that implements the interface and supplies the implementation of the `deploy` method. In order for the add-on to receive the deployment contextual information about the provisioned cluster, region, resource providers and/or other add-ons, the `deploy` method takes the `ClusterInfo` parameter (see [types](https://github.com/aws-quickstart/cdk-eks-blueprints/blob/main/lib/spi/types.ts)), which represents a structure defined in the SPI (service provider interface) contracts. The API for the cluster info structure is stable and provides access to the provisioned EKS cluster, scheduled add-ons (that have not been installed yet but are part of the blueprint) or provisioned add-ons and other contexts.
+Implementation of the add-on is expected to be an exported class that implements the interface and supplies the implementation of the `deploy` method. In order for the add-on to receive the deployment contextual information about the provisioned cluster, region, resource providers and/or other add-ons, the `deploy` method takes the `ClusterInfo` parameter (see [types](https://github.com/awslabs/cdk-eks-blueprints/blob/main/lib/spi/types.ts)), which represents a structure defined in the SPI (service provider interface) contracts. The API for the cluster info structure is stable and provides access to the provisioned EKS cluster, scheduled add-ons (that have not been installed yet but are part of the blueprint) or provisioned add-ons and other contexts.
 
 ### Post Deployment Hooks
 
@@ -213,7 +213,7 @@ blueprints.EksBlueprint.builder()
 
 ## Public Extensions
 
-The life-cycle of a public extension should be decoupled from the life-cycle of the [EKS Blueprints main repository](https://github.com/aws-quickstart/cdk-eks-blueprints). When decoupled, extensions can be released at any arbitrary cadence specific to the extension, enabling better agility when it comes to new features or bug fixes.
+The life-cycle of a public extension should be decoupled from the life-cycle of the [EKS Blueprints main repository](https://github.com/awslabs/cdk-eks-blueprints). When decoupled, extensions can be released at any arbitrary cadence specific to the extension, enabling better agility when it comes to new features or bug fixes.
 
 In order to enable this model the following workflow outline steps required to create and release a public extension:
 
@@ -226,7 +226,7 @@ In order to enable this model the following workflow outline steps required to c
 
 Partner extensions (APN Partner) are expected to comply with the public extension workflow and additional items required to ensure proper validation and documentation support for a partner extension.
 
-1. Documentation PR should be created to the main [Blueprints Quickstart repository](https://github.com/aws-quickstart/cdk-eks-blueprints) to update the AddOns section. Example of add-on documentation can be found [here](https://aws-quickstart.github.io/cdk-eks-blueprints/addons/container-insights/) along with the list of other add-ons.
+1. Documentation PR should be created to the main [Blueprints Quickstart repository](https://github.com/awslabs/cdk-eks-blueprints) to update the AddOns section. Example of add-on documentation can be found [here](https://awslabs.github.io/cdk-eks-blueprints/addons/container-insights/) along with the list of other add-ons.
 2. An example that shows a ready to use pattern leveraging the add-on should be submitted to the [Blueprints Patterns Repository](https://github.com/aws-samples/cdk-eks-blueprints-patterns). This step will enable AWS PSAs to validate the add-on as well as provide a ready to use pattern to the customers, that could be copied/cloned in their Blueprints implementation.
 
 ## Example Extension
@@ -240,6 +240,68 @@ Partner extensions (APN Partner) are expected to comply with the public extensio
 5. Example of the helm chart provisioning.
 6. Example of passing secret values to the add-on (such as credentials and/or licenseKeys) by leveraging CSI Secret Store Driver.
 7. Outlines support to build, package and publish the add-on in an NPM repository.
+
+## CDK Dependency Management
+
+EKS Blueprints uses flexible dependency management for CDK components, including kubectl layers. This allows customers to control versions and apply security patches as needed.
+
+### Refreshing Dependencies
+
+To pull the latest versions of all dependencies (including security patches):
+
+```bash
+rm package-lock.json
+rm -rf node_modules
+npm install
+```
+
+This approach leverages semantic versioning ranges (e.g., `^2.0.0`) to automatically incorporate patches while maintaining compatibility.
+
+### Custom kubectl Layer Override
+
+Customers can override the kubectl layer used by cluster providers for specific security or version requirements:
+
+1. **Add desired kubectl version to package.json:**
+```json
+{
+    "@aws-cdk/lambda-layer-kubectl-v34": "^2.0.0"
+}
+```
+
+2. **Extend cluster provider to use custom layer:**
+```typescript
+import { KubectlV34Layer } from '@aws-cdk/lambda-layer-kubectl-v34';
+import { ILayerVersion } from 'aws-cdk-lib/aws-lambda';
+import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import * as blueprints from '@aws-quickstart/eks-blueprints';
+
+/**
+ * Custom cluster provider with specific kubectl layer
+ * Works with AutomodeClusterProvider, GenericClusterProvider, or GenericClusterProviderV2
+ */
+class CustomClusterProvider extends blueprints.AutomodeClusterProvider {
+    protected getKubectlLayer(scope: Construct, version: KubernetesVersion): ILayerVersion {
+        return new KubectlV34Layer(scope, "custom-kubectl-layer");
+    }
+}
+
+// Usage in blueprint
+const clusterProvider = new CustomClusterProvider({
+    nodePools: ["system", "general-purpose"]
+});
+
+const stack = blueprints.EksBlueprint.builder()
+    .account(account)
+    .region(region)
+    .clusterProvider(clusterProvider)
+    .addOns(...addOns)
+    .build(app, 'custom-kubectl-stack');
+```
+
+This pattern enables:
+- **Security compliance**: Use specific kubectl versions that meet security requirements
+- **Version control**: Pin to tested kubectl versions for stability
+- **Rapid patching**: Quickly adopt new kubectl layers when security patches are available
 
 ## Architecture Validation
 

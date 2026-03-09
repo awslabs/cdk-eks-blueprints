@@ -163,7 +163,7 @@ const defaultProps: IngressNginxAddOnProps = {
     name: "kubernetes-ingress",
     chart: "ingress-nginx",
     release: "k8s-ingress",
-    version: "4.13.2",
+    version: "4.14.3",
     repository: "https://kubernetes.github.io/ingress-nginx",
     backendProtocol: 'http',
     crossZoneEnabled: true,

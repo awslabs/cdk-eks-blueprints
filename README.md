@@ -48,14 +48,14 @@ aws --version
 Install CDK matching the current version of the Blueprints QuickStart (which can be found in package.json).
 
 ```bash
-npm install -g aws-cdk@2.1029.2
+npm install -g aws-cdk@2.1109.0
 ```
 
 Verify the installation.
 
 ```bash
 cdk --version
-# must output 2.1029.2
+# must output 2.1109.0
 ```
 
 Create a new CDK project. We use `typescript` for this example.
@@ -129,19 +129,20 @@ IPv6 does not require NAT for pod to pod communication. By default, we are creat
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '@aws-quickstart/eks-blueprints';
+import { IpFamily } from 'aws-cdk-lib/aws-eks';
 
 const app = new cdk.App();
 
 // AddOns for the cluster. For ipv6 cluster, we haven't tested with all the addons except for the below addons.
 const addOns: Array<blueprints.ClusterAddOn> = [
     new blueprints.addons.VpcCniAddOn(),
-    new blueprints.addons.KarpenterAddOn(),
+    new blueprints.addons.KarpenterV1AddOn(),
     new blueprints.addons.SecretsStoreAddOn()
 ];
 
 const account = 'XXXXXXXXXXXXX';
 const region = 'us-east-2';
-const ipFamily = IpFamily.IP_V6; //IpFamily.IP_V6 isquavelent to "ipv6"
+const ipFamily = IpFamily.IP_V6; //IpFamily.IP_V6 is equivalent to "ipv6"
 
 const stack = blueprints.EksBlueprint.builder()
     .account(account)
@@ -211,6 +212,17 @@ For architectural details, step-by-step instructions, and customization options,
 To post feedback, submit feature ideas, or report bugs, use the **Issues** section of this GitHub repo.
 
 To submit code for this Quick Start, see the [AWS Quick Start Contributor's Kit](https://aws-quickstart.github.io/).
+
+## Support and Responsibility
+
+**Important**: EKS Blueprints contains only the code developed by the EKS Blueprints team. **Dependencies such as kubectl lambda layers, CDK libraries, and third-party components are owned and maintained by their respective teams.** 
+
+For issues related to:
+- **kubectl layers and CDK dependencies**: Contact the [AWS CDK team](https://github.com/aws/aws-cdk)
+- **Third-party add-ons**: Contact the respective maintainers
+- **EKS Blueprints framework**: Use this repository's [Issues section](https://github.com/awslabs/cdk-eks-blueprints/issues)
+
+Customers have full control over dependency versions and can override them as needed for security compliance or specific requirements.
 
 ## License
 

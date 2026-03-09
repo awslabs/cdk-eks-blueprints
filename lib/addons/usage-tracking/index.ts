@@ -1,7 +1,7 @@
 import { Construct } from "constructs";
 import { ClusterAddOn, ClusterInfo } from "../../spi";
 import { supportsALL } from "../../utils";
-import * as eksv2 from "@aws-cdk/aws-eks-v2-alpha";
+import * as eksv2 from 'aws-cdk-lib/aws-eks-v2';
 
 /** 
  * Properties for UsageTracking

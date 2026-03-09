@@ -251,8 +251,6 @@ test("Asg cluster provider correctly initializes self-managed node group", () =>
 });
 
 test.each([
-  [KubernetesVersion.V1_28, "1.28"],
-  [KubernetesVersion.V1_29, "1.29"],
   [KubernetesVersion.V1_30, "1.30"],
   [KubernetesVersion.V1_31, "1.31"],
   [KubernetesVersion.V1_32, "1.32"],

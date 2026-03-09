@@ -79,7 +79,7 @@ export default class MultiRegionConstruct extends cdk.Construct {
             new blueprints.addons.ArgoCDAddOn,
             new blueprints.addons.MetricsServerAddOn,
             new blueprints.addons.ClusterAutoScalerAddOn,
-            new blueprints.addons.ContainerInsightsAddOn,
+            new blueprints.addons.CloudWatchInsights(),
             new blueprints.addons.VpcCniAddOn(),
             new blueprints.addons.CoreDnsAddOn(),
             new blueprints.addons.KubeProxyAddOn()

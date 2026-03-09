@@ -33,15 +33,12 @@ export class CreateKmsKeyProvider implements ResourceProvider<kms.IKey> {
     const keyId = !this.aliasName
       ? `${id}-kms-key`
       : `${id}-${this.aliasName}-KmsKey`;
-    let key = undefined;
 
-    key = new kms.Key(context.scope, keyId, {
+    return new kms.Key(context.scope, keyId, {
       alias: this.aliasName,
       description: `Key for EKS Cluster '${context.blueprintProps.id}'`,
       ...this.kmsKeyProps,
     });
-
-    return key;
   }
 }
 
