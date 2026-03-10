@@ -1,8 +1,6 @@
-name: 'Release Website Publish'
+name: 'Publish Documentation'
 on:
-  release:
-    types: [published]
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
@@ -10,10 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '18'
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x

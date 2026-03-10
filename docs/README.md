@@ -44,14 +44,14 @@ aws --version
 Install CDK matching the current version of the Blueprints QuickStart (which can be found in package.json).
 
 ```bash
-npm install -g aws-cdk@2.1012.0
+npm install -g aws-cdk@2.1109.0
 ```
 
 Verify the installation.
 
 ```bash
 cdk --version
-# must output 2.1012.0
+# must output 2.1109.0
 ```
 
 Create a new CDK project. We use `typescript` for this example.
@@ -88,7 +88,7 @@ const addOns: Array<blueprints.ClusterAddOn> = [
     new blueprints.addons.ArgoCDAddOn,
     new blueprints.addons.MetricsServerAddOn,
     new blueprints.addons.ClusterAutoScalerAddOn,
-    new blueprints.addons.ContainerInsightsAddOn,
+    new blueprints.addons.CloudWatchInsights(),
     new blueprints.addons.AwsLoadBalancerControllerAddOn(),
     new blueprints.addons.VpcCniAddOn(),
     new blueprints.addons.CoreDnsAddOn(),
