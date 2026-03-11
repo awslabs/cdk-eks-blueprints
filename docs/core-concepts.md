@@ -8,6 +8,7 @@ This document provides a high level overview of the Core Concepts that are embed
 | [Cluster](#cluster) | A Well-Architected EKS Cluster. |
 | [Resource Provider](#resource-provider) | Resource providers are abstractions that supply external AWS resources to the cluster (e.g. hosted zones, VPCs, etc.) |
 | [Add-on](#add-on) |  Allow you to configure, deploy, and update the operational software, or add-ons, that provide key functionality to support your Kubernetes applications. |
+| [Capabilities](#capability) | |
 | [Team](#team) | A logical grouping of IAM identities that have access to a Kubernetes namespace(s). |
 | [Pipeline](#pipeline) | Continuous Delivery pipelines for deploying `clusters` and `add-ons`. |
 | [Application](#application) | An application that runs within an EKS Cluster. |
@@ -33,6 +34,8 @@ A `resource` is a CDK construct that implements `IResource` interface from `aws-
 `ResourceProviders` enable customers to supply resources for add-ons, teams and/or post-deployment steps. Resources may be imported (e.g., if created outside of the platform) or created with the blueprint. 
 
 See our [`Resource Providers`](resource-providers/index.md) documentation page for detailed information.
+
+## Capability
 
 ## Add-on
 
