@@ -360,7 +360,7 @@ export class KarpenterV1AddOn extends HelmAddOn {
     ): [iam.Role, iam.CfnInstanceProfile] {
         // Set up Node Role
         const karpenterNodeRole = new iam.Role(cluster, "karpenter-node-role", {
-            assumedBy: new iam.ServicePrincipal(`ec2.${cluster.stack.urlSuffix}`),
+            assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
             managedPolicies: [
                 iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy"),
                 iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy"),
