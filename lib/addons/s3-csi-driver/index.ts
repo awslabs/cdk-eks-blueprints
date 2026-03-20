@@ -3,7 +3,6 @@ import { ClusterInfo } from "../../spi";
 import { HelmAddOn, HelmAddOnUserProps } from "../helm-addon";
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { createNamespace, setPath, supportsALL } from "../../utils";
-import { ReplaceServiceAccount } from "../../utils/sa-utils";
 import { getS3DriverPolicyStatements } from "./iam-policy";
 
 const S3_CSI_DRIVER_SA = 's3-csi-driver-sa';
@@ -68,10 +67,10 @@ export class S3CSIDriverAddOn extends HelmAddOn {
         const s3CsiDriverChart = this.addHelmChart(clusterInfo, chartValues, true, true);
 
         // Overwrite the Helm-created SA with IRSA annotation (fires after chart)
-        const serviceAccount = new ReplaceServiceAccount(cluster, S3_CSI_DRIVER_SA, {
-            cluster,
+        const serviceAccount = cluster.addServiceAccount(S3_CSI_DRIVER_SA, {
             name: S3_CSI_DRIVER_SA,
             namespace: this.options.namespace,
+            overwriteServiceAccount: true
         });
 
         const s3BucketPolicy = new iam.Policy(cluster, S3_DRIVER_POLICY, {
