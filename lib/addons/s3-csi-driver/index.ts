@@ -3,6 +3,7 @@ import { ClusterInfo } from "../../spi";
 import { HelmAddOn, HelmAddOnUserProps } from "../helm-addon";
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { createNamespace, setPath, supportsALL } from "../../utils";
+import { ReplaceServiceAccount } from "../../utils/sa-utils";
 import { getS3DriverPolicyStatements } from "./iam-policy";
 
 const S3_CSI_DRIVER_SA = 's3-csi-driver-sa';
@@ -37,7 +38,7 @@ const defaultProps: HelmAddOnUserProps & S3CSIDriverAddOnProps = {
   name: S3_CSI_DRIVER,
   namespace: "kube-system",
   release: S3_CSI_DRIVER_RELEASE,
-  version: "2.4.0",
+  version: "2.4.1",
   repository: "https://awslabs.github.io/mountpoint-s3-csi-driver",
   createNamespace: false,
   bucketNames: [],
@@ -55,9 +56,20 @@ export class S3CSIDriverAddOn extends HelmAddOn {
     }
 
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
-        // Create service account and policy
         const cluster = clusterInfo.cluster;
-        const serviceAccount = cluster.addServiceAccount(S3_CSI_DRIVER_SA, {
+
+        // Create namespace
+        if (this.options.createNamespace) {
+            createNamespace(this.options.namespace!, cluster, true);
+        }
+
+        // Let Helm create the node SA with RBAC bindings
+        const chartValues = populateValues(this.options);
+        const s3CsiDriverChart = this.addHelmChart(clusterInfo, chartValues, true, true);
+
+        // Overwrite the Helm-created SA with IRSA annotation (fires after chart)
+        const serviceAccount = new ReplaceServiceAccount(cluster, S3_CSI_DRIVER_SA, {
+            cluster,
             name: S3_CSI_DRIVER_SA,
             namespace: this.options.namespace,
         });
@@ -67,28 +79,15 @@ export class S3CSIDriverAddOn extends HelmAddOn {
                 getS3DriverPolicyStatements(this.options.bucketNames, this.options.kmsArns ?? [])
         });
         serviceAccount.role.attachInlinePolicy(s3BucketPolicy);
-        
-        // Create namespace
-        if (this.options.createNamespace) {
-            const ns = createNamespace(this.options.namespace!, cluster, true);
-            serviceAccount.node.addDependency(ns);
-        }
 
-        // setup value for helm chart
-        const chartValues = populateValues(this.options, serviceAccount.serviceAccountName);
-
-        const s3CsiDriverChart = this.addHelmChart(clusterInfo, chartValues, true, true);
-        s3CsiDriverChart.node.addDependency(serviceAccount);
+        serviceAccount.node.addDependency(s3CsiDriverChart);
         return Promise.resolve(s3CsiDriverChart);
     }
 }
 
-function populateValues(helmOptions: S3CSIDriverAddOnProps, serviceAccountName: string): any {
+function populateValues(helmOptions: S3CSIDriverAddOnProps): any {
     const values = helmOptions.values ?? {};
-    // Only configure the node service account (which needs S3 access)
-    setPath(values, 'node.serviceAccount.create', false);
-    setPath(values, 'node.serviceAccount.name', serviceAccountName);
-    // Let Helm create the controller service account (no S3 access needed)
+    setPath(values, 'node.serviceAccount.create', true);
     setPath(values, 'controller.serviceAccount.create', true);
     setPath(values, 'node.tolerateAllTaints', true);
     return values;
