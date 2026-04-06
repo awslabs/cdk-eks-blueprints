@@ -226,6 +226,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
             kubectlProviderOptions,
             tags,
             mastersRole,
+            defaultCapacity: 0,
             defaultCapacityType: eks.DefaultCapacityType.AUTOMODE
         };
 
@@ -413,6 +414,7 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         const capacityType = nodeGroup.nodeGroupCapacityType;
         const releaseVersion = nodeGroup.amiReleaseVersion;
         const instanceTypeContext = utils.valueFromContext(cluster, constants.INSTANCE_TYPE_KEY, constants.DEFAULT_INSTANCE_TYPE);
+        const amiType = nodeGroup.amiType ?? constants.DEFAULT_AMI;
         const instanceTypes = nodeGroup.instanceTypes ?? ([typeof instanceTypeContext === 'string' ? new ec2.InstanceType(instanceTypeContext) : instanceTypeContext]);
         const minSize = nodeGroup.minSize ?? utils.valueFromContext(cluster, constants.MIN_SIZE_KEY, constants.DEFAULT_NG_MINSIZE);
         const maxSize = nodeGroup.maxSize ?? utils.valueFromContext(cluster, constants.MAX_SIZE_KEY, constants.DEFAULT_NG_MAXSIZE);
@@ -421,10 +423,10 @@ export class GenericClusterProviderV2 implements ClusterProvider {
         // Create a managed node group.
         const nodegroupOptions: utils.Writeable<eks.NodegroupOptions> = {
             ...nodeGroup,
-            amiType: nodeGroup.amiType as eks.NodegroupAmiType,
             ...{
                 nodegroupName: nodeGroup.nodegroupName ?? nodeGroup.id,
                 capacityType,
+                amiType,
                 instanceTypes,
                 minSize,
                 maxSize,
