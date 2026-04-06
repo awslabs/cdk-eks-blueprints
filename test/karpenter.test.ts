@@ -3,7 +3,7 @@ import * as blueprints from '../lib';
 import { KubernetesVersion, IpFamily } from 'aws-cdk-lib/aws-eks';
 import { Template } from 'aws-cdk-lib/assertions';
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
-import * as eksv2 from "aws-cdk-lib/aws-eks-v2"
+import * as eksv2 from "aws-cdk-lib/aws-eks-v2";
 import { BlockDeviceMapping, EbsVolumeMapping, NodePoolRequirementValues } from "../lib";
 
 const defaultReq: NodePoolRequirementValues = [

@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
-import { DefaultCapacityType, NodegroupAmiType } from 'aws-cdk-lib/aws-eks-v2';
+import { DefaultCapacityType } from 'aws-cdk-lib/aws-eks-v2';
 
 const app = new cdk.App();
 

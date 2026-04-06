@@ -13,7 +13,7 @@ import * as assert from "assert";
 import { HelmAddOn, HelmAddOnProps, HelmAddOnUserProps } from "../helm-addon";
 import { KarpenterControllerPolicyV1 } from "./iam";
 import { Ec2NodeClassV1Spec, NodePoolV1Spec, KARPENTER, RELEASE } from "./types";
-import { Cluster as Clusterv2, AccessEntryType } from 'aws-cdk-lib/aws-eks-v2'
+import { Cluster as Clusterv2, AccessEntryType } from 'aws-cdk-lib/aws-eks-v2';
 import * as md5 from "ts-md5";
 
 const defaultProps: HelmAddOnProps = {
