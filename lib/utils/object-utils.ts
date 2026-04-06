@@ -1,5 +1,6 @@
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
 import { cloneDeepWith } from 'lodash';
+import {Construct} from "constructs";
 import * as nutil from 'node:util/types';
 
 export const setPath = (obj : any, path: string, val: any) => { 
@@ -22,7 +23,7 @@ export function cloneDeep<T>(source: T, resolveFn?: (arg: any) => any ): T {
         if (
           value &&
           (value instanceof KubernetesVersion ||
-            (typeof value === "object" && "managedPolicyArn" in value) || // checks for ManagedPolicyReference
+           (Construct.isConstruct(value)) || // checks for ManagedPolicyReference
             nutil.isProxy(value))
         ) {
           return resolveFn ? resolveFn(value) : value;
