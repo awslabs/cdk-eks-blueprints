@@ -141,3 +141,26 @@ spec:
 kro automatically infers the dependency order: it creates the RDS instance with credentials read by ACK from the Secret, waits for the endpoint to become available, then creates the Pod with the connection string injected. The Secret is not managed by kro or ACK — it must exist before creating an instance.
 
 For more examples, see the [kro examples gallery](https://kro.run/examples/).
+
+## Cleanup
+
+Delete resources in order — the kro instance first (so ACK can deprovision AWS resources), then the cluster:
+
+```bash
+# Delete the instance (triggers ACK to delete the RDS DBInstance)
+kubectl delete deploymentandawspostgres my-app
+
+# Wait for the RDS instance to be fully deleted
+kubectl wait --for=delete dbinstance/my-app-dbinstance --timeout=10m
+
+# Delete the RGD
+kubectl delete resourcegraphdefinition deploymentandawspostgres
+
+# Delete the Secret
+kubectl delete secret my-app-db-credentials
+
+# Tear down the cluster
+cdk destroy <stack-name>
+```
+
+> **Important:** Always delete kro instances before destroying the cluster. If the cluster is deleted first, ACK won't be able to clean up the underlying AWS resources (e.g. RDS instances), and you'll need to delete them manually.
