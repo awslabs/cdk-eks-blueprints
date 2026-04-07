@@ -3,6 +3,7 @@ import * as blueprints from '../lib';
 import { KubernetesVersion, IpFamily } from 'aws-cdk-lib/aws-eks';
 import { Template } from 'aws-cdk-lib/assertions';
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
+import * as eksv2 from "aws-cdk-lib/aws-eks-v2";
 import { BlockDeviceMapping, EbsVolumeMapping, NodePoolRequirementValues } from "../lib";
 
 const defaultReq: NodePoolRequirementValues = [
@@ -642,5 +643,33 @@ describe('Unit tests for KarpenterV1AddOn CRD lifecycle management', () => {
         const repo = crdChartResource!.Properties?.Repository;
         const repoStr = typeof repo === 'string' ? repo : JSON.parse(repo);
         expect(repoStr).toEqual(customRepo);
+    });
+});
+
+describe('Unit tests for KarpenterV1AddOn with GenericClusterProviderV2', () => {
+
+    test("Stack creates with EC2_LINUX access entry on v2 cluster", () => {
+        const app = new cdk.App();
+
+        const stack = blueprints.EksBlueprint.builder()
+            .account('123456789').region('us-west-1')
+            .version("auto")
+            .clusterProvider(new blueprints.GenericClusterProviderV2({
+                defaultCapacityType: eksv2.DefaultCapacityType.NODEGROUP,
+                managedNodeGroups: [{
+                    id: "default",
+                    minSize: 1,
+                    maxSize: 3,
+                }],
+            }))
+            .addOns(new blueprints.KarpenterV1AddOn())
+            .build(app, 'karpenter-v1-clusterv2');
+
+        const template = Template.fromStack(stack);
+
+        // Verify access entry is created with EC2_LINUX type for the karpenter node role
+        template.hasResourceProperties("AWS::EKS::AccessEntry", {
+            Type: "EC2_LINUX",
+        });
     });
 });

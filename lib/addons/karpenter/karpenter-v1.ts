@@ -13,6 +13,7 @@ import * as assert from "assert";
 import { HelmAddOn, HelmAddOnProps, HelmAddOnUserProps } from "../helm-addon";
 import { KarpenterControllerPolicyV1 } from "./iam";
 import { Ec2NodeClassV1Spec, NodePoolV1Spec, KARPENTER, RELEASE } from "./types";
+import { Cluster as Clusterv2, AccessEntryType } from 'aws-cdk-lib/aws-eks-v2';
 import * as md5 from "ts-md5";
 
 const defaultProps: HelmAddOnProps = {
@@ -98,7 +99,7 @@ export class KarpenterV1AddOn extends HelmAddOn {
     @utils.conflictsWithAutoMode(utils.AutoModeConflictType.ALREADY_INSTALLED)
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
         assert(
-            clusterInfo.cluster instanceof Cluster,
+            clusterInfo.cluster instanceof Cluster || clusterInfo.clusterv2 instanceof Clusterv2,
             "KarpenterAddOn cannot be used with imported clusters as it requires changes to the cluster authentication."
         );
         assert(
@@ -110,7 +111,7 @@ export class KarpenterV1AddOn extends HelmAddOn {
             semver.gte(semver.coerce(clusterInfo.version.version)!, "1.29.0", true),
             `Cluster version must be >= 1.29 for Karpenter interruption handling. Current version: ${clusterInfo.version.version}`
         );
-        const cluster: Cluster = clusterInfo.cluster;
+        const cluster: Cluster = clusterInfo.cluster as Cluster;
         const endpoint = cluster.clusterEndpoint;
         const name = cluster.clusterName;
         const partition = cluster.stack.partition;
@@ -158,7 +159,7 @@ export class KarpenterV1AddOn extends HelmAddOn {
         const detailedMonitoring = this.options.ec2NodeClassSpec?.detailedMonitoring || false;
 
         // Set up the node role and instance profile
-        const [karpenterNodeRole] = this.setUpNodeRole(cluster, stackName, region);
+        const [karpenterNodeRole] = this.setUpNodeRole(cluster, stackName, region, clusterInfo.clusterv2 as Clusterv2);
 
         // Create the controller policy
         let karpenterPolicyDocument;
@@ -258,28 +259,28 @@ export class KarpenterV1AddOn extends HelmAddOn {
         // Deploy Provisioner (Alpha) or NodePool (Beta) CRD based on the Karpenter Version
         if (this.options.nodePoolSpec) {
             const pool = {
-              apiVersion: "karpenter.sh/v1",
-              kind: "NodePool",
-              metadata: {name: "default-nodepool"},
-              spec: {
-                template: {
-                  metadata: {labels: labels, annotations: annotations},
-                  spec: {
-                    nodeClassRef: {
-                        name: "default-ec2nodeclass",
-                        group: "karpenter.k8s.aws",
-                        kind: "EC2NodeClass"
+                apiVersion: "karpenter.sh/v1",
+                kind: "NodePool",
+                metadata: { name: "default-nodepool" },
+                spec: {
+                    template: {
+                        metadata: { labels: labels, annotations: annotations },
+                        spec: {
+                            nodeClassRef: {
+                                name: "default-ec2nodeclass",
+                                group: "karpenter.k8s.aws",
+                                kind: "EC2NodeClass"
+                            },
+                            taints: taints,
+                            startupTaints: startupTaints,
+                            requirements: this.convert(requirements),
+                            expireAfter: this.options.nodePoolSpec?.expireAfter
+                        },
                     },
-                    taints: taints,
-                    startupTaints: startupTaints,
-                    requirements: this.convert(requirements),
-                    expireAfter: this.options.nodePoolSpec?.expireAfter
-                  },
+                    disruption: disruption,
+                    limits: limits,
+                    weight: weight,
                 },
-                disruption: disruption,
-                limits: limits,
-                weight: weight,
-              },
             };
 
             const poolManifest = cluster.addManifest("default-pool", pool);
@@ -356,11 +357,12 @@ export class KarpenterV1AddOn extends HelmAddOn {
     private setUpNodeRole(
         cluster: Cluster,
         stackName: string,
-        region: string
+        region: string,
+        clusterv2?: Clusterv2,
     ): [iam.Role, iam.CfnInstanceProfile] {
         // Set up Node Role
         const karpenterNodeRole = new iam.Role(cluster, "karpenter-node-role", {
-            assumedBy: new iam.ServicePrincipal(`ec2.${cluster.stack.urlSuffix}`),
+            assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
             managedPolicies: [
                 iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy"),
                 iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy"),
@@ -406,11 +408,17 @@ export class KarpenterV1AddOn extends HelmAddOn {
             exportName: clusterId + "KarpenterInstanceProfileName",
         });
 
-        // Map Node Role to aws-auth
-        cluster.awsAuth.addRoleMapping(karpenterNodeRole, {
-            groups: ["system:bootstrappers", "system:nodes"],
-            username: "system:node:{{EC2PrivateDNSName}}",
-        });
+        if (cluster instanceof Cluster) {
+            // Map Node Role to aws-auth
+            cluster.awsAuth.addRoleMapping(karpenterNodeRole, {
+                groups: ["system:bootstrappers", "system:nodes"],
+                username: "system:node:{{EC2PrivateDNSName}}",
+            });
+        } else if (clusterv2) {
+            clusterv2.grantAccess("KarpenterNodeRoleAccess", karpenterNodeRole.roleArn, [], {
+                accessEntryType: AccessEntryType.EC2_LINUX
+            });
+        }
 
         return [karpenterNodeRole, karpenterInstanceProfile];
     }

@@ -1,6 +1,6 @@
 {
   "name": "@aws-quickstart/eks-blueprints",
-  "version": "1.18.0",
+  "version": "1.18.2",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -52,7 +52,7 @@
     "constructs": "^10.3.0",
     "dot-object": "^2.1.4",
     "js-yaml": "4.1.1",
-    "lodash": "4.17.23",
+    "lodash": "4.18.1",
     "reflect-metadata": "^0.2.1",
     "semver": "^7.7.2",
     "simple-base": "^1.0.0",
@@ -75,7 +75,7 @@
     "glob": "^12.0.0"
   },
   "peerDependencies": {
-    "aws-cdk": "2.1109.0",
-    "aws-cdk-lib": "2.241.0"
+    "aws-cdk": "2.1118.4",
+    "aws-cdk-lib": "2.250.0"
   }
 }

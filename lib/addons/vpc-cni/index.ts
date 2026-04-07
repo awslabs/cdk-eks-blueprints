@@ -3,7 +3,7 @@ import * as eks from "aws-cdk-lib/aws-eks";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from 'constructs';
 import { ClusterInfo, Values } from "../../spi";
-import { loadYaml, readYamlDocument, ReplaceServiceAccount, supportsALL, conflictsWithAutoMode, AutoModeConflictType} from "../../utils";
+import { loadYaml, readYamlDocument, supportsALL, conflictsWithAutoMode, AutoModeConflictType} from "../../utils";
 import { CoreAddOn, CoreAddOnProps } from "../core-addon";
 import { KubectlProvider, ManifestDeployment } from "../helm-addon/kubectl-provider";
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
@@ -426,14 +426,14 @@ export class VpcCniAddOn extends CoreAddOn {
    * @returns 
    */
   createServiceAccount(clusterInfo: ClusterInfo, saNamespace: string, policies: iam.IManagedPolicy[]): eks.ServiceAccount {
-    const sa = new ReplaceServiceAccount(clusterInfo.cluster, `${this.coreAddOnProps.saName}-sa`, {
-      cluster: clusterInfo.cluster,
+    const sa = clusterInfo.cluster.addServiceAccount(`${this.coreAddOnProps.saName}-sa`, {
       name: this.coreAddOnProps.saName,
-      namespace: saNamespace
+      namespace: saNamespace,
+      overwriteServiceAccount: true
     });
 
     policies.forEach(p => sa.role.addManagedPolicy(p));
-    return sa as any as eks.ServiceAccount;
+    return sa;
   }
 }
 
