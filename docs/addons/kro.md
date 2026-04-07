@@ -122,7 +122,7 @@ spec:
               image: ${schema.spec.image}
               env:
                 - name: POSTGRES_ENDPOINT
-                  value: ${dbinstance.status.endpoint.address}
+                  value: ${dbinstance.status.?endpoint.?address}
 ```
 
 #### Create an instance
