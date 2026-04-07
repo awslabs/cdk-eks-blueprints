@@ -1,6 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
-import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Template } from 'aws-cdk-lib/assertions';
 
 describe('Unit tests for KRO addon', () => {

@@ -1,8 +1,8 @@
 import { Construct } from "constructs";
 import { ClusterInfo, Values } from "../../spi";
 import { merge } from "ts-deepmerge";
-import { HelmAddOn, HelmAddOnUserProps } from "../helm-addon"
-import * as utils from "../../utils"
+import { HelmAddOn, HelmAddOnUserProps } from "../helm-addon";
+import * as utils from "../../utils";
 
 const KRO_VERSION="0.4.1";
 
