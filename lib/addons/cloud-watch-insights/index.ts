@@ -11,6 +11,7 @@ import {KubernetesVersion} from "aws-cdk-lib/aws-eks";
 //     --query 'addons[].addonVersions[].{Version: addonVersion, Defaultversion: compatibilities[0].defaultVersion}' --output table
 
 const versionMap: Map<KubernetesVersion, string> = new Map([
+    [KubernetesVersion.V1_35, "v5.3.1-eksbuild.1"],
     [KubernetesVersion.V1_34, "v4.10.1-eksbuild.1"],
     [KubernetesVersion.V1_33, "v4.10.1-eksbuild.1"],
     [KubernetesVersion.V1_32, "v4.10.1-eksbuild.1"],
