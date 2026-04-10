@@ -42,7 +42,7 @@ export class EksBlueprintProps {
      * EKS Capabilities if any.
      * https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html
      */
-    readonly capabilities?: Array<spi.ClusterCapability> = [];
+    readonly capabilities?: spi.ClusterCapabilities = {};
 
     /**
      * Teams if any
@@ -128,7 +128,7 @@ export class BlueprintConstructBuilder {
     };
 
     constructor() {
-        this.props = { addOns: new Array<spi.ClusterAddOn>(), teams: new Array<spi.Team>(), capabilities: new Array<spi.ClusterCapability>(), resourceProviders: new Map() };
+        this.props = { addOns: new Array<spi.ClusterAddOn>(), teams: new Array<spi.Team>(), capabilities: {}, resourceProviders: new Map() };
         this.env = {
             account: process.env.CDK_DEFAULT_ACCOUNT,
             region: process.env.CDK_DEFAULT_REGION
@@ -187,8 +187,8 @@ export class BlueprintConstructBuilder {
         return this;
     }
 
-    public capabilities(...capabilities: spi.ClusterCapability[]): this {
-        this.props = { ...this.props, ...{ capabilities: this.props.capabilities?.concat(capabilities) } };
+    public capabilities(capabilities: spi.ClusterCapabilities): this {
+        this.props = { ...this.props, capabilities: { ...this.props.capabilities, ...capabilities } };
         return this;
     }
 
@@ -277,7 +277,7 @@ export class EksBlueprintConstruct extends Construct {
         }
 
         if (blueprintProps.capabilities != null) { // Add capabilities to cluster first
-            for (let capability of blueprintProps.capabilities) {
+            for (let capability of Object.values(blueprintProps.capabilities).filter(Boolean) as spi.ClusterCapability[]) {
                 const capabilityConstruct = capability.create(this.clusterInfo);
                 this.clusterInfo.addCapability(capability.type.toString().toLowerCase(), capabilityConstruct);
             }

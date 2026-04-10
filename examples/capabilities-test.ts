@@ -8,29 +8,14 @@ const app = new cdk.App();
 
 const account = process.env.CDK_DEFAULT_ACCOUNT;
 const region = process.env.CDK_DEFAULT_REGION;
+
+// Must have identity center set up for ArgoCD Capability
 const identityCenterArn = process.env.AWS_IDENTITY_CENTER_ARN;
 const identityCenterUserId = process.env.AWS_IDENTITY_CENTER_USER_ID;
 
-// Example customer issue reproduction:
 const addOns: Array<blueprints.ClusterAddOn> = [
     new blueprints.addons.EksPodIdentityAgentAddOn(),
-    new blueprints.addons.AwsNetworkFlowMonitorAddOn()
 ];
-
-const capabilities: Array<blueprints.ClusterCapability> = [
-    new blueprints.capabilities.AckCapability(),
-    new blueprints.capabilities.ArgoCapability({
-        idcInstanceArn: identityCenterArn!,
-        roleMappings: {
-            "ADMIN": [{
-                identityId: identityCenterUserId!,
-                identityType: blueprints.SsoIdentityType.SSO_USER
-            }],
-
-        }
-    }),
-    new blueprints.capabilities.KroCapability(),
-]
 
 const clusterProvider = new blueprints.GenericClusterProvider({
   authenticationMode: eks.AuthenticationMode.API_AND_CONFIG_MAP,
@@ -45,7 +30,16 @@ const stack = blueprints.EksBlueprint.builder()
     .account(account)
     .region(region)
     .clusterProvider(clusterProvider)
-    .capabilities(...capabilities)
+    .capabilities({
+        ack: new blueprints.capabilities.AckCapability(),
+        argocd: new blueprints.capabilities.ArgoCapability({
+            idcInstanceArn: identityCenterArn!,
+            roleMappings: {
+                adminUsers: [identityCenterUserId!],
+            }
+        }),
+        kro: new blueprints.capabilities.KroCapability(),
+    })
     .addOns(...addOns)
     .version("auto")
     .build(app, 'capabilities-debug-stack');

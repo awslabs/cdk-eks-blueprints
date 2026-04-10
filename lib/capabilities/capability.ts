@@ -14,11 +14,9 @@ export interface CapabilityProps {
   capabilityName?: string;
   /** Existing IAM role ARN to use. If not provided, a new role will be created */
   roleArn?: string;
-  /** Whether to use the default AWS managed policy for this capability type */
-  useDefaultPolicy?: boolean;
-  /** Name of custom managed policy to attach (used when useDefaultPolicy is false) */
+  /** Name of custom managed policy to attach (used in place of default policy) */
   policyName?: string;
-  /** Custom inline policy document (used when useDefaultPolicy is false) */
+  /** Custom inline policy document (used in place of default policy) */
   policyDocument?: iam.PolicyDocument;
   /** CloudFormation tags to apply */
   tags?: CfnTag[];
@@ -48,9 +46,6 @@ export class Capability implements ClusterCapability {
    */
   constructor(readonly props: CapabilityProps) {
     this.type = props.type
-    if (!props.useDefaultPolicy && !props.policyName && !props.policyDocument) {
-      throw new Error("When useDefaultPolicy is false, either policyName or policyDocument must be provided");
-    }
   }
 
   /**
@@ -63,7 +58,7 @@ export class Capability implements ClusterCapability {
     const capabilityProps: CfnCapabilityProps = {
       capabilityName: this.props.capabilityName || this.props.type,
       clusterName: clusterInfo.cluster.clusterName,
-      roleArn: this.props.roleArn || this.setupRole(clusterInfo, this.props.type, this.props.useDefaultPolicy, this.props.policyName, this.props.policyDocument),
+      roleArn: this.props.roleArn || this.setupRole(clusterInfo, this.props.type, this.props.policyName, this.props.policyDocument),
       type: this.props.type.toUpperCase(),
       deletePropagationPolicy: "RETAIN",
       tags: this.props.tags
@@ -79,24 +74,22 @@ export class Capability implements ClusterCapability {
    * 
    * @param clusterInfo Information about the target EKS cluster
    * @param capabilityType Type of capability being created
-   * @param useDefaultPolicy Whether to use the default AWS managed policy
    * @param policyName Optional custom managed policy name
    * @param policyDocument Optional inline policy document
    * @returns ARN of the created or configured IAM role
    */
-  setupRole(clusterInfo: ClusterInfo, capabilityType: CapabilityType, useDefaultPolicy?: boolean, policyName?: string, policyDocument?: iam.PolicyDocument): string {
+  setupRole(clusterInfo: ClusterInfo, capabilityType: CapabilityType, policyName?: string, policyDocument?: iam.PolicyDocument): string {
     const role = new iam.Role(clusterInfo.cluster.stack, capabilityType.toString() + "-role", {
       assumedBy: new iam.ServicePrincipal("capabilities.eks.amazonaws.com").withSessionTags(),
     });
 
     // Policy attachment priority: default managed > custom managed > inline
-    if (useDefaultPolicy && this.DEFAULT_POLICY_NAME) {
-      // Create managed policy reference within stack context (CDK v2.224.0+ compatibility)
-      role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName(this.DEFAULT_POLICY_NAME));
-    } else if (policyName) {
+    if (policyName) {
       role.addManagedPolicy(iam.ManagedPolicy.fromManagedPolicyName(clusterInfo.cluster.stack, policyName + "-cap-pol", policyName));
     } else if (policyDocument) {
       role.attachInlinePolicy(new iam.Policy(clusterInfo.cluster.stack, capabilityType.toString() + "-cap-pol", { document: policyDocument }));
+    } else if (this.DEFAULT_POLICY_NAME) {
+      role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName(this.DEFAULT_POLICY_NAME));
     }
 
     return role.roleArn;

@@ -19,7 +19,6 @@ export class AckCapability extends Capability {
   
   /** Default configuration for ACK capabilities */
   static readonly defaultProps: AckCapabilityProps= {
-    useDefaultPolicy: true,
     capabilityName: "blueprints-ack-capability"
   };
 

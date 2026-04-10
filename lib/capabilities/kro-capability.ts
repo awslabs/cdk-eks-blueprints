@@ -10,15 +10,12 @@ export type KroCapabilityProps = Omit<CapabilityProps, "namespace" | "type" | "i
 /**
  * KRO (Kubernetes Resource Orchestrator) capability for EKS clusters.
  * Enables advanced resource orchestration and management within Kubernetes.
- * });
- * ```
  */
 export class KroCapability extends Capability {
   readonly DEFAULT_POLICY_NAME = undefined;
   
   /** Default configuration for KRO capabilities */
   static readonly defaultProps: KroCapabilityProps = {
-    useDefaultPolicy: true,
     capabilityName: "blueprints-kro-capability"
   };
 

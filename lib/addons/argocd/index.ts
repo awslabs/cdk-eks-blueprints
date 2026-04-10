@@ -12,7 +12,6 @@ import { HelmAddOn, HelmAddOnUserProps } from '../helm-addon';
 import { ArgoApplication } from './application';
 import { createSecretRef } from './manifest-utils';
 import { GitRepositoryReference } from "../../spi";
-import * as capabilities from "../../capabilities";
 
 
 /**
@@ -120,7 +119,7 @@ export class ArgoCDAddOn implements spi.ClusterAddOn, spi.ClusterPostDeploy {
     /**
      * Implementation of the add-on contract deploy method.
     */
-    @conflictsWithCapabilities(capabilities.ArgoCapability.name)
+    @conflictsWithCapabilities(spi.CapabilityType.ARGOCD)
     async deploy(clusterInfo: spi.ClusterInfo): Promise<Construct> {
         const namespace = createNamespace(this.options.namespace!, clusterInfo.cluster, true);
 

@@ -103,7 +103,7 @@ nav:
     - Readme: 'internal/readme-internal.md'
   - Capabilities:
     - Overview: 'capabilities/index.md'
-    - ArgoCD Capability: 'capabilites/argocd-capability.md'
+    - ArgoCD Capability: 'capabilities/argocd-capability.md'
     - ACK Capability: 'capabilities/ack-capability.md'
     - kro Capability: 'capabilities/kro-capability.md'
   - Cluster Providers:

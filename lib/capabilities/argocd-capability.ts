@@ -1,60 +1,94 @@
 import { Capability, CapabilityProps } from "./capability";
 import { ArgoCDSsoRole, CapabilityType, ClusterInfo, SsoIdentityType } from "../spi";
-import { CfnCapability, CfnCapabilityProps } from "aws-cdk-lib/aws-eks";
+import { CfnCapability } from "aws-cdk-lib/aws-eks";
 import { IVpcEndpoint } from "aws-cdk-lib/aws-ec2";
 
 /**
- * Properties for ArgoCD capability configuration.
- * Extends base capability properties with required Identity Center ARN.
+ * Simplified role mappings for ArgoCD capability.
+ * Map SSO users and groups to ArgoCD roles without needing to import enums.
  */
-export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type" > {
-  /** AWS Identity Center Instance ARN for ArgoCD integration */
-  idcInstanceArn: string;
-
-  idcManagedApplicationArn?: string;
-
-  idcRegion?: string;
-
-  serverUrl?: string;
-
-  namespace?: string;
-
-  networkAccessVpcEndpoints?: IVpcEndpoint[];
-
-  roleMappings?: Partial<Record<ArgoCDSsoRole, {identityId: string, identityType: SsoIdentityType}[]>>;
-
+export interface ArgoRoleMappings {
+  adminUsers?: string[];
+  adminGroups?: string[];
+  editorUsers?: string[];
+  editorGroups?: string[];
+  viewerUsers?: string[];
+  viewerGroups?: string[];
 }
 
-
+/**
+ * Properties for ArgoCD capability configuration.
+ */
+export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type"> {
+  /** AWS Identity Center Instance ARN for ArgoCD integration */
+  idcInstanceArn: string;
+  /** IDC managed application ARN */
+  idcManagedApplicationArn?: string;
+  /** IDC region */
+  idcRegion?: string;
+  /** ArgoCD server URL */
+  serverUrl?: string;
+  /** Kubernetes namespace for ArgoCD */
+  namespace?: string;
+  /** VPC endpoints for network access */
+  networkAccessVpcEndpoints?: IVpcEndpoint[];
+  /** Simplified role mappings for SSO users and groups */
+  roleMappings?: ArgoRoleMappings;
+}
 
 /**
  * ArgoCD capability for EKS clusters.
  * Enables GitOps workflows and continuous deployment through ArgoCD integration.
  * Requires AWS Identity Center for authentication and uses Secrets Manager for credential access.
- * 
+ *
  * @example
  * ```typescript
- * const argoCapability = new ArgoCapability({
- *   identityCenterArn: "arn:aws:sso:::instance/ssoins-1234567890abcdef",
- *   capabilityName: "my-argocd-capability",
- *   namespace: "argocd"
+ * // Using props
+ * new ArgoCapability({
+ *   idcInstanceArn: "arn:aws:sso:::instance/ssoins-123",
+ *   roleMappings: { adminUsers: ["user-id-123"], viewerGroups: ["group-id-456"] },
  * });
+ *
+ * // Using builder methods
+ * new ArgoCapability({ idcInstanceArn: "arn:aws:sso:::instance/ssoins-123" })
+ *   .addAdmin("user-id-123", SsoIdentityType.SSO_USER)
+ *   .addViewer("group-id-456", SsoIdentityType.SSO_GROUP);
  * ```
  */
 export class ArgoCapability extends Capability {
-  /** Default AWS managed policy for Secrets Manager read access */
   readonly DEFAULT_POLICY_NAME = "AWSSecretsManagerClientReadOnlyAccess";
 
-  /** Default configuration for ArgoCD capabilities */
-  static readonly defaultProps: Partial<ArgoCapabilityProps>= {
-    useDefaultPolicy: true,
+  static readonly defaultProps: Partial<ArgoCapabilityProps> = {
     capabilityName: "blueprints-argocd-capability",
     namespace: "argocd"
   };
 
+  private readonly internalMappings: { role: ArgoCDSsoRole; identityId: string; identityType: SsoIdentityType }[] = [];
+
+  constructor(readonly options: ArgoCapabilityProps) {
+    super({ ...ArgoCapability.defaultProps, ...options, type: CapabilityType.ARGOCD });
+  }
+
+  /** Add an ADMIN identity */
+  addAdmin(identityId: string, identityType: SsoIdentityType): this {
+    this.internalMappings.push({ role: ArgoCDSsoRole.ADMIN, identityId, identityType });
+    return this;
+  }
+
+  /** Add an EDITOR identity */
+  addEditor(identityId: string, identityType: SsoIdentityType): this {
+    this.internalMappings.push({ role: ArgoCDSsoRole.EDITOR, identityId, identityType });
+    return this;
+  }
+
+  /** Add a VIEWER identity */
+  addViewer(identityId: string, identityType: SsoIdentityType): this {
+    this.internalMappings.push({ role: ArgoCDSsoRole.VIEWER, identityId, identityType });
+    return this;
+  }
 
   create(clusterInfo: ClusterInfo): CfnCapability {
-    const capability = super.create(clusterInfo)
+    const capability = super.create(clusterInfo);
     capability.configuration = {
       argoCd: {
         awsIdc: {
@@ -64,26 +98,49 @@ export class ArgoCapability extends Capability {
         },
         namespace: this.options.namespace,
         networkAccess: {
-          vpceIds: this.options.networkAccessVpcEndpoints?.map(endpoint => endpoint.vpcEndpointId)
+          vpceIds: this.options.networkAccessVpcEndpoints?.map(e => e.vpcEndpointId)
         },
-        rbacRoleMappings: Object.entries(this.options.roleMappings ?? {}).map(([ssoRole, ssoIdentities])=> ({
-          role: ssoRole,
-          identities: ssoIdentities.map(entry => ({
-            id: entry.identityId,
-            type: entry.identityType
-          })),
-        })),
+        rbacRoleMappings: this.buildRoleMappings(),
         serverUrl: this.options.serverUrl
       }
-    }
-    return capability
+    };
+    return capability;
   }
+
   /**
-   * Creates a new ArgoCD capability instance.
-   * 
-   * @param options - Configuration options including required Identity Center ARN
+   * Merges props-based roleMappings and builder-based internalMappings
+   * into the CFN rbacRoleMappings format.
    */
-  constructor(readonly options: ArgoCapabilityProps) {
-    super({...ArgoCapability.defaultProps, ...options, type: CapabilityType.ARGOCD});
+  private buildRoleMappings(): { role: string; identities: { id: string; type: string }[] }[] {
+    const merged = new Map<string, { id: string; type: string }[]>();
+
+    // From simplified props
+    const m = this.options.roleMappings;
+    if (m) {
+      const entries: [ArgoCDSsoRole, string[] | undefined, SsoIdentityType][] = [
+        [ArgoCDSsoRole.ADMIN, m.adminUsers, SsoIdentityType.SSO_USER],
+        [ArgoCDSsoRole.ADMIN, m.adminGroups, SsoIdentityType.SSO_GROUP],
+        [ArgoCDSsoRole.EDITOR, m.editorUsers, SsoIdentityType.SSO_USER],
+        [ArgoCDSsoRole.EDITOR, m.editorGroups, SsoIdentityType.SSO_GROUP],
+        [ArgoCDSsoRole.VIEWER, m.viewerUsers, SsoIdentityType.SSO_USER],
+        [ArgoCDSsoRole.VIEWER, m.viewerGroups, SsoIdentityType.SSO_GROUP],
+      ];
+      for (const [role, ids, type] of entries) {
+        if (ids?.length) {
+          const list = merged.get(role) ?? [];
+          ids.forEach(id => list.push({ id, type }));
+          merged.set(role, list);
+        }
+      }
+    }
+
+    // From builder methods
+    for (const { role, identityId, identityType } of this.internalMappings) {
+      const list = merged.get(role) ?? [];
+      list.push({ id: identityId, type: identityType });
+      merged.set(role, list);
+    }
+
+    return Array.from(merged.entries()).map(([role, identities]) => ({ role, identities }));
   }
 }

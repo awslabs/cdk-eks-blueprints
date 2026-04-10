@@ -6,7 +6,7 @@ import "reflect-metadata";
 import { conflictsWithCapabilities, createNamespace, setPath, supportsX86 } from "../../utils";
 import { HelmAddOn, HelmAddOnProps, HelmAddOnUserProps } from "../helm-addon";
 import { AckServiceName, serviceMappings } from './serviceMappings';
-import { AckCapability } from '../../capabilities';
+import { CapabilityType } from '../../spi';
 
 export * from "./serviceMappings";
 
@@ -71,7 +71,7 @@ export class AckAddOn extends HelmAddOn {
   }
 
 
-  @conflictsWithCapabilities(AckCapability.name)
+  @conflictsWithCapabilities(CapabilityType.ACK)
   deploy(clusterInfo: ClusterInfo): Promise<Construct> {
     const cluster = clusterInfo.cluster;
     const context = clusterInfo.getResourceContext();
