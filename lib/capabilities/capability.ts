@@ -45,7 +45,7 @@ export class Capability implements ClusterCapability {
    * @throws Error when useDefaultPolicy is false but no alternative policy is provided
    */
   constructor(readonly props: CapabilityProps) {
-    this.type = props.type
+    this.type = props.type;
   }
 
   /**
@@ -64,8 +64,8 @@ export class Capability implements ClusterCapability {
       tags: this.props.tags
     };
     const capability = new CfnCapability(clusterInfo.cluster.stack, capabilityProps.capabilityName + "-capability", capabilityProps);
-    capability.node.addDependency(clusterInfo.cluster)
-    return capability
+    capability.node.addDependency(clusterInfo.cluster);
+    return capability;
   }
 
   /**

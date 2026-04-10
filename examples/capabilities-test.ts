@@ -1,8 +1,8 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import * as eks from 'aws-cdk-lib/aws-eks'
+import * as eks from 'aws-cdk-lib/aws-eks';
 import * as blueprints from '../lib';
-import * as ec2 from 'aws-cdk-lib/aws-ec2'
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 const app = new cdk.App();
 
@@ -24,7 +24,7 @@ const clusterProvider = new blueprints.GenericClusterProvider({
     instanceTypes: [new ec2.InstanceType("m5.large")],
     amiType: eks.NodegroupAmiType.AL2023_X86_64_STANDARD,
   }]
-})
+});
 
 const stack = blueprints.EksBlueprint.builder()
     .account(account)

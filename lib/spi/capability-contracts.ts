@@ -1,4 +1,3 @@
-import { CfnCapability } from "aws-cdk-lib/aws-eks";
 import { CapabilityType, ClusterInfo } from "./types";
 import { Construct } from "constructs";
 import { AckCapability } from "../capabilities/ack-capability";
