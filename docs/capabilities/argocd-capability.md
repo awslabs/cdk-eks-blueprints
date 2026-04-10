@@ -2,7 +2,7 @@
 
 The [ArgoCD capability](https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html) enables GitOps-based continuous deployment, automatically syncing application resources to clusters from Git repositories. It integrates with AWS Identity Center for authentication and authorization.
 
-This is the AWS-managed alternative to the self-managed [ArgoCDAddOn](../addons/argocd.md). Using both on the same cluster will result in a conflict error.
+This is the AWS-managed alternative to the self-managed [ArgoCDAddOn](../addons/argocd-addon.md). Using both on the same cluster will result in a conflict error.
 
 ## Usage
 

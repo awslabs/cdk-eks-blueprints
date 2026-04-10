@@ -2,7 +2,7 @@
 
 The [ACK capability](https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html) enables management of AWS resources using Kubernetes APIs. It continuously reconciles the desired state with the actual state in AWS, correcting any drift. ACK supports cross-account and cross-region resource management.
 
-This is the AWS-managed alternative to the self-managed [AckAddOn](../addons/ack.md). Using both on the same cluster will result in a conflict error.
+This is the AWS-managed alternative to the self-managed [AckAddOn](../addons/ack-addon.md). Using both on the same cluster will result in a conflict error.
 
 ## Usage
 
