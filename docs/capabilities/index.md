@@ -12,6 +12,18 @@ Available capabilities:
 
 Capabilities are the AWS-managed equivalent of self-managed addons. They differ in that AWS handles installation, upgrades, scaling, and security patching. The blueprints framework automatically detects conflicts — if you add both a capability and its corresponding addon (e.g. `AckCapability` and `AckAddOn`), the build will fail with a conflict error.
 
+## Prerequisites
+
+EKS Capabilities require the cluster authentication mode to be set to `API` or `API_AND_CONFIG_MAP`. The legacy `CONFIG_MAP` mode is not supported. If using `GenericClusterProvider`, set this explicitly:
+
+```typescript
+import { AuthenticationMode } from 'aws-cdk-lib/aws-eks';
+
+const clusterProvider = new blueprints.GenericClusterProvider({
+  authenticationMode: AuthenticationMode.API_AND_CONFIG_MAP,
+});
+```
+
 ## Usage
 
 ```typescript

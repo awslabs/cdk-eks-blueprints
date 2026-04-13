@@ -2,6 +2,7 @@ import { Capability, CapabilityProps } from "./capability";
 import { ArgoCDSsoRole, CapabilityType, ClusterInfo, SsoIdentityType } from "../spi";
 import { CfnCapability } from "aws-cdk-lib/aws-eks";
 import { IVpcEndpoint } from "aws-cdk-lib/aws-ec2";
+import { CfnOutput } from "aws-cdk-lib";
 
 /**
  * Simplified role mappings for ArgoCD capability.
@@ -104,6 +105,8 @@ export class ArgoCapability extends Capability {
         serverUrl: this.options.serverUrl
       }
     };
+
+    new CfnOutput(clusterInfo.cluster, "ArgoCDCapabilityAccessURL", {value: capability.attrConfigurationArgoCdServerUrl});
     return capability;
   }
 

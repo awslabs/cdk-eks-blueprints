@@ -2,7 +2,7 @@
 
 The [ArgoCD capability](https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html) enables GitOps-based continuous deployment, automatically syncing application resources to clusters from Git repositories. It integrates with AWS Identity Center for authentication and authorization.
 
-This is the AWS-managed alternative to the self-managed [ArgoCDAddOn](../addons/argocd-addon.md). Using both on the same cluster will result in a conflict error.
+This is the AWS-managed alternative to the self-managed [ArgoCDAddOn](../addons/argo-cd.md). Using both on the same cluster will result in a conflict error.
 
 ## Usage
 
@@ -63,5 +63,17 @@ new blueprints.capabilities.ArgoCapability({
 ```
 
 Both approaches can be combined — mappings are merged at deploy time.
+
+## Accessing the ArgoCD UI
+
+After deploying the capability, the ArgoCD access URL is available as a CloudFormation output named `ArgoCDCapabilityAccessURL`. Retrieve it with:
+
+```bash
+aws cloudformation describe-stacks --stack-name <stack-name> \
+  --query "Stacks[0].Outputs[?contains(OutputKey,'ArgoCDCapabilityAccessURL')].OutputValue" \
+  --output text
+```
+
+Open the URL in your browser and sign in with your AWS Identity Center credentials. Access is governed by the role mappings configured above.
 
 Available roles: `ADMIN`, `EDITOR`, `VIEWER`.

@@ -1,8 +1,8 @@
 # kro Capability
 
-The [kro capability](https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html) enables creation of custom Kubernetes APIs that compose multiple resources into higher-level abstractions. Platform teams can define reusable patterns for common resource combinations, enabling self-service with appropriate guardrails.
+The [kro capability](https://docs.aws.amazon.com/eks/latest/userguide/kro.html) enables creation of custom Kubernetes APIs that compose multiple resources into higher-level abstractions. Platform teams can define reusable patterns for common resource combinations, enabling self-service with appropriate guardrails.
 
-This is the AWS-managed alternative to the self-managed [KroAddOn](../addons/kro-addon.md). kro itself does not require AWS IAM permissions — it orchestrates Kubernetes resources only. AWS resource creation is handled by controllers like ACK.
+This is the AWS-managed alternative to the self-managed [KroAddOn](../addons/kro.md). kro itself does not require AWS IAM permissions — it orchestrates Kubernetes resources only. AWS resource creation is handled by controllers like ACK.
 
 ## Usage
 
