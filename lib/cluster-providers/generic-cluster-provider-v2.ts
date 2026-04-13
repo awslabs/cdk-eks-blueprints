@@ -226,11 +226,14 @@ export class GenericClusterProviderV2 implements ClusterProvider {
             kubectlProviderOptions,
             tags,
             mastersRole,
-            defaultCapacity: 0,
             defaultCapacityType: eks.DefaultCapacityType.AUTOMODE
         };
 
         const clusterOptions = { ...defaultOptionsv2, ...this.props, version, ipFamily };
+
+        if (clusterOptions.defaultCapacityType !== eks.DefaultCapacityType.AUTOMODE) {
+            clusterOptions.defaultCapacity = 0;
+        }
 
         // Create an EKS Cluster
         const cluster = this.internalCreateCluster(scope, id, clusterOptions);
