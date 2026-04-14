@@ -95,6 +95,8 @@ spec:
 
   resources:
     - id: dbinstance
+      readyWhen:
+        - ${dbinstance.status.conditions.exists(c, c.type == 'ACK.ResourceSynced' && c.status == 'True')}
       template:
         apiVersion: rds.services.k8s.aws/v1alpha1
         kind: DBInstance
@@ -122,7 +124,7 @@ spec:
               image: ${schema.spec.image}
               env:
                 - name: POSTGRES_ENDPOINT
-                  value: ${dbinstance.status.?endpoint.?address}
+                  value: ${dbinstance.status.endpoint.address}
 ```
 
 #### Create an instance
