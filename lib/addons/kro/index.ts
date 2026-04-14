@@ -21,7 +21,7 @@ const defaultProps = {
   namespace: "kro",
   chart: "kro",
   version: KRO_VERSION,
-  repository: "oci://ghcr.io/kro-run/kro/kro",
+  repository: "oci://registry.k8s.io/kro/charts/kro",
   values: {},
   createNamespace: true
 };
