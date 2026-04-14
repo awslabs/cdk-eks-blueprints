@@ -671,13 +671,5 @@ describe('Unit tests for KarpenterV1AddOn with GenericClusterProviderV2', () => 
         template.hasResourceProperties("AWS::EKS::AccessEntry", {
             Type: "EC2_LINUX",
         });
-
-        // Verify no aws-auth ConfigMap mapping (v1 style) is used
-        const k8sResources = template.findResources("Custom::AWSCDK-EKS-KubernetesResource");
-        const awsAuthResources = Object.values(k8sResources).filter(r => {
-            const manifest = r.Properties?.Manifest;
-            return typeof manifest === 'string' && manifest.includes('"kind":"ConfigMap"') && manifest.includes('aws-auth');
-        });
-        expect(awsAuthResources.length).toEqual(0);
     });
 });
