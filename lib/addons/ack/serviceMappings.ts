@@ -89,7 +89,7 @@ export const serviceMappings : {[key in AckServiceName]?: AckChartMapping } = {
     [AckServiceName.EC2]: {
       chart: "ec2-chart",
       version:  "1.6.1",
-      managedPolicyName: "AmazonRDSFullAccess"
+      managedPolicyName: "AmazonEC2FullAccess"
     },
     [AckServiceName.S3]: {
       chart: "s3-chart",
