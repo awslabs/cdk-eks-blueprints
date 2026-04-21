@@ -76,7 +76,6 @@ export function conflictsWith(...addOns: string[]) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function( ...args: any[]) {
-      // const dependencies: (Promise<Construct> | undefined)[] = [];
       const clusterInfo: ClusterInfo = args[0];
       const stack = clusterInfo.cluster.stack.stackName;
 
@@ -198,7 +197,6 @@ export function conflictsWithCapabilities(...capabilities: string[]) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function( ...args: any[]) {
-      // const dependencies: (Promise<Construct> | undefined)[] = [];
       const clusterInfo: ClusterInfo = args[0];
       const stack = clusterInfo.cluster.stack.stackName;
 

@@ -11,7 +11,6 @@ export type AckCapabilityProps = Omit<CapabilityProps, "namespace" | "type" | "i
  * AWS Controllers for Kubernetes (ACK) capability for EKS clusters.
  * Enables direct management of AWS services from Kubernetes using custom resources.
  * Uses AdministratorAccess policy by default for broad AWS service management.
- * ```
  */
 export class AckCapability extends Capability {
   /** Default AWS managed policy providing full administrative access */
