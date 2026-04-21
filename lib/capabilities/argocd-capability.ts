@@ -90,19 +90,21 @@ export class ArgoCapability extends Capability {
 
   create(clusterInfo: ClusterInfo): CfnCapability {
     const capability = super.create(clusterInfo);
+    const roleMappings = this.buildRoleMappings();
+
     capability.configuration = {
       argoCd: {
         awsIdc: {
           idcInstanceArn: this.options.idcInstanceArn,
-          idcManagedApplicationArn: this.options.idcManagedApplicationArn,
-          idcRegion: this.options.idcRegion
+          ...(this.options.idcManagedApplicationArn && { idcManagedApplicationArn: this.options.idcManagedApplicationArn }),
+          ...(this.options.idcRegion && { idcRegion: this.options.idcRegion }),
         },
-        namespace: this.options.namespace,
-        networkAccess: {
-          vpceIds: this.options.networkAccessVpcEndpoints?.map(e => e.vpcEndpointId)
-        },
-        rbacRoleMappings: this.buildRoleMappings(),
-        serverUrl: this.options.serverUrl
+        ...(this.options.namespace && { namespace: this.options.namespace }),
+        ...(this.options.networkAccessVpcEndpoints?.length && {
+          networkAccess: { vpceIds: this.options.networkAccessVpcEndpoints.map(e => e.vpcEndpointId) },
+        }),
+        ...(roleMappings.length && { rbacRoleMappings: roleMappings }),
+        ...(this.options.serverUrl && { serverUrl: this.options.serverUrl }),
       }
     };
 

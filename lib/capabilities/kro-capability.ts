@@ -2,10 +2,9 @@ import { CapabilityType } from "../spi";
 import { Capability, CapabilityProps } from "./capability";
 
 /**
- * Properties for KroCapability, excluding namespace, type, and identityCenterArn
- * which are not applicable for KRO capabilities.
+ * Properties for KroCapability
  */
-export type KroCapabilityProps = Omit<CapabilityProps, "namespace" | "type" | "identityCenterArn">;
+export type KroCapabilityProps = Omit<CapabilityProps, "type">;
 
 /**
  * KRO (Kubernetes Resource Orchestrator) capability for EKS clusters.

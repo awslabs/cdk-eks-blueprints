@@ -10,7 +10,7 @@ describe('Unit tests for EKS Capabilities', () => {
         const stack = blueprints.EksBlueprint.builder()
             .account('123456789').region('us-west-1')
             .version("auto")
-            .capabilities({ ack: new blueprints.capabilities.AckCapability() })
+            .capabilities({ ack: new blueprints.capabilities.AckCapability({ policyName: "AmazonRDSFullAccess" }) })
             .build(app, 'ack-capability-test');
 
         const template = Template.fromStack(stack);
@@ -25,7 +25,7 @@ describe('Unit tests for EKS Capabilities', () => {
         const stack = blueprints.EksBlueprint.builder()
             .account('123456789').region('us-west-1')
             .version("auto")
-            .capabilities({ ack: new blueprints.capabilities.AckCapability() })
+            .capabilities({ ack: new blueprints.capabilities.AckCapability({ policyName: "AmazonRDSFullAccess" }) })
             .build(app, 'ack-capability-role');
 
         const template = Template.fromStack(stack);
@@ -40,21 +40,78 @@ describe('Unit tests for EKS Capabilities', () => {
         });
     });
 
-    test("ACK capability uses AdministratorAccess policy by default", () => {
+    test("ACK capability fails without roleArn, policyName, policyDocument, or roleSelectors", () => {
+        expect(() => {
+            new blueprints.capabilities.AckCapability({} as any);
+        }).toThrow(/AckCapability requires one of/);
+    });
+
+    test("ACK capability with roleSelectors creates IAMRoleSelector manifests and assume-role policy", () => {
         const app = new cdk.App();
 
         const stack = blueprints.EksBlueprint.builder()
             .account('123456789').region('us-west-1')
             .version("auto")
-            .capabilities({ ack: new blueprints.capabilities.AckCapability() })
-            .build(app, 'ack-capability-policy');
+            .capabilities({
+                ack: new blueprints.capabilities.AckCapability({
+                    roleSelectors: [
+                        new blueprints.capabilities.AckRoleSelectorBuilder("s3-prod", "arn:aws:iam::123456789:role/ACK-S3-Role")
+                            .namespaces("s3-resources")
+                            .resourceTypes({ group: "s3.services.k8s.aws", version: "v1alpha1", kind: "Bucket" })
+                            .build(),
+                    ],
+                }),
+            })
+            .build(app, 'ack-capability-selectors');
 
         const template = Template.fromStack(stack);
-        template.hasResourceProperties("AWS::IAM::Role", {
-            ManagedPolicyArns: [{
-                "Fn::Join": ["", ["arn:", { Ref: "AWS::Partition" }, ":iam::aws:policy/AdministratorAccess"]],
-            }],
+
+        template.hasResourceProperties("AWS::EKS::Capability", { Type: "ACK" });
+
+        template.hasResourceProperties("AWS::IAM::Policy", {
+            PolicyDocument: {
+                Statement: [{
+                    Action: ["sts:AssumeRole", "sts:TagSession"],
+                    Effect: "Allow",
+                }],
+            },
         });
+
+        const manifests = template.findResources("Custom::AWSCDK-EKS-KubernetesResource");
+        const selectorManifests = Object.values(manifests).filter(r => {
+            const manifest = r.Properties?.Manifest;
+            return typeof manifest === 'string' && manifest.includes('IAMRoleSelector');
+        });
+        expect(selectorManifests.length).toEqual(1);
+    });
+
+    test("ACK capability with cluster-wide roleSelector creates IAMRoleSelector without namespaceSelector", () => {
+        const app = new cdk.App();
+
+        const stack = blueprints.EksBlueprint.builder()
+            .account('123456789').region('us-west-1')
+            .version("auto")
+            .capabilities({
+                ack: new blueprints.capabilities.AckCapability({
+                    roleSelectors: [
+                        new blueprints.capabilities.AckRoleSelectorBuilder("cluster-admin", "arn:aws:iam::123456789:role/ACK-Admin")
+                            .build(),
+                    ],
+                }),
+            })
+            .build(app, 'ack-capability-cluster-wide');
+
+        const template = Template.fromStack(stack);
+        template.hasResourceProperties("AWS::EKS::Capability", { Type: "ACK" });
+
+        const manifests = template.findResources("Custom::AWSCDK-EKS-KubernetesResource");
+        const selectorManifest = Object.values(manifests).find(r => {
+            const manifest = r.Properties?.Manifest;
+            return typeof manifest === 'string' && manifest.includes('IAMRoleSelector');
+        });
+        expect(selectorManifest).toBeDefined();
+        const parsed = JSON.parse((selectorManifest!.Properties as any).Manifest);
+        expect(parsed[0].spec.namespaceSelector).toBeUndefined();
     });
 
     test("ACK capability uses custom role ARN when provided", () => {
@@ -191,7 +248,7 @@ describe('Unit tests for EKS Capabilities', () => {
             .account('123456789').region('us-west-1')
             .version("auto")
             .capabilities({
-                ack: new blueprints.capabilities.AckCapability(),
+                ack: new blueprints.capabilities.AckCapability({ policyName: "AmazonRDSFullAccess" }),
                 kro: new blueprints.capabilities.KroCapability(),
             })
             .build(app, 'multi-capability-test');
@@ -210,7 +267,7 @@ describe('Unit tests for Capability-AddOn conflict detection', () => {
         const builder = blueprints.EksBlueprint.builder()
             .account('123456789').region('us-west-1')
             .version("auto")
-            .capabilities({ ack: new blueprints.capabilities.AckCapability() })
+            .capabilities({ ack: new blueprints.capabilities.AckCapability({ policyName: "AmazonRDSFullAccess" }) })
             .addOns(new blueprints.AckAddOn({ serviceName: blueprints.AckServiceName.RDS }));
 
         expect(() => {
