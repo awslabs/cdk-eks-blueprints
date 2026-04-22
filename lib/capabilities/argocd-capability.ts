@@ -1,6 +1,7 @@
 import { Capability, CapabilityProps } from "./capability";
 import { ArgoCDSsoRole, CapabilityType, ClusterInfo, SsoIdentityType } from "../spi";
 import { CfnCapability } from "aws-cdk-lib/aws-eks";
+import * as eks from "aws-cdk-lib/aws-eks";
 import { IVpcEndpoint } from "aws-cdk-lib/aws-ec2";
 import { CfnOutput } from "aws-cdk-lib";
 
@@ -35,6 +36,8 @@ export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type"> {
   networkAccessVpcEndpoints?: IVpcEndpoint[];
   /** Simplified role mappings for SSO users and groups */
   roleMappings?: ArgoRoleMappings;
+  /** Register the local cluster as an ArgoCD target */
+  registerLocalCluster?: boolean;
 }
 
 /**
@@ -61,13 +64,16 @@ export class ArgoCapability extends Capability {
 
   static readonly defaultProps: Partial<ArgoCapabilityProps> = {
     capabilityName: "blueprints-argocd-capability",
-    namespace: "argocd"
+    namespace: "argocd",
+    registerLocalCluster: true
   };
 
   private readonly internalMappings: { role: ArgoCDSsoRole; identityId: string; identityType: SsoIdentityType }[] = [];
 
   constructor(readonly options: ArgoCapabilityProps) {
-    super({ ...ArgoCapability.defaultProps, ...options, type: CapabilityType.ARGOCD });
+    const merged = { ...ArgoCapability.defaultProps, ...options };
+    super({ ...merged, type: CapabilityType.ARGOCD });
+    this.options = merged as ArgoCapabilityProps;
   }
 
   /** Add an ADMIN identity */
@@ -109,6 +115,31 @@ export class ArgoCapability extends Capability {
     };
 
     new CfnOutput(clusterInfo.cluster, "ArgoCDCapabilityAccessURL", {value: capability.attrConfigurationArgoCdServerUrl});
+
+    if (this.options.registerLocalCluster) {
+      const ns = this.options.namespace!;
+      const manifest = new eks.KubernetesManifest(clusterInfo.cluster.stack, "argocd-local-cluster-secret", {
+        cluster: clusterInfo.cluster,
+        manifest: [{
+          apiVersion: "v1",
+          kind: "Secret",
+          metadata: {
+            name: "local-cluster",
+            namespace: ns,
+            labels: {
+              "argocd.argoproj.io/secret-type": "cluster",
+            },
+          },
+          stringData: {
+            name: "local-cluster",
+            server: clusterInfo.cluster.clusterArn,
+            project: "default",
+          },
+        }],
+      });
+      manifest.node.addDependency(capability);
+    }
+
     return capability;
   }
 

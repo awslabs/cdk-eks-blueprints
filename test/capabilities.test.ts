@@ -55,10 +55,10 @@ describe('Unit tests for EKS Capabilities', () => {
             .capabilities({
                 ack: new blueprints.capabilities.AckCapability({
                     roleSelectors: [
-                        new blueprints.capabilities.AckRoleSelectorBuilder("s3-prod", "arn:aws:iam::123456789:role/ACK-S3-Role")
+                        new blueprints.capabilities.AckRoleSelectorBuilder("s3-prod")
+                            .withRoleArn("arn:aws:iam::123456789:role/ACK-S3-Role")
                             .namespaces("s3-resources")
-                            .resourceTypes({ group: "s3.services.k8s.aws", version: "v1alpha1", kind: "Bucket" })
-                            .build(),
+                            .resourceTypes({ group: "s3.services.k8s.aws", version: "v1alpha1", kind: "Bucket" }),
                     ],
                 }),
             })
@@ -94,8 +94,8 @@ describe('Unit tests for EKS Capabilities', () => {
             .capabilities({
                 ack: new blueprints.capabilities.AckCapability({
                     roleSelectors: [
-                        new blueprints.capabilities.AckRoleSelectorBuilder("cluster-admin", "arn:aws:iam::123456789:role/ACK-Admin")
-                            .build(),
+                        new blueprints.capabilities.AckRoleSelectorBuilder("cluster-admin")
+                            .withRoleArn("arn:aws:iam::123456789:role/ACK-Admin"),
                     ],
                 }),
             })
@@ -112,6 +112,39 @@ describe('Unit tests for EKS Capabilities', () => {
         expect(selectorManifest).toBeDefined();
         const parsed = JSON.parse((selectorManifest!.Properties as any).Manifest);
         expect(parsed[0].spec.namespaceSelector).toBeUndefined();
+    });
+
+    test("ACK capability policy includes created selector role ARNs, not wildcard", () => {
+        const app = new cdk.App();
+
+        const stack = blueprints.EksBlueprint.builder()
+            .account('123456789').region('us-west-1')
+            .version("auto")
+            .capabilities({
+                ack: new blueprints.capabilities.AckCapability({
+                    roleSelectors: [
+                        new blueprints.capabilities.AckRoleSelectorBuilder("s3-prod")
+                            .withManagedPolicy("AmazonS3FullAccess")
+                            .namespaces("production"),
+                    ],
+                }),
+            })
+            .build(app, 'ack-capability-policy-check');
+
+        const template = Template.fromStack(stack);
+
+        const policies = template.findResources("AWS::IAM::Policy");
+        const capPolicy = Object.values(policies).find(p => {
+            const stmts = p.Properties?.PolicyDocument?.Statement;
+            return stmts?.some((s: any) =>
+                Array.isArray(s.Action) && s.Action.includes("sts:AssumeRole")
+            );
+        });
+
+        expect(capPolicy).toBeDefined();
+        const stmt = capPolicy!.Properties.PolicyDocument.Statement[0];
+        expect(stmt.Resource).not.toEqual(["*"]);
+        expect(stmt.Resource).not.toEqual("*");
     });
 
     test("ACK capability uses custom role ARN when provided", () => {

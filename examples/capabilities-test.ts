@@ -11,6 +11,7 @@ const region = process.env.CDK_DEFAULT_REGION;
 
 // Must have identity center set up for ArgoCD Capability
 const identityCenterArn = process.env.AWS_IDENTITY_CENTER_ARN;
+const idcRegion = process.env.AWS_IDENTITY_CENTER_REGION;
 const identityCenterUserId = process.env.AWS_IDENTITY_CENTER_USER_ID;
 
 const addOns: Array<blueprints.ClusterAddOn> = [
@@ -18,12 +19,12 @@ const addOns: Array<blueprints.ClusterAddOn> = [
 ];
 
 const clusterProvider = new blueprints.GenericClusterProvider({
-  authenticationMode: eks.AuthenticationMode.API_AND_CONFIG_MAP,
-  managedNodeGroups: [{
-    id: "capabilities-node-group",
-    instanceTypes: [new ec2.InstanceType("m5.large")],
-    amiType: eks.NodegroupAmiType.AL2023_X86_64_STANDARD,
-  }]
+    authenticationMode: eks.AuthenticationMode.API_AND_CONFIG_MAP,
+    managedNodeGroups: [{
+        id: "capabilities-node-group",
+        instanceTypes: [new ec2.InstanceType("m5.large")],
+        amiType: eks.NodegroupAmiType.AL2023_X86_64_STANDARD,
+    }]
 });
 
 const stack = blueprints.EksBlueprint.builder()
@@ -31,12 +32,17 @@ const stack = blueprints.EksBlueprint.builder()
     .region(region)
     .clusterProvider(clusterProvider)
     .capabilities({
-        ack: new blueprints.capabilities.AckCapability(),
+        ack: new blueprints.capabilities.AckCapability({
+            roleSelectors: [
+                new blueprints.AckRoleSelectorBuilder("s3-role").withManagedPolicy("AmazonS3FullAccess").namespaces("s3-ns")]
+        }),
         argocd: new blueprints.capabilities.ArgoCapability({
             idcInstanceArn: identityCenterArn!,
+            idcRegion: idcRegion,
             roleMappings: {
                 adminUsers: [identityCenterUserId!],
-            }
+            },
+            registerLocalCluster: true
         }),
         kro: new blueprints.capabilities.KroCapability(),
     })
