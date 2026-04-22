@@ -53,6 +53,8 @@ export default class AutomodeConstruct {
 }
 ```
 
+For more usage patterns see this blog: [Amazon EKS Blueprints for CDK: Now supporting Amazon EKS Auto Mode](https://aws.amazon.com/blogs/containers/amazon-eks-blueprints-for-cdk-now-supporting-amazon-eks-auto-mode/)
+
 ### Advanced Networking with Custom Node Classes
 
 For advanced networking scenarios, you can use `extraNodePools` and `extraNodeClasses` to configure pod subnets and pod security groups:
