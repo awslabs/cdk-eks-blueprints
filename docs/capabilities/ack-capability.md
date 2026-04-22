@@ -6,13 +6,17 @@ This is the AWS-managed alternative to the self-managed [AckAddOn](../addons/ack
 
 ## Usage
 
+One of `roleArn`, `policyName`, `policyDocument`, or `roleSelectors` must be provided — no default policy is applied.
+
 ```typescript
 import * as blueprints from '@aws-quickstart/eks-blueprints';
 
 const stack = blueprints.EksBlueprint.builder()
   .version("auto")
   .capabilities({
-    ack: new blueprints.capabilities.AckCapability(),
+    ack: new blueprints.capabilities.AckCapability({
+      policyName: "AmazonS3FullAccess",
+    }),
   })
   .build(app, 'my-cluster');
 ```
@@ -23,14 +27,93 @@ const stack = blueprints.EksBlueprint.builder()
 |----------|------|---------|-------------|
 | `capabilityName` | `string` | `blueprints-ack-capability` | Name for the capability resource |
 | `roleArn` | `string` | Auto-created | Existing IAM role ARN to use |
-| `policyName` | `string` | - | Custom managed policy name |
-| `policyDocument` | `iam.PolicyDocument` | - | Custom inline policy |
+| `policyName` | `string` | - | AWS managed policy name for the capability role |
+| `policyDocument` | `iam.PolicyDocument` | - | Custom inline policy for the capability role |
+| `roleSelectors` | `AckRoleSelectorBuilder[]` | - | IAM Role Selectors for namespace-level isolation |
 | `tags` | `CfnTag[]` | - | CloudFormation tags |
 
-The default IAM policy is `AdministratorAccess`. For production, scope this down to only the AWS services you need:
+## IAM Role Selectors
+
+For production environments, use [IAM Role Selectors](https://docs.aws.amazon.com/eks/latest/userguide/ack-permissions.html) to implement least-privilege access and namespace-level isolation. The capability role only needs `sts:AssumeRole` permissions — service-specific permissions are granted to individual roles that the capability role assumes.
+
+Use `AckRoleSelectorBuilder` to configure selectors. The capability automatically:
+
+- Creates the target IAM role with the correct trust policy (when using `withManagedPolicy` or `withPolicyDocument`)
+- Adds `sts:AssumeRole` permissions to the capability role for each target role
+- Deploys `IAMRoleSelector` Kubernetes manifests to the cluster.  See [ACK Permission Best Practices](https://docs.aws.amazon.com/eks/latest/userguide/ack-permissions.html#_production_best_practice_iam_role_selectors)
+
+### With a managed policy (capability creates the role)
 
 ```typescript
 new blueprints.capabilities.AckCapability({
-  policyName: "AmazonRDSFullAccess",
+  roleSelectors: [
+    new blueprints.capabilities.AckRoleSelectorBuilder("s3-prod")
+      .withManagedPolicy("AmazonS3FullAccess")
+      .namespaces("production"),
+  ],
 })
 ```
+
+### With a custom inline policy
+
+```typescript
+new blueprints.capabilities.AckCapability({
+  roleSelectors: [
+    new blueprints.capabilities.AckRoleSelectorBuilder("s3-readonly")
+      .withPolicyDocument(new iam.PolicyDocument({
+        statements: [new iam.PolicyStatement({
+          actions: ["s3:Get*", "s3:List*"],
+          resources: ["*"],
+        })],
+      }))
+      .namespaces("readonly-ns"),
+  ],
+})
+```
+
+### With an existing role ARN
+
+```typescript
+new blueprints.capabilities.AckCapability({
+  roleSelectors: [
+    new blueprints.capabilities.AckRoleSelectorBuilder("rds-prod")
+      .withRoleArn("arn:aws:iam::123456789:role/MyExistingRole")
+      .namespaces("rds-resources"),
+  ],
+})
+```
+
+### Namespace label selectors
+
+```typescript
+new blueprints.capabilities.AckRoleSelectorBuilder("dev-team")
+  .withManagedPolicy("AmazonS3FullAccess")
+  .namespaceLabels({ environment: "development", team: "sky-team" })
+```
+
+### Resource type filtering
+
+```typescript
+new blueprints.capabilities.AckRoleSelectorBuilder("s3-only")
+  .withManagedPolicy("AmazonS3FullAccess")
+  .namespaces("production")
+  .resourceTypes({ group: "s3.services.k8s.aws", version: "v1alpha1", kind: "Bucket" })
+```
+
+### Cluster-wide (no selectors)
+
+```typescript
+new blueprints.capabilities.AckRoleSelectorBuilder("admin")
+  .withManagedPolicy("AdministratorAccess")
+```
+
+## Builder Methods
+
+| Method | Description |
+|--------|-------------|
+| `withRoleArn(arn)` | Use an existing IAM role ARN |
+| `withManagedPolicy(name)` | Create a role with an AWS managed policy |
+| `withPolicyDocument(doc)` | Create a role with a custom inline policy |
+| `namespaces(...names)` | Scope to specific namespace names |
+| `namespaceLabels(labels)` | Scope to namespaces matching labels |
+| `resourceTypes(...types)` | Restrict to specific Kubernetes resource types |

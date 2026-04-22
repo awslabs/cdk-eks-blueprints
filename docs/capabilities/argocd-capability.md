@@ -30,7 +30,8 @@ const stack = blueprints.EksBlueprint.builder()
 | `namespace` | `string` | `argocd` | Kubernetes namespace for ArgoCD |
 | `serverUrl` | `string` | - | ArgoCD server URL |
 | `networkAccessVpcEndpoints` | `IVpcEndpoint[]` | - | VPC endpoints for network access |
-| `roleMappings` | `Record<ArgoCDSsoRole, ...>` | - | SSO role-to-identity mappings |
+| `roleMappings` | `ArgoRoleMappings` | - | SSO role-to-identity mappings |
+| `registerLocalCluster` | `boolean` | `true` | Register the local cluster as an ArgoCD deployment target |
 | `roleArn` | `string` | Auto-created | Existing IAM role ARN |
 | `tags` | `CfnTag[]` | - | CloudFormation tags |
 
@@ -63,6 +64,17 @@ new blueprints.capabilities.ArgoCapability({
 ```
 
 Both approaches can be combined — mappings are merged at deploy time.
+
+## Local Cluster Registration
+
+To deploy applications to the same cluster where ArgoCD is running, set `registerLocalCluster: true` (default). This creates a Kubernetes Secret that registers the cluster as an ArgoCD deployment target:
+
+```typescript
+new blueprints.capabilities.ArgoCapability({
+  idcInstanceArn: "arn:aws:sso:::instance/ssoins-1234567890abcdef",
+  registerLocalCluster: true,
+})
+```
 
 ## Accessing the ArgoCD UI
 
