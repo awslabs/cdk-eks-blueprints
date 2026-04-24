@@ -5,6 +5,7 @@ import { ClusterInfo } from "../../spi/types";
 import { Construct } from "constructs";
 
 const versionMap: Map<KubernetesVersion, string> = new Map([
+  [KubernetesVersion.V1_35, "v1.35.0-eksbuild.2"],
   [KubernetesVersion.V1_34, "v1.34.0-eksbuild.2"],
   [KubernetesVersion.V1_33, "v1.33.3-eksbuild.4"],
   [KubernetesVersion.V1_32, "v1.32.6-eksbuild.12"],
@@ -17,7 +18,7 @@ const versionMap: Map<KubernetesVersion, string> = new Map([
 ]);
 
 /**
- * Configuration options for the coredns add-on.
+ * Configuration options for the kube-proxy add-on.
  */
 export type kubeProxyAddOnProps = Omit<CoreAddOnProps, "saName" | "addOnName" | "version" >;
 
