@@ -4,6 +4,8 @@
 ![GitHub](https://img.shields.io/github/license/aws-quickstart/cdk-eks-blueprints)
 ![Build](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiTWxBQzVUcTBvdSsvbE9mR0ZWeTJjbi96OUpBREorSG51UjMzQ1UyNXdmUzZ2dUJoTkhIODFJWjN2QjRGcnhWS0pYLzFQRU5uOThiUEp1WjEzS0htbUpVPSIsIml2UGFyYW1ldGVyU3BlYyI6IlRkUFRoTWtjdElBMkR5NEMiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
 
+> **⚠️ Important:** EKS Blueprints is an opinionated, developer-oriented **framework** that uses AWS CDK as its provisioning engine. It is not a standard CDK construct library. It provides higher-level abstractions — builder pattern, add-on orchestration, team management, and pipeline integration — that trade fine-grained control for productivity. It is designed for development teams that want a batteries-included EKS experience without deep infrastructure expertise. If your use case requires direct control over every CDK resource, consider using the underlying [`aws-cdk-lib/aws-eks`](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_eks-readme.html) module directly.
+
 Welcome to `Amazon EKS Blueprints for CDK`.
 
 This repository contains the source code for the [`eks-blueprints`](https://www.npmjs.com/package/@aws-quickstart/eks-blueprints) NPM module. It can be used by AWS customers, partners, and internal AWS teams to configure and manage complete EKS clusters that are fully bootstrapped with the operational software that is needed to deploy and operate workloads. 
