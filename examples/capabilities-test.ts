@@ -42,7 +42,8 @@ const stack = blueprints.EksBlueprint.builder()
             roleMappings: {
                 adminUsers: [identityCenterUserId!],
             },
-            registerLocalCluster: true
+            registerLocalCluster: true,
+            additionalAccessPolicies: [eks.AccessPolicy.fromAccessPolicyName("AmazonEKSClusterAdminPolicy", {accessScopeType: eks.AccessScopeType.CLUSTER})]
         }),
         kro: new blueprints.capabilities.KroCapability(),
     })
