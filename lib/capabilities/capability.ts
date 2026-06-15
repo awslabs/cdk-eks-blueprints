@@ -1,5 +1,5 @@
-import { CfnCapability, CfnCapabilityProps } from "aws-cdk-lib/aws-eks";
-import { ClusterInfo, ClusterCapability, CapabilityType } from "../spi";
+import { CfnCapability, CfnCapabilityProps, IAccessPolicy } from "aws-cdk-lib/aws-eks";
+import { ClusterInfo, ClusterCapability, CapabilityType, AssociateAccessPolicy } from "../spi";
 import { CfnTag } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 
@@ -18,6 +18,8 @@ export interface CapabilityProps {
   policyName?: string;
   /** Custom inline policy document (used in place of default policy) */
   policyDocument?: iam.PolicyDocument;
+  /** Additional EKS access policies to associate with the capability ClusterRole*/
+  additionalAccessPolicies?: IAccessPolicy[];
   /** CloudFormation tags to apply */
   tags?: CfnTag[];
   /** The type of capability being created */
@@ -63,8 +65,17 @@ export class Capability implements ClusterCapability {
       deletePropagationPolicy: "RETAIN",
       tags: this.props.tags
     };
-    const capability = new CfnCapability(clusterInfo.cluster.stack, capabilityProps.capabilityName + "-capability", capabilityProps);
+    const capability = new CfnCapability(clusterInfo.cluster.stack, capabilityProps.capabilityName, capabilityProps);
     capability.node.addDependency(clusterInfo.cluster);
+
+    if (this.props.additionalAccessPolicies?.length) {
+      const associateAccessPolicy = new AssociateAccessPolicy(clusterInfo.cluster.stack, capabilityProps.capabilityName + "-access-policies", {
+        clusterName: capabilityProps.clusterName,
+        roleArn: capabilityProps.roleArn,
+        accessPolicies: this.props.additionalAccessPolicies
+      });
+      associateAccessPolicy.node.addDependency(capability);
+    }
     return capability;
   }
 

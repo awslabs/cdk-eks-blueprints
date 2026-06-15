@@ -60,3 +60,26 @@ new blueprints.capabilities.AckCapability({
   policyDocument: new iam.PolicyDocument({ ... }),
 })
 ```
+
+## Additional Access Policies
+
+When EKS creates a capability, it automatically provisions an access entry for the capability's IAM role and associates the capability's built-in access policies. These built-in policies grant the capability permission to manage its own resources (e.g., ArgoCD can manage Applications, ACK can manage its CRDs), but they may not cover everything needed for real-world use. For details on when additional permissions are needed, see [Additional Kubernetes permissions for capabilities](https://docs.aws.amazon.com/eks/latest/userguide/capabilities-security.html#additional-kubernetes-permissions).
+
+Use `additionalAccessPolicies` on any capability to associate extra [EKS access policies](https://docs.aws.amazon.com/eks/latest/userguide/access-policies.html) to the capability's role. This is a base-class feature available to all capabilities.
+
+```typescript
+import * as eks from 'aws-cdk-lib/aws-eks';
+
+new blueprints.capabilities.ArgoCapability({
+  idcInstanceArn: "arn:aws:sso:::instance/ssoins-1234567890abcdef",
+  additionalAccessPolicies: [
+    eks.AccessPolicy.fromAccessPolicyName("AmazonEKSClusterAdminPolicy", {
+      accessScopeType: eks.AccessScopeType.CLUSTER,
+    }),
+  ],
+})
+```
+
+### How it works
+
+EKS auto-creates an access entry for the capability role during capability provisioning. Since CloudFormation cannot create a second access entry for the same principal, the framework uses an `AwsCustomResource` to call the EKS `AssociateAccessPolicy` API (and `DisassociateAccessPolicy` on stack deletion) against the existing entry.

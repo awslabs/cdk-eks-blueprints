@@ -32,6 +32,7 @@ const stack = blueprints.EksBlueprint.builder()
 | `networkAccessVpcEndpoints` | `IVpcEndpoint[]` | - | VPC endpoints for network access |
 | `roleMappings` | `ArgoRoleMappings` | - | SSO role-to-identity mappings |
 | `registerLocalCluster` | `boolean` | `true` | Register the local cluster as an ArgoCD deployment target |
+| `additionalAccessPolicies` | `IAccessPolicy[]` | - | Additional EKS access policies to associate with the capability role (see [Additional Access Policies](#additional-access-policies)) |
 | `roleArn` | `string` | Auto-created | Existing IAM role ARN |
 | `tags` | `CfnTag[]` | - | CloudFormation tags |
 
@@ -75,6 +76,29 @@ new blueprints.capabilities.ArgoCapability({
   registerLocalCluster: true,
 })
 ```
+
+## Additional Access Policies
+
+The built-in ArgoCD policies (`AmazonEKSArgoCDClusterPolicy` and `AmazonEKSArgoCDPolicy`) only grant permission to manage ArgoCD's own objects — Applications, AppProjects, secrets in the argocd namespace, and CRD installation. They do **not** cover the workload resources that ArgoCD syncs (Deployments, Services, CRDs, ACK resources, etc.). Without additional permissions, Application syncs will fail with RBAC errors.
+
+For most ArgoCD deployments, you need `AmazonEKSClusterAdminPolicy` at cluster scope:
+
+```typescript
+import * as eks from 'aws-cdk-lib/aws-eks';
+
+new blueprints.capabilities.ArgoCapability({
+  idcInstanceArn: "arn:aws:sso:::instance/ssoins-1234567890abcdef",
+  additionalAccessPolicies: [
+    eks.AccessPolicy.fromAccessPolicyName("AmazonEKSClusterAdminPolicy", {
+      accessScopeType: eks.AccessScopeType.CLUSTER,
+    }),
+  ],
+})
+```
+
+This is especially necessary when ArgoCD deploys ACK custom resources (e.g., `s3.services.k8s.aws/Bucket`) or KRO ResourceGroupDefinitions, as those are cluster-scoped or belong to non-standard API groups.
+
+See [Additional Access Policies](index.md#additional-access-policies) for the full list of available policies and when to use each one.
 
 ## Accessing the ArgoCD UI
 

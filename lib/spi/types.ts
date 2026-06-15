@@ -9,6 +9,7 @@ import { EksBlueprintProps } from '../stacks';
 import { logger } from "../utils/log-utils";
 import * as constraints from '../utils/constraints-utils';
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
+import * as customresources from "aws-cdk-lib/custom-resources";
 
 /**
  * Supported EKS capability types
@@ -429,6 +430,50 @@ export class MultiConstruct<T extends cdk.IResource, R extends IConstruct> imple
 
   applyRemovalPolicy(policy: cdk.RemovalPolicy): void {
     this.primaryResource.applyRemovalPolicy(policy);
+  }
+}
+
+export interface AccessPolicyAssociationProps {
+  accessPolicies: eks.IAccessPolicy[];
+  roleArn: string;
+  clusterName: string;
+}
+
+export class AssociateAccessPolicy extends Construct {
+  constructor(scope: Construct, id: string, props: AccessPolicyAssociationProps) {
+    super(scope, id);
+
+    props.accessPolicies.forEach((policy, index) => {
+      new customresources.AwsCustomResource(this, `policy-${index}`, {
+        onCreate: {
+          service: 'EKS',
+          action: 'associateAccessPolicy',
+          parameters: {
+            clusterName: props.clusterName,
+            principalArn: props.roleArn,
+            policyArn: policy.policy,
+            accessScope: {
+              type: policy.accessScope.type,
+              ...(policy.accessScope.namespaces && { namespaces: policy.accessScope.namespaces }),
+            },
+          },
+          physicalResourceId: customresources.PhysicalResourceId.of(`${id}-${index}`),
+        },
+        onDelete: {
+          service: 'EKS',
+          action: 'disassociateAccessPolicy',
+          parameters: {
+            clusterName: props.clusterName,
+            principalArn: props.roleArn,
+            policyArn: policy.policy,
+          },
+          ignoreErrorCodesMatching: 'ResourceNotFoundException',
+        },
+        policy: customresources.AwsCustomResourcePolicy.fromSdkCalls({
+          resources: customresources.AwsCustomResourcePolicy.ANY_RESOURCE,
+        }),
+      });
+    });
   }
 }
 

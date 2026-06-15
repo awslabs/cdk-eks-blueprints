@@ -38,8 +38,6 @@ export interface ArgoCapabilityProps extends Omit<CapabilityProps, "type"> {
   roleMappings?: ArgoRoleMappings;
   /** Register the local cluster as an ArgoCD target */
   registerLocalCluster?: boolean;
-  /** Additional EKS access policies to associate with the ArgoCD capability role */
-  additionalAccessPolicies?: eks.IAccessPolicy[];
 }
 
 /**
@@ -116,19 +114,7 @@ export class ArgoCapability extends Capability {
       }
     };
 
-    new CfnOutput(clusterInfo.cluster, "ArgoCDCapabilityAccessURL", {value: capability.attrConfigurationArgoCdServerUrl});
-
-    if (this.options.additionalAccessPolicies?.length) {
-      const accessEntry = new eks.CfnAccessEntry(clusterInfo.cluster.stack, "argocd-additional-access", {
-        clusterName: clusterInfo.cluster.clusterName,
-        principalArn: capability.roleArn,
-        accessPolicies: this.options.additionalAccessPolicies.map(p => ({
-          accessScope: { type: p.accessScope.type, namespaces: p.accessScope.namespaces },
-          policyArn: p.policy,
-        })),
-      });
-      accessEntry.node.addDependency(capability);
-    }
+    new CfnOutput(clusterInfo.cluster, "ArgoCDCapabilityAccessURL", { value: capability.attrConfigurationArgoCdServerUrl });
 
     if (this.options.registerLocalCluster) {
       const ns = this.options.namespace!;

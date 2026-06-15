@@ -30,6 +30,7 @@ const stack = blueprints.EksBlueprint.builder()
 | `policyName` | `string` | - | AWS managed policy name for the capability role |
 | `policyDocument` | `iam.PolicyDocument` | - | Custom inline policy for the capability role |
 | `roleSelectors` | `AckRoleSelectorBuilder[]` | - | IAM Role Selectors for namespace-level isolation |
+| `additionalAccessPolicies` | `IAccessPolicy[]` | - | Additional EKS access policies to associate with the capability role (see [Additional Access Policies](#additional-access-policies)) |
 | `tags` | `CfnTag[]` | - | CloudFormation tags |
 
 ## IAM Role Selectors
@@ -117,3 +118,29 @@ new blueprints.capabilities.AckRoleSelectorBuilder("admin")
 | `namespaces(...names)` | Scope to specific namespace names |
 | `namespaceLabels(labels)` | Scope to namespaces matching labels |
 | `resourceTypes(...types)` | Restrict to specific Kubernetes resource types |
+
+## Additional Access Policies
+
+Some ACK controllers need Kubernetes Secret access (e.g., RDS, ElastiCache, DocumentDB, MSK, Secrets Manager). For these, use `additionalAccessPolicies` with `AmazonEKSSecretAdminPolicy`:
+
+```typescript
+import * as eks from 'aws-cdk-lib/aws-eks';
+
+new blueprints.capabilities.AckCapability({
+  roleSelectors: [
+    new blueprints.capabilities.AckRoleSelectorBuilder("rds-prod")
+      .withManagedPolicy("AmazonRDSFullAccess")
+      .namespaces("database-ns"),
+  ],
+  additionalAccessPolicies: [
+    eks.AccessPolicy.fromAccessPolicyName("AmazonEKSSecretAdminPolicy", {
+      accessScopeType: eks.AccessScopeType.NAMESPACE,
+      namespaces: ["database-ns"],
+    }),
+  ],
+})
+```
+
+For most ACK deployments that only create AWS resources (S3 buckets, DynamoDB tables, Lambda functions), no additional access policies are needed.
+
+See [Additional Access Policies](index.md#additional-access-policies) for more details.

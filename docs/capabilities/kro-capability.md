@@ -25,9 +25,28 @@ const stack = blueprints.EksBlueprint.builder()
 | `roleArn` | `string` | Auto-created | Existing IAM role ARN to use |
 | `policyName` | `string` | - | Custom managed policy name |
 | `policyDocument` | `iam.PolicyDocument` | - | Custom inline policy |
+| `additionalAccessPolicies` | `IAccessPolicy[]` | - | Additional EKS access policies for the capability role |
 | `tags` | `CfnTag[]` | - | CloudFormation tags |
 
 No default IAM policy is attached since kro doesn't interact with AWS APIs directly.
+
+## Additional Access Policies
+
+When ResourceGraphDefinitions create resources, kro needs additional Kubernetes permissions. Use `additionalAccessPolicies`:
+
+```typescript
+import * as eks from 'aws-cdk-lib/aws-eks';
+
+new blueprints.capabilities.KroCapability({
+  additionalAccessPolicies: [
+    eks.AccessPolicy.fromAccessPolicyName("AmazonEKSClusterAdminPolicy", {
+      accessScopeType: eks.AccessScopeType.CLUSTER,
+    }),
+  ],
+})
+```
+
+See [Additional Access Policies](index.md#additional-access-policies) for more details.
 
 ## Using with ACK
 
