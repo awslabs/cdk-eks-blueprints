@@ -1,7 +1,7 @@
 import assert = require("assert");
 import { ClusterAddOn, ClusterInfo } from "../../spi";
 import { Stack } from "aws-cdk-lib";
-import { Cluster } from "aws-cdk-lib/aws-eks";
+import { Cluster } from "aws-cdk-lib/aws-eks-v2";
 import { CfnServiceLinkedRole, IRole, Role } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { supportsALL } from "../../utils";

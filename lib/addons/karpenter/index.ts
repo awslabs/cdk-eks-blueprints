@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { CfnOutput, Duration, Names } from 'aws-cdk-lib';
-import { Cluster, KubernetesVersion, IpFamily } from 'aws-cdk-lib/aws-eks';
+import { Cluster, KubernetesVersion, IpFamily } from 'aws-cdk-lib/aws-eks-v2';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import { SqsQueue } from 'aws-cdk-lib/aws-events-targets';
 import * as iam from 'aws-cdk-lib/aws-iam';

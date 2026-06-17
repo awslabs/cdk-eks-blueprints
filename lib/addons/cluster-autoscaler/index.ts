@@ -1,5 +1,5 @@
 import { CfnJson, Tags } from "aws-cdk-lib";
-import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
+import { KubernetesVersion } from "aws-cdk-lib/aws-eks-v2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { assertEC2NodeGroup } from "../../cluster-providers";

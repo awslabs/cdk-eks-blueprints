@@ -1,7 +1,7 @@
 import { ClusterInfo, ClusterProvider } from "../spi";
 import { selectKubectlLayer } from "./generic-cluster-provider";
 import { IVpc } from "aws-cdk-lib/aws-ec2";
-import * as eks from "aws-cdk-lib/aws-eks";
+import * as eks from "aws-cdk-lib/aws-eks-v2";
 import { IRole } from "aws-cdk-lib/aws-iam";
 import { IKey } from "aws-cdk-lib/aws-kms";
 import * as sdk from "@aws-sdk/client-eks";
@@ -50,8 +50,8 @@ export class ImportClusterProvider implements ClusterProvider {
     createCluster(scope: Construct, vpc: IVpc, _secretsEncryptionKey?: IKey | undefined): ClusterInfo {
         const props = { ...this.props, vpc };
 
-        if(! props.kubectlLayer) {
-            props.kubectlLayer = selectKubectlLayer(scope, props.version);
+        if(! props.kubectlProviderOptions?.kubectlLayer) {
+            props.kubectlProviderOptions = {kubectlLayer: selectKubectlLayer(scope, props.version)!}
         }
         const existingCluster = eks.Cluster.fromClusterAttributes(scope, `imported-cluster-${this.id}`, props);
         return new ClusterInfo(existingCluster, this.props.version);
@@ -88,7 +88,6 @@ export class ImportClusterProvider implements ClusterProvider {
             openIdConnectProvider: getResource(context =>
                 new LookupOpenIdConnectProvider(sdkCluster.identity!.oidc!.issuer!).provide(context)),
             clusterCertificateAuthorityData: sdkCluster.certificateAuthority?.data,
-            kubectlRoleArn: kubectlRole.roleArn,
             clusterSecurityGroupId: sdkCluster.resourcesVpcConfig?.clusterSecurityGroupId,
             securityGroupIds: sdkCluster.resourcesVpcConfig?.securityGroupIds
         });
