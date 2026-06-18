@@ -53,6 +53,10 @@ export function selectKubectlLayer(scope: Construct, version: eks.KubernetesVers
     if(minor && parseInt(minor, 10) > 35) {
         return new KubectlV35Layer(scope, "kubectllayer35"); // for all versions above 1.35 use 1.35 kubectl (unless explicitly supported in CDK)
     }
+    // TODO: Should this stay, or should references to very old versions be removed?
+    if(minor && parseInt(minor, 10) < 29) {
+        return new KubectlV29Layer(scope, "kubectllayer29"); // for all versions below 1.29 use 1.29 kubectl as minimum
+    }
     return undefined;
 }
 
@@ -83,7 +87,7 @@ export interface ComputeConfig extends eks.ComputeConfig {
  * Properties for the generic cluster provider, containing definitions of managed node groups,
  * auto-scaling groups, fargate profiles.
  */
-export interface GenericClusterProviderProps extends Partial<eks.ClusterProps> {
+export interface GenericClusterProviderProps extends Omit<Partial<eks.ClusterProps>, "kubectlProviderOptions"> {
 
     /**
      * Whether cluster has internet access.
@@ -94,6 +98,12 @@ export interface GenericClusterProviderProps extends Partial<eks.ClusterProps> {
      * Whether API server is private.
      */
     privateCluster?: boolean,
+
+    /**
+     * Options for the kubectl provider. The kubectlLayer is automatically resolved
+     * from the cluster version if not explicitly provided.
+     */
+    kubectlProviderOptions?: Partial<eks.KubectlProviderOptions>,
 
     /**
      * Array of managed node groups.
@@ -252,8 +262,17 @@ export class GenericClusterProvider implements ClusterProvider {
         });
 
 
-        const kubectlLayer = this.getKubectlLayer(scope, version);
-        const kubectlProviderOptions = kubectlLayer ? {kubectlLayer} : undefined;
+        const kubectlLayer = this.props.kubectlProviderOptions?.kubectlLayer ?? this.getKubectlLayer(scope, version);
+        let kubectlProviderOptions: eks.KubectlProviderOptions | undefined;
+        if (kubectlLayer) {
+            kubectlProviderOptions = { ...this.props.kubectlProviderOptions, kubectlLayer };
+        } else {
+            utils.logger.warn("No kubectlLayer could be resolved for version " + version.version + ". Kubectl-based operations (manifests, helm charts) will not work.");
+            if (this.props.kubectlProviderOptions) {
+                utils.logger.warn("kubectlProviderOptions were specified but will be ignored without a kubectlLayer.");
+            }
+            kubectlProviderOptions = undefined;
+        }
         const tags = this.props.tags;
 
         const defaultOptions: Partial<eks.ClusterProps> = {
@@ -264,13 +283,12 @@ export class GenericClusterProvider implements ClusterProvider {
             version,
             vpcSubnets,
             endpointAccess,
-            kubectlProviderOptions,
             tags,
             mastersRole,
-            defaultCapacityType: eks.DefaultCapacityType.AUTOMODE
+            defaultCapacityType: eks.DefaultCapacityType.NODEGROUP
         };
 
-        const clusterOptions = { ...defaultOptions, ...this.props, version, ipFamily };
+        const clusterOptions = { ...defaultOptions, ...this.props, version, ipFamily, kubectlProviderOptions };
 
         if (clusterOptions.defaultCapacityType !== eks.DefaultCapacityType.AUTOMODE) {
             clusterOptions.defaultCapacity = 0;

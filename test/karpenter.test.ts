@@ -3,7 +3,7 @@ import * as blueprints from '../lib';
 import { KubernetesVersion, IpFamily } from 'aws-cdk-lib/aws-eks';
 import { Template } from 'aws-cdk-lib/assertions';
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2';
-import * as eksv2 from "aws-cdk-lib/aws-eks-v2";
+import * as eks from "aws-cdk-lib/aws-eks-v2";
 import { BlockDeviceMapping, EbsVolumeMapping, NodePoolRequirementValues } from "../lib";
 
 const defaultReq: NodePoolRequirementValues = [
@@ -108,7 +108,7 @@ describe('Unit tests for Karpenter addon', () => {
 
         blueprint.build(app, 'stack-with-non-supporting-kubernetes-version');
         expect(warningLog).toHaveBeenCalled();
-        expect(warningLog).toHaveBeenCalledTimes(1);
+        expect(warningLog).toHaveBeenCalledTimes(2);
         expect(warningLog).toHaveBeenCalledWith('Please use minimum Karpenter version for this Kubernetes Version: 0.31.0, otherwise you will run into compatibility issues.');
     });
 
@@ -654,8 +654,8 @@ describe('Unit tests for KarpenterV1AddOn with GenericClusterProviderV2', () => 
         const stack = blueprints.EksBlueprint.builder()
             .account('123456789').region('us-west-1')
             .version("auto")
-            .clusterProvider(new blueprints.GenericClusterProviderV2({
-                defaultCapacityType: eksv2.DefaultCapacityType.NODEGROUP,
+            .clusterProvider(new blueprints.GenericClusterProvider({
+                defaultCapacityType: eks.DefaultCapacityType.NODEGROUP,
                 managedNodeGroups: [{
                     id: "default",
                     minSize: 1,

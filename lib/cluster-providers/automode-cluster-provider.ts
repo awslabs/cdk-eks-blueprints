@@ -39,6 +39,7 @@ export class AutomodeClusterProvider extends GenericClusterProvider {
     constructor(props?: AutomodeClusterProviderProps) {
         super({...defaultOptions, ...props, ...{
               compute: props as Pick<AutomodeClusterProviderProps, "nodePools" | "nodeRole" |"extraNodePools" | "extraNodeClasses">,
+              defaultCapacityType: eks.DefaultCapacityType.AUTOMODE
             }
         });
     }

@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as blueprints from '../lib';
-import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import { KubernetesVersion } from 'aws-cdk-lib/aws-eks-v2';
 
 test("Coredns Addon deploying correct default version of Addon for 1.28", async () => {
     const app = new cdk.App();

@@ -2,9 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { BlockDeviceVolume, EbsDeviceVolumeType } from 'aws-cdk-lib/aws-autoscaling';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as eks from 'aws-cdk-lib/aws-eks';
+import * as eks from 'aws-cdk-lib/aws-eks-v2';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
-import { CapacityType, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import { CapacityType, KubernetesVersion } from 'aws-cdk-lib/aws-eks-v2';
 import * as blueprints from '../lib';
 import { AsgClusterProvider, MngClusterProvider } from '../lib';
 import { logger } from '../lib/utils';
@@ -273,10 +273,10 @@ test("Kubectl layer is correctly injected for EKS version 1.21 and below", () =>
 
     const stackV122 = blueprints.EksBlueprint.builder()
         .account('123456789').region('us-west-2')
-        .version(KubernetesVersion.V1_22).build(app, "stack-122");
+        .version(KubernetesVersion.of("1.22")).build(app, "stack-122");
     
     const template = Template.fromStack(stackV122);
-    template.resourceCountIs("AWS::Lambda::LayerVersion", 0);
+    template.resourceCountIs("AWS::Lambda::LayerVersion", 2);
 });
 
 test("Build fails if no version is set in builder or node group", () => {
@@ -311,6 +311,7 @@ test("Kubernetes Version gets set correctly in NodeGroup", () => {
 });
 
 test("Import cluster provider can use output values from other stacks as params", () => {
+    const app = new cdk.App();
     const importClusterProvider = new blueprints.ImportClusterProvider({
         clusterName: cdk.Fn.importValue('ClusterName'),
         version: KubernetesVersion.V1_27,
@@ -320,7 +321,9 @@ test("Import cluster provider can use output values from other stacks as params"
             'classified',
           ).provide(context),
         ),
-        kubectlRoleArn: cdk.Fn.importValue('KubectlRoleArn'),
+        kubectlProviderOptions: {
+          role: cdk.aws_iam.Role.fromRoleArn(new cdk.Stack(app, 'temp'), "role", cdk.Fn.importValue('KubectlRoleArn')),
+        },
         clusterSecurityGroupId: cdk.Fn.importValue('ClusterSecurityGroupId'),
       });
       expect(isToken(importClusterProvider.id)).toBeFalsy();

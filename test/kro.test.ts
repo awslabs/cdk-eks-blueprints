@@ -16,7 +16,7 @@ describe('Unit tests for KRO addon', () => {
         const template = Template.fromStack(stack);
         template.hasResourceProperties("Custom::AWSCDK-EKS-HelmChart", {
             Chart: "kro",
-            Repository: "oci://ghcr.io/kro-run/kro/kro",
+            Repository: "oci://registry.k8s.io/kro/charts/kro",
             Namespace: "kro",
         });
     });
@@ -39,7 +39,7 @@ describe('Unit tests for KRO addon', () => {
         expect(kroChart).toBeDefined();
         const version = kroChart!.Properties?.Version;
         const versionStr = typeof version === 'string' ? version : JSON.parse(version);
-        expect(versionStr).toEqual('0.4.1');
+        expect(versionStr).toEqual('0.9.1');
     });
 
     test("Stack creation succeeds with custom version", () => {

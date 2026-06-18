@@ -15,17 +15,23 @@ import { isToken, uniqueId } from "../utils/id-utils";
 /**
  * Properties object for the ImportClusterProvider.
  */
-export interface ImportClusterProviderProps extends Omit<eks.ClusterAttributes, "vpc"> {
-    
+export interface ImportClusterProviderProps extends Omit<eks.ClusterAttributes, "vpc" | "kubectlProviderOptions"> {
+
     /**
-     * Used for the CDK construct id for the imported cluster. Useful when passing tokens for cluster name. 
+     * Used for the CDK construct id for the imported cluster. Useful when passing tokens for cluster name.
      */
     id?: string;
 
     /**
-     * This property is needed as it drives selection of certain add-on versions as well as kubectl layer. 
+     * This property is needed as it drives selection of certain add-on versions as well as kubectl layer.
      */
     version: eks.KubernetesVersion;
+
+    /**
+     * Options for the kubectl provider. The kubectlLayer is automatically resolved
+     * from the cluster version if not explicitly provided.
+     */
+    kubectlProviderOptions?: Partial<eks.KubectlProviderOptions>;
 }
 
 /**
@@ -48,12 +54,18 @@ export class ImportClusterProvider implements ClusterProvider {
      * @returns 
      */
     createCluster(scope: Construct, vpc: IVpc, _secretsEncryptionKey?: IKey | undefined): ClusterInfo {
-        const props = { ...this.props, vpc };
+        const kubectlLayer = this.props.kubectlProviderOptions?.kubectlLayer ?? selectKubectlLayer(scope, this.props.version)!;
+        const kubectlProviderOptions: eks.KubectlProviderOptions = {
+            ...this.props.kubectlProviderOptions,
+            kubectlLayer,
+        };
 
-        if(! props.kubectlProviderOptions?.kubectlLayer) {
-            props.kubectlProviderOptions = {kubectlLayer: selectKubectlLayer(scope, props.version)!}
-        }
-        const existingCluster = eks.Cluster.fromClusterAttributes(scope, `imported-cluster-${this.id}`, props);
+        const { version: _version, id: _id, kubectlProviderOptions: _ignored, ...rest } = this.props;
+        const existingCluster = eks.Cluster.fromClusterAttributes(scope, `imported-cluster-${this.id}`, {
+            ...rest,
+            vpc,
+            kubectlProviderOptions,
+        });
         return new ClusterInfo(existingCluster, this.props.version);
     }
 

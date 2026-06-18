@@ -1,6 +1,6 @@
 
 import * as cdk from 'aws-cdk-lib';
-import { KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import { KubernetesVersion } from 'aws-cdk-lib/aws-eks-v2';
 import { ZodError, z } from 'zod';
 import * as blueprints from '../lib';
 
