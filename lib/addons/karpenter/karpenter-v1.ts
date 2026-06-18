@@ -1,7 +1,7 @@
 import { Duration, Names, CfnOutput } from "aws-cdk-lib";
 import { Rule } from "aws-cdk-lib/aws-events";
 import { SqsQueue } from "aws-cdk-lib/aws-events-targets";
-import { Cluster, IpFamily } from "aws-cdk-lib/aws-eks-v2";
+import { Cluster, IpFamily, AccessEntryType } from "aws-cdk-lib/aws-eks-v2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as sqs from "aws-cdk-lib/aws-sqs";
 import { Construct } from "constructs";
@@ -13,7 +13,6 @@ import * as assert from "assert";
 import { HelmAddOn, HelmAddOnProps, HelmAddOnUserProps } from "../helm-addon";
 import { KarpenterControllerPolicyV1 } from "./iam";
 import { Ec2NodeClassV1Spec, NodePoolV1Spec, KARPENTER, RELEASE } from "./types";
-import { Cluster as Clusterv2, AccessEntryType } from 'aws-cdk-lib/aws-eks-v2';
 import * as md5 from "ts-md5";
 
 const defaultProps: HelmAddOnProps = {

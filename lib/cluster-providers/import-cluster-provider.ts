@@ -60,9 +60,8 @@ export class ImportClusterProvider implements ClusterProvider {
             kubectlLayer,
         };
 
-        const { version: _version, id: _id, kubectlProviderOptions: _ignored, ...rest } = this.props;
         const existingCluster = eks.Cluster.fromClusterAttributes(scope, `imported-cluster-${this.id}`, {
-            ...rest,
+            ...this.props,
             vpc,
             kubectlProviderOptions,
         });
@@ -99,6 +98,9 @@ export class ImportClusterProvider implements ClusterProvider {
             clusterEndpoint: sdkCluster.endpoint,
             openIdConnectProvider: getResource(context =>
                 new LookupOpenIdConnectProvider(sdkCluster.identity!.oidc!.issuer!).provide(context)),
+            kubectlProviderOptions: {
+              role: kubectlRole
+            },
             clusterCertificateAuthorityData: sdkCluster.certificateAuthority?.data,
             clusterSecurityGroupId: sdkCluster.resourcesVpcConfig?.clusterSecurityGroupId,
             securityGroupIds: sdkCluster.resourcesVpcConfig?.securityGroupIds
