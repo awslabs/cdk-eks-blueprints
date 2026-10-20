@@ -28,12 +28,19 @@ export function getEbsDriverPolicyDocument(
           "ec2:ModifyVolume",
           "ec2:DescribeAvailabilityZones",
           "ec2:DescribeInstances",
+          "ec2:DescribeInstanceTypes",
           "ec2:DescribeSnapshots",
           "ec2:DescribeTags",
           "ec2:DescribeVolumes",
           "ec2:DescribeVolumesModifications",
+          "ec2:DescribeVolumeStatus",
         ],
         Resource: "*",
+      },
+      {
+        Effect: "Allow",
+        Action: ["ec2:CopyVolumes"],
+        Resource: `arn:${partition}:ec2:*:*:volume/vol-*`,
       },
       {
         Effect: "Allow",
@@ -44,7 +51,7 @@ export function getEbsDriverPolicyDocument(
         ],
         Condition: {
           StringEquals: {
-            "ec2:CreateAction": ["CreateVolume", "CreateSnapshot"],
+            "ec2:CreateAction": ["CreateVolume", "CreateSnapshot", "CopyVolumes"],
           },
         },
       },
@@ -58,7 +65,7 @@ export function getEbsDriverPolicyDocument(
       },
       {
         Effect: "Allow",
-        Action: ["ec2:CreateVolume"],
+        Action: ["ec2:CreateVolume", "ec2:CopyVolumes"],
         Resource: "*",
         Condition: {
           StringLike: {
@@ -68,7 +75,7 @@ export function getEbsDriverPolicyDocument(
       },
       {
         Effect: "Allow",
-        Action: ["ec2:CreateVolume"],
+        Action: ["ec2:CreateVolume", "ec2:CopyVolumes"],
         Resource: "*",
         Condition: {
           StringLike: {
@@ -118,7 +125,7 @@ export function getEbsDriverPolicyDocument(
       },
       {
         Effect: "Allow",
-        Action: ["ec2:DeleteSnapshot"],
+        Action: ["ec2:DeleteSnapshot", "ec2:LockSnapshot"],
         Resource: "*",
         Condition: {
           StringLike: {
@@ -128,7 +135,7 @@ export function getEbsDriverPolicyDocument(
       },
       {
         Effect: "Allow",
-        Action: ["ec2:DeleteSnapshot"],
+        Action: ["ec2:DeleteSnapshot", "ec2:LockSnapshot"],
         Resource: "*",
         Condition: {
           StringLike: {

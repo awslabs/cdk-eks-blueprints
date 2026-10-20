@@ -21,6 +21,8 @@ export function getEfsDriverPolicyStatements(
         "elasticfilesystem:DescribeAccessPoints",
         "elasticfilesystem:DescribeFileSystems",
         "elasticfilesystem:DescribeMountTargets",
+        "s3files:ListAccessPoints",
+        "s3files:ListFileSystems",
         "ec2:DescribeAvailabilityZones"
       ],
       "Resource": "*"
@@ -30,6 +32,8 @@ export function getEfsDriverPolicyStatements(
       "Action": [
         "elasticfilesystem:CreateAccessPoint",
         "elasticfilesystem:TagResource",
+        "s3files:CreateAccessPoint",
+        "s3files:TagResource",
       ],
       "Resource": "*",
       "Condition": {
@@ -40,7 +44,10 @@ export function getEfsDriverPolicyStatements(
     },
     {
       "Effect": "Allow",
-      "Action": "elasticfilesystem:DeleteAccessPoint",
+      "Action": [
+        "elasticfilesystem:DeleteAccessPoint",
+        "s3files:DeleteAccessPoint",
+      ],
       "Resource": "*",
       "Condition": {
         "StringEquals": {
