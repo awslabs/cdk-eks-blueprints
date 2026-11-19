@@ -45,7 +45,7 @@ const defaultProps: HelmAddOnUserProps & S3CSIDriverAddOnProps = {
   name: S3_CSI_DRIVER,
   namespace: "kube-system",
   release: S3_CSI_DRIVER_RELEASE,
-  version: "2.9.2",
+  version: "2.7.0",
   repository: "https://awslabs.github.io/mountpoint-s3-csi-driver",
   createNamespace: false,
   bucketNames: [],
@@ -75,10 +75,14 @@ export class S3CSIDriverAddOn extends HelmAddOn {
         const s3CsiDriverChart = this.addHelmChart(clusterInfo, chartValues, true, true);
 
         // Overwrite the Helm-created SA with IRSA annotation (fires after chart)
+        // The chart labels this SA app.kubernetes.io/name=aws-mountpoint-s3-csi-driver, while CDK defaults the
+        // label to the SA name. With Helm 4 (server-side apply, kubectl layers v35+), different values for the same
+        // field owned by two managers make every chart upgrade fail with a conflict. Use the chart's value.
         const serviceAccount = cluster.addServiceAccount(S3_CSI_DRIVER_SA, {
             name: S3_CSI_DRIVER_SA,
             namespace: this.options.namespace,
-            overwriteServiceAccount: true
+            overwriteServiceAccount: true,
+            labels: { "app.kubernetes.io/name": "aws-mountpoint-s3-csi-driver" }
         });
 
         const s3BucketPolicy = new iam.Policy(cluster, S3_DRIVER_POLICY, {

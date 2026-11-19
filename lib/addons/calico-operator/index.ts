@@ -50,7 +50,10 @@ export class CalicoOperatorAddOn extends HelmAddOn {
 
     deploy(clusterInfo: ClusterInfo): void {
         const values = this.options.values ?? {};
-        const defaultValues = {};
+        // The operator sets Installation.spec.kubernetesProvider to "EKS" on EKS clusters and owns that field.
+        // The chart default is "", so Helm 4 (server-side apply) hits a field-ownership conflict on every upgrade.
+        // Setting the same value the operator writes (as in the Calico EKS install guide) avoids the conflict.
+        const defaultValues = { installation: { kubernetesProvider: "EKS" } };
 
         const merged = merge(defaultValues, values);
 

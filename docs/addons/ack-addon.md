@@ -126,6 +126,8 @@ helm pull oci://public.ecr.aws/aws-controllers-k8s/${SERVICE}-chart --version ${
 kubectl apply -f ${SERVICE}-chart/crds/
 ```
 
+For CRDs that Helm created, `kubectl apply` prints a warning that the `kubectl.kubernetes.io/last-applied-configuration` annotation is missing and patches it. The warning is expected.
+
 Then run `cdk deploy`. New clusters don't need this step, because Helm installs the current CRDs on the first install.
 
 Check the controller's release notes for changes that affect existing resources before you upgrade. Releases are published at `https://github.com/aws-controllers-k8s/<service>-controller/releases`.
