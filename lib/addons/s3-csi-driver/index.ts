@@ -45,7 +45,7 @@ const defaultProps: HelmAddOnUserProps & S3CSIDriverAddOnProps = {
   name: S3_CSI_DRIVER,
   namespace: "kube-system",
   release: S3_CSI_DRIVER_RELEASE,
-  version: "2.7.0",
+  version: "2.9.2",
   repository: "https://awslabs.github.io/mountpoint-s3-csi-driver",
   createNamespace: false,
   bucketNames: [],
