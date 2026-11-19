@@ -7,6 +7,8 @@ import { RemovalPolicy } from "aws-cdk-lib";
 import { KubernetesVersion } from "aws-cdk-lib/aws-eks";
 
 const versionMap: Map<KubernetesVersion, string> = new Map([
+    [KubernetesVersion.V1_37, "v1.14.7-eksbuild.35"],
+    [KubernetesVersion.V1_36, "v1.14.7-eksbuild.35"],
     [KubernetesVersion.V1_35, "v1.13.2-eksbuild.3"],
     [KubernetesVersion.V1_34, "v1.12.3-eksbuild.1"],
     [KubernetesVersion.V1_33, "v1.12.1-eksbuild.2"],

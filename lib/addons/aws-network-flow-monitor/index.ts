@@ -16,6 +16,8 @@ export interface AwsNetworkFlowMonitorAddOnProps {
 
 /* VersioMap showing the default version for supported Kubernetes versions */
 const versionMap: Map<KubernetesVersion, string> = new Map([
+  [KubernetesVersion.V1_37, "v1.1.9-eksbuild.2"],
+  [KubernetesVersion.V1_36, "v1.1.9-eksbuild.2"],
   [KubernetesVersion.V1_35, "v1.1.3-eksbuild.3"],
   [KubernetesVersion.V1_34, "v1.1.3-eksbuild.2"],
   [KubernetesVersion.V1_33, "v1.1.3-eksbuild.2"],
