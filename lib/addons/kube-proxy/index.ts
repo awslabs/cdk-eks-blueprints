@@ -5,6 +5,8 @@ import { ClusterInfo } from "../../spi/types";
 import { Construct } from "constructs";
 
 const versionMap: Map<KubernetesVersion, string> = new Map([
+  [KubernetesVersion.V1_37, "v1.37.0-eksbuild.39"],
+  [KubernetesVersion.V1_36, "v1.36.0-eksbuild.65"],
   [KubernetesVersion.V1_35, "v1.35.0-eksbuild.2"],
   [KubernetesVersion.V1_34, "v1.34.0-eksbuild.2"],
   [KubernetesVersion.V1_33, "v1.33.3-eksbuild.4"],

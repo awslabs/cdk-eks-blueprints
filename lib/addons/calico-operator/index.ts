@@ -32,7 +32,7 @@ export interface CalicoOperatorAddOnProps extends HelmAddOnUserProps {
 const defaultProps = {
     name: 'calico-operator',
     namespace: 'calico-operator',
-    version: 'v3.31.4', // v3.27.2' latest is causing issues on cdk destroy
+    version: 'v3.31.7', // v3.27.2' latest is causing issues on cdk destroy
     chart: "tigera-operator",
     release: "bp-addon-calico-operator",
     repository: "https://docs.tigera.io/calico/charts"
@@ -50,7 +50,10 @@ export class CalicoOperatorAddOn extends HelmAddOn {
 
     deploy(clusterInfo: ClusterInfo): void {
         const values = this.options.values ?? {};
-        const defaultValues = {};
+        // The operator sets Installation.spec.kubernetesProvider to "EKS" on EKS clusters and owns that field.
+        // The chart default is "", so Helm 4 (server-side apply) hits a field-ownership conflict on every upgrade.
+        // Setting the same value the operator writes (as in the Calico EKS install guide) avoids the conflict.
+        const defaultValues = { installation: { kubernetesProvider: "EKS" } };
 
         const merged = merge(defaultValues, values);
 

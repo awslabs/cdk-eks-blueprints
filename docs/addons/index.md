@@ -150,7 +150,6 @@ The framework currently supports the following add-ons.
 | [`JupyterHubAddOn`](./jupyterhub.md)                                   | Adds [JupyterHub](https://zero-to-jupyterhub.readthedocs.io/en/latest/#) support for AWS to the cluster.                               | ✅ | ✅ |
 | [`Kasten-K10AddOn`](./kasten-k10.md)                          | Kasten K10 add-on installs Kasten K10 into your Amazon EKS cluster. | ✅ | 
 | [`KedaAddOn`](./keda.md)                                      | Installs [Keda](https://github.com/kedacore/keda) into EKS cluster. | ✅ | ✅ |
-| [`Keptn`](https://github.com/keptn-sandbox/keptn-eks-blueprints-addon)           | [Keptn](https://keptn.sh/) Control Plane and Execution Plane AddOn.                                                                    | ✅ |  
 | [`KnativeAddOn`](./knative-operator.md)                                         | Deploys the [KNative Operator](https://knative.dev/docs/install/operator/knative-with-operators/) to ease setting up the rest of KNatives CRDs                                                          | ✅ | ✅ 
 | [`KomodorAddOn`](https://github.com/komodorio/komodor-eks-blueprints-addon)    | Adds the [Komodor Agent](https://github.com/komodorio/helm-charts/tree/master/charts/komodor-agent) to the EKS Cluster.                                                         | ✅ | ✅ 
 | [`KonveyorAddOn`](https://github.com/claranet-ch/konveyor-eks-blueprint-addon)    | Adds [Konveyor](https://www.konveyor.io/) to the EKS Cluster.                                                         | ✅ | ✅ |

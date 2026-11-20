@@ -23,7 +23,9 @@ export function getVpcLatticeControllerPolicy(): iam.PolicyStatement[] {
             'tag:GetResources',
             'firehose:TagDeliveryStream',
             's3:GetBucketPolicy',
-            's3:PutBucketPolicy'
+            's3:PutBucketPolicy',
+            'tag:TagResources',
+            'tag:UntagResources'
         ],
         resources: ['*']
     });

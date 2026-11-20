@@ -112,6 +112,26 @@ const blueprint = blueprints.EksBlueprint.builder()
 - `values`: Arbitrary values to pass to the chart
 - [Standard helm configuration options](https://github.com/aws-quickstart/cdk-eks-blueprints/blob/main/docs/addons/index.md#standard-helm-add-on-configuration-options).
 
+## Upgrading ACK controllers
+
+Each ACK chart ships its CRDs in the chart's `crds/` directory. Helm installs those CRDs on the first install, but it does not upgrade them: "There is no support at this time for upgrading or deleting CRDs using Helm" ([Helm docs](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)). So when a new blueprints release raises an ACK chart version (or you raise `version` yourself), the `cdk deploy` upgrades the controller but leaves the old CRDs in place. Newer controllers can depend on CRD fields or CRDs that the old version did not have.
+
+Apply the new CRDs before you deploy the new version. Run this for every ACK service you use. The chart version shipped by the library is listed in [`lib/addons/ack/serviceMappings.ts`](https://github.com/awslabs/cdk-eks-blueprints/blob/main/lib/addons/ack/serviceMappings.ts) for the release you are moving to.
+
+```bash
+export SERVICE=s3            # ACK service name, e.g. s3, iam, rds, ec2
+export CHART_VERSION=1.16.0  # new chart version
+
+helm pull oci://public.ecr.aws/aws-controllers-k8s/${SERVICE}-chart --version ${CHART_VERSION} --untar
+kubectl apply -f ${SERVICE}-chart/crds/
+```
+
+For CRDs that Helm created, `kubectl apply` prints a warning that the `kubectl.kubernetes.io/last-applied-configuration` annotation is missing and patches it. The warning is expected.
+
+Then run `cdk deploy`. New clusters don't need this step, because Helm installs the current CRDs on the first install.
+
+Check the controller's release notes for changes that affect existing resources before you upgrade. Releases are published at `https://github.com/aws-controllers-k8s/<service>-controller/releases`.
+
 ## Validation
 
 To validate that ack-controller-k8s is installed properly in the cluster, check if the namespace is created and pods are running in the `ack-system` namespace.

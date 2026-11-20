@@ -173,6 +173,7 @@ const buildScopedKarpenterControllerPolicyDocument = (cluster: Cluster, partitio
                 ],
                 "Action": [
                     "ec2:TerminateInstances",
+                    "ec2:RebootInstances",
                     "ec2:DeleteLaunchTemplate"
                 ],
                 "Condition": {
