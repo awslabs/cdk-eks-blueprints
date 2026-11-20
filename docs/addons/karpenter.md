@@ -17,7 +17,7 @@ Karpenter works by:
 
 ## Prerequisites
 
-1. There is no support for utilizing both Cluster Autoscaler **and** Karpenter. Therefore, any addons list that has both will result in an error `Deploying <name of your stack> failed due to conflicting add-on: ClusterAutoscalerAddOn.`.
+1. Karpenter and Cluster Autoscaler can run in the same cluster, for example while you [migrate from Cluster Autoscaler to Karpenter](https://karpenter.sh/docs/getting-started/migrating-from-cas/). If a pending pod can run on both a Cluster Autoscaler node group and a Karpenter NodePool, both can add a node for it. Keep their workloads apart with taints and tolerations or node selectors, and remove Cluster Autoscaler once the migration is done.
 
 2. (If using Spot), EC2 Spot Service Linked Role should be created. See [here](https://docs.aws.amazon.com/batch/latest/userguide/spot_fleet_IAM_role.html) for more details.
 

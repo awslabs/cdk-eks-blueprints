@@ -4,7 +4,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { assertEC2NodeGroup } from "../../cluster-providers";
 import { ClusterInfo } from "../../spi";
-import { conflictsWith, createNamespace, createServiceAccount, logger, setPath, supportsALL } from "../../utils";
+import { createNamespace, createServiceAccount, logger, setPath, supportsALL } from "../../utils";
 import { HelmAddOn, HelmAddOnUserProps } from "../helm-addon";
 
 /**
@@ -70,7 +70,6 @@ export class ClusterAutoScalerAddOn extends HelmAddOn {
         this.options = this.props;
     }
     
-    @conflictsWith('KarpenterAddOn')
     deploy(clusterInfo: ClusterInfo): Promise<Construct> {
 
         if(this.options.version?.trim() === 'auto') {

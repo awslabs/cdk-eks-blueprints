@@ -45,19 +45,23 @@ const defaultReq: NodePoolRequirementValues = [
 
 describe('Unit tests for Karpenter addon', () => {
 
-    test("Stack creation fails due to conflicting add-ons", () => {
+    // Karpenter and Cluster Autoscaler can run side by side (e.g. while migrating from CAS to Karpenter),
+    // so the blueprint must build with both, in either order. See issue #1239.
+    test.each([
+        ["KarpenterV1AddOn before ClusterAutoScalerAddOn", () => [new blueprints.KarpenterV1AddOn(), new blueprints.ClusterAutoScalerAddOn()]],
+        ["ClusterAutoScalerAddOn before KarpenterV1AddOn", () => [new blueprints.ClusterAutoScalerAddOn(), new blueprints.KarpenterV1AddOn()]],
+        ["KarpenterAddOn before ClusterAutoScalerAddOn", () => [new blueprints.KarpenterAddOn(), new blueprints.ClusterAutoScalerAddOn()]],
+        ["ClusterAutoScalerAddOn before KarpenterAddOn", () => [new blueprints.ClusterAutoScalerAddOn(), new blueprints.KarpenterAddOn()]],
+    ])("Stack builds with Karpenter and Cluster Autoscaler: %s", (_label, addOns) => {
         const app = new cdk.App();
 
-        const blueprint = blueprints.EksBlueprint.builder();
-
-        blueprint.account("123567891").region('us-west-1')
+        const blueprint = blueprints.EksBlueprint.builder()
+            .account("123567891").region('us-west-1')
             .version("auto")
-            .addOns(new blueprints.KarpenterAddOn(), new blueprints.ClusterAutoScalerAddOn)
+            .addOns(...addOns())
             .teams(new blueprints.PlatformTeam({ name: 'platform' }));
 
-        expect(()=> {
-            blueprint.build(app, 'stack-with-conflicting-addons');
-        }).toThrow("Deploying stack-with-conflicting-addons failed due to conflicting add-on: KarpenterAddOn.");
+        expect(() => blueprint.build(app, 'stack-with-karpenter-and-cas')).not.toThrow();
     });
 
     test("Stack creation fails due to non-supporting Kubernetes version for Karpenter", () => {
