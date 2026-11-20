@@ -15,7 +15,7 @@ const addOns: Array<blueprints.ClusterAddOn> = [
 const tooBigNumber5000 = new z.ZodError([{
     code: "too_big",
     maximum: 5000,
-    type: "number",
+    origin: "number",
     inclusive: true,
     path: [],
     message: ""
@@ -24,7 +24,7 @@ const tooBigNumber5000 = new z.ZodError([{
 const tooBigString63 = new z.ZodError([{
     code: "too_big",
     maximum: 63,
-    type: "string",
+    origin: "string",
     inclusive: true,
     path: [],
     message: ""
@@ -33,7 +33,7 @@ const tooBigString63 = new z.ZodError([{
 const tooSmallString1 = new z.ZodError([{
     code: "too_small",
     minimum: 1,
-    type: "string",
+    origin: "string",
     inclusive: true,
     path: [],
     message: ""
@@ -42,22 +42,22 @@ const tooSmallString1 = new z.ZodError([{
 const tooSmallNumber0 = new z.ZodError([{
     code: "too_small",
     minimum: 0,
-    type: "number",
+    origin: "number",
     inclusive: true,
     path: [],
     message: ""
 }]);
 
 const notUrlError = new z.ZodError([{
-    validation: "url",
-    code: "invalid_string",
+    code: "invalid_format",
+    format: "url",
     message: "",
     path: []
 }]);
 
 const badRegexError = new z.ZodError([{
-    validation: "regex",
-    code: "invalid_string",
+    code: "invalid_format",
+    format: "regex",
     message: "",
     path: []
 }]);

@@ -89,7 +89,7 @@ describe('Unit test for CloudWatch Addon', () => {
 
     const template = Template.fromStack(blueprint);
 
-    const inferredVersion = await addOn.provideVersion(version, 'us-west-2');
+    const inferredVersion = await addOn.provideVersion(version, 'us-east-2');
 
     template.hasResource("AWS::EKS::Addon", {
       Properties: {
